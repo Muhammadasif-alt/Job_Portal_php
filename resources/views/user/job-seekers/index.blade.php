@@ -243,11 +243,12 @@
     {{-- ============ HERO ============ --}}
     <section class="js-hero">
         <div class="container">
-            <span class="eyebrow"><i class="icon-feather-users"></i> Active U.S. Talent Pool</span>
-            <h1>Meet professionals <span class="accent">ready to work</span></h1>
-            <p>Browse thousands of verified job seekers across all 50 states. Filter by skill, location, and experience — and connect with your next great hire today.</p>
+            <span class="eyebrow" data-aos="fade-down" data-aos-duration="600"><i class="icon-feather-users"></i> Active U.S. Talent Pool</span>
+            <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Meet professionals <span class="accent">ready to work</span></h1>
+            <p data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Browse thousands of verified job seekers across all 50 states. Filter by skill, location, and experience — and connect with your next great hire today.</p>
 
-            <form action="{{ route('job-seekers.index') }}" method="GET" class="js-search-box">
+            <form action="{{ route('job-seekers.index') }}" method="GET" class="js-search-box"
+                  data-aos="fade-up" data-aos-duration="700" data-aos-delay="400">
                 <input type="text" name="q" value="{{ $search }}"
                        placeholder="Search by name, username, or skill…"
                        autocomplete="off">

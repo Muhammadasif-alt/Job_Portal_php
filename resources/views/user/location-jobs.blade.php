@@ -78,8 +78,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Jobs in {{ $location->name }}</h1>
-                <nav id="breadcrumbs">
+                <h1 data-aos="fade-up" data-aos-duration="700">Jobs in <span class="accent">{{ $location->name }}</span></h1>
+                <nav id="breadcrumbs" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
                     <ul>
                         <li><a href="{{ route('home') }}">Home</a></li>
                         <li><a href="{{ route('jobs.locations') }}">Locations</a></li>

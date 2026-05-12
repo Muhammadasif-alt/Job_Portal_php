@@ -408,9 +408,9 @@
         <div class="breadcrumbs-mini">
             <a href="{{ url('/') }}">Home</a> &nbsp;&rsaquo;&nbsp; Browse Employers
         </div>
-        <span class="eyebrow">Top Employers</span>
-        <h1>Discover Top <span class="accent">Companies Hiring</span> in the USA</h1>
-        <p class="lead">Explore {{ number_format($stats['total_companies']) }}+ trusted U.S. employers across every industry. Connect directly with verified hiring companies and find your next career move with confidence.</p>
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">Top Employers</span>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Discover Top <span class="accent">Companies Hiring</span> in the USA</h1>
+        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Explore {{ number_format($stats['total_companies']) }}+ trusted U.S. employers across every industry. Connect directly with verified hiring companies and find your next career move with confidence.</p>
 
         <form method="GET" action="{{ route('jobs.companies') }}" class="companies-search">
             <input type="text" name="q" value="{{ $search ?? '' }}" placeholder="Search by company name…" autocomplete="off">

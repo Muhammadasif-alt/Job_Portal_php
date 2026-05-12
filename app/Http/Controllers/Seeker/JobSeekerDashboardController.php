@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Seeker;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Category;
 use App\Models\Job;
@@ -16,7 +18,7 @@ class JobSeekerDashboardController extends Controller
     }
 
     /**
-     * Job seeker dashboard — quick links, AI-matched jobs, and saved searches.
+     * Job seeker dashboard â€” quick links, AI-matched jobs, and saved searches.
      */
     public function index(Request $request)
     {
@@ -57,9 +59,9 @@ class JobSeekerDashboardController extends Controller
 
     /**
      * Returns [Collection $jobs, string $aiState] where $aiState is one of:
-     *   'matched' — cached AI matches are ready and shown
-     *   'pending' — AI eligible but not cached yet — view will lazy-load via AJAX
-     *   'none'    — no AI (no profile or AI not configured) — show plain latest jobs
+     *   'matched' â€” cached AI matches are ready and shown
+     *   'pending' â€” AI eligible but not cached yet â€” view will lazy-load via AJAX
+     *   'none'    â€” no AI (no profile or AI not configured) â€” show plain latest jobs
      */
     protected function buildRecommendations($user): array
     {
@@ -77,8 +79,8 @@ class JobSeekerDashboardController extends Controller
             return [$latestJobs(), 'none'];
         }
 
-        // Only return cached results synchronously. Never call AI on dashboard load —
-        // that's slow (3–8s). The view kicks off an AJAX request to /seeker/dashboard/ai-matches
+        // Only return cached results synchronously. Never call AI on dashboard load â€”
+        // that's slow (3â€“8s). The view kicks off an AJAX request to /seeker/dashboard/ai-matches
         // which fills the cache, then refreshes the section.
         $cacheKey = 'seekerDash.aiMatch.'.$user->id;
         $cached = Cache::get($cacheKey);
@@ -102,7 +104,7 @@ class JobSeekerDashboardController extends Controller
     /**
      * AJAX endpoint: compute AI job matches for the current seeker.
      * Called by the dashboard once the page has rendered, so the initial
-     * load isn't blocked by a 3–8s Gemini call.
+     * load isn't blocked by a 3â€“8s Gemini call.
      */
     public function aiMatches(Request $request)
     {

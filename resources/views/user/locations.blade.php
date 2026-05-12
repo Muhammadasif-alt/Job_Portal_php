@@ -567,9 +567,9 @@
         <div class="breadcrumbs-mini">
             <a href="{{ url('/') }}">Home</a> &nbsp;&rsaquo;&nbsp; Browse Locations
         </div>
-        <span class="eyebrow">Browse by Location</span>
-        <h1>Find Verified Jobs in Every <span class="accent">U.S. State &amp; City</span></h1>
-        <p class="lead">Search {{ number_format($heroStats['total_jobs'] ?? 0) }}+ jobs across {{ number_format($heroStats['total_states'] ?? 50) }} U.S. states. Whether you're looking for opportunities in your hometown or relocating across the country, find roles in the city, area, or ZIP code that fits you best.</p>
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">Browse by Location</span>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Find Verified Jobs in Every <span class="accent">U.S. State &amp; City</span></h1>
+        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Search {{ number_format($heroStats['total_jobs'] ?? 0) }}+ jobs across {{ number_format($heroStats['total_states'] ?? 50) }} U.S. states. Whether you're looking for opportunities in your hometown or relocating across the country, find roles in the city, area, or ZIP code that fits you best.</p>
         <div class="hero-stats">
             <div class="stat">
                 <strong>{{ number_format($heroStats['total_states'] ?? 50) }}+</strong>

@@ -491,9 +491,9 @@
         <div class="breadcrumbs-mini">
             <a href="{{ url('/') }}">Home</a> &nbsp;&rsaquo;&nbsp; Job Categories
         </div>
-        <span class="eyebrow">Browse by Industry</span>
-        <h1>Find Your Perfect Job <span class="accent">Category</span> in the USA</h1>
-        <p class="lead">Explore {{ number_format($heroStats['total_categories'] ?? 0) }}+ job categories across every American industry — from healthcare and IT to construction, retail, education, and beyond. Narrow your search and apply to verified roles in seconds.</p>
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">Browse by Industry</span>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Find Your Perfect Job <span class="accent">Category</span> in the USA</h1>
+        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Explore {{ number_format($heroStats['total_categories'] ?? 0) }}+ job categories across every American industry — from healthcare and IT to construction, retail, education, and beyond. Narrow your search and apply to verified roles in seconds.</p>
         <div class="hero-stats">
             <div class="stat">
                 <strong>{{ number_format($heroStats['total_categories'] ?? 0) }}+</strong>

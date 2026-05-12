@@ -631,38 +631,91 @@
     </section>
 @endif
 
-{{-- JSON-LD JobPosting --}}
+{{-- JSON-LD JobPosting (Google Jobs eligible — all required + recommended fields) --}}
+@php
+    // Build the description as full HTML for Google (allows formatted job description)
+    $jobDescriptionHtml = $job->description ?? '';
+    if ($job->requirements) { $jobDescriptionHtml .= '<h3>Requirements</h3>' . $job->requirements; }
+    if ($job->benefits)     { $jobDescriptionHtml .= '<h3>Benefits</h3>'     . $job->benefits; }
+    $validThrough = $job->expires_at ?? $job->valid_through ?? $job->created_at?->copy()->addDays(60);
+    $isRemote = stripos($job->position . ' ' . ($job->location->name ?? ''), 'remote') !== false;
+@endphp
 <script type="application/ld+json">
 {
     "@@context": "https://schema.org",
     "@@type": "JobPosting",
     "title": {!! json_encode($job->position) !!},
-    "description": {!! json_encode(strip_tags($job->description ?? '')) !!},
-    "datePosted": {!! json_encode($job->created_at?->toDateString() ?? now()->toDateString()) !!},
-    "employmentType": {!! json_encode($job->employment_type ?? '') !!},
+    "description": {!! json_encode($jobDescriptionHtml) !!},
+    "identifier": {
+        "@@type": "PropertyValue",
+        "name": {!! json_encode($job->advertiser->name ?? 'Jobs in USA') !!},
+        "value": {!! json_encode((string) $job->id) !!}
+    },
+    "datePosted": {!! json_encode($job->created_at?->toIso8601String() ?? now()->toIso8601String()) !!},
+    "validThrough": {!! json_encode($validThrough?->toIso8601String() ?? now()->addDays(60)->toIso8601String()) !!},
+    "employmentType": {!! json_encode(strtoupper(str_replace([' ', '-'], '_', $job->employment_type ?? 'FULL_TIME'))) !!},
+    "directApply": true,
     "hiringOrganization": {
         "@@type": "Organization",
-        "name": {!! json_encode($job->advertiser->name ?? '') !!}
+        "name": {!! json_encode($job->advertiser->name ?? '') !!},
+        "sameAs": {!! json_encode(url('/companies/' . ($job->advertiser->id ?? ''))) !!}@if($job->advertiser && $job->advertiser->logo),
+        "logo": {!! json_encode(asset('public/storage/' . $job->advertiser->logo)) !!}@endif
     },
     "jobLocation": {
         "@@type": "Place",
         "address": {
             "@@type": "PostalAddress",
             "addressLocality": {!! json_encode($job->location->name ?? '') !!},
-            "addressCountry": "USA"
+            "addressRegion": {!! json_encode($job->location->area ?? $job->location->name ?? '') !!},
+            "addressCountry": "US"
         }
-    }@if($job->salary_minimum || $job->salary_maximum)
+    }@if($isRemote)
+    ,
+    "jobLocationType": "TELECOMMUTE",
+    "applicantLocationRequirements": {
+        "@@type": "Country",
+        "name": "USA"
+    }
+    @endif
+    @if($job->salary_minimum || $job->salary_maximum)
     ,
     "baseSalary": {
         "@@type": "MonetaryAmount",
         "currency": {!! json_encode($job->salary_currency ?? 'USD') !!},
         "value": {
             "@@type": "QuantitativeValue",
-            "minValue": {!! json_encode($job->salary_minimum ?? 0) !!},
-            "maxValue": {!! json_encode($job->salary_maximum ?? 0) !!}
+            "minValue": {!! json_encode((float)($job->salary_minimum ?? 0)) !!},
+            "maxValue": {!! json_encode((float)($job->salary_maximum ?? 0)) !!},
+            "unitText": "YEAR"
         }
     }
     @endif
+    @if($job->requirements)
+    ,
+    "qualifications": {!! json_encode(strip_tags($job->requirements)) !!}
+    @endif
+    @if($job->category)
+    ,
+    "industry": {!! json_encode($job->category->name) !!},
+    "occupationalCategory": {!! json_encode($job->category->name) !!}
+    @endif
+}
+</script>
+
+{{-- BreadcrumbList schema --}}
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@@type": "BreadcrumbList",
+    "itemListElement": [
+        { "@@type": "ListItem", "position": 1, "name": "Home", "item": {!! json_encode(url('/')) !!} },
+        { "@@type": "ListItem", "position": 2, "name": "Jobs", "item": {!! json_encode(route('jobs.index')) !!} }@if($job->location),
+        { "@@type": "ListItem", "position": 3, "name": {!! json_encode($job->location->name) !!}, "item": {!! json_encode(route('jobs.location', $job->location->id)) !!} },
+        { "@@type": "ListItem", "position": 4, "name": {!! json_encode($job->position) !!}, "item": {!! json_encode(url()->current()) !!} }
+        @else,
+        { "@@type": "ListItem", "position": 3, "name": {!! json_encode($job->position) !!}, "item": {!! json_encode(url()->current()) !!} }
+        @endif
+    ]
 }
 </script>
 

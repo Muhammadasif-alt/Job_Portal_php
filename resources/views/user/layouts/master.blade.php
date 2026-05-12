@@ -64,8 +64,9 @@
         body .companies-hero,
         body .blog-hero,
         body .js-hero,
-        body .seeker-hero {
-            background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80&auto=format&fit=crop') !important;
+        body .seeker-hero,
+        body .utf-page-heading-area {
+            background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
             background-color: transparent !important;
             background-size: cover !important;
             background-position: center !important;
@@ -82,7 +83,8 @@
         body .companies-hero::before,
         body .blog-hero::before,
         body .js-hero::before,
-        body .seeker-hero::before {
+        body .seeker-hero::before,
+        body .utf-page-heading-area::before {
             content: "" !important;
             position: absolute !important;
             inset: 0 !important;
@@ -105,9 +107,33 @@
         body .cat-hero > *,
         body .loc-hero > *,
         body .companies-hero > *,
-        body .blog-hero > * {
+        body .blog-hero > *,
+        body .utf-page-heading-area > * {
             position: relative;
             z-index: 2;
+        }
+
+        /* === Global 2-color H1 accent (orange gradient) across ALL hero variations === */
+        body .intro-banner.intro-hero-v2 h1 .accent,
+        body .about-hero h1 .accent,
+        body .about-hero h1 > span,
+        body .contact-hero h1 .accent,
+        body .jobs-hero h1 .accent,
+        body .cat-hero h1 .accent,
+        body .cat-hero h1 span,
+        body .loc-hero h1 .accent,
+        body .companies-hero h1 .accent,
+        body .blog-hero h1 .accent,
+        body .js-hero h1 .accent,
+        body .seeker-hero h1 .accent,
+        body .utf-page-heading-area h1 .accent {
+            background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            color: transparent !important;
+            font-style: inherit;
+            font-weight: inherit;
         }
 
         /* Hide decorative orange/purple blobs on job-seekers heroes (had ::after blobs) */
@@ -184,6 +210,18 @@
         })(window,document,'script','dataLayer','GTM-WTHF244L');
       });
     </script>
+
+    {{-- AOS (Animate On Scroll) — lightweight animation library --}}
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+    <style>
+        /* Reduce motion preference — accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            [data-aos] { transition-duration: 0.01ms !important; transform: none !important; opacity: 1 !important; }
+        }
+        /* Subtle custom AOS variants */
+        [data-aos="fade-up-soft"] { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        [data-aos="fade-up-soft"].aos-animate { opacity: 1; transform: translateY(0); }
+    </style>
 </head>
 
 <body>
@@ -1507,6 +1545,23 @@
                     }
                 });
             })();
+        </script>
+
+        {{-- AOS init — scroll animations --}}
+        <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+        <script>
+            window.addEventListener('load', function () {
+                if (typeof AOS !== 'undefined') {
+                    AOS.init({
+                        duration: 700,
+                        easing: 'ease-out-cubic',
+                        once: true,
+                        offset: 80,
+                        delay: 0,
+                        disable: function() { return window.innerWidth < 480; }
+                    });
+                }
+            });
         </script>
 
 </body>

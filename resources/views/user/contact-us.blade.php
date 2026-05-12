@@ -636,9 +636,9 @@
         <div class="breadcrumbs-mini">
             <a href="{{ url('/') }}">Home</a> &nbsp;&rsaquo;&nbsp; Contact Us
         </div>
-        <span class="eyebrow">Contact Us</span>
-        <h1>Get in Touch With <span class="accent">Jobs in USA</span></h1>
-        <p class="lead">Have a question, need support, or want to partner with us? Our team responds within 24 hours on business days. Choose the contact method that works best for you below.</p>
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">Contact Us</span>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Get in Touch With <span class="accent">Jobs in USA</span></h1>
+        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Have a question, need support, or want to partner with us? Our team responds within 24 hours on business days. Choose the contact method that works best for you below.</p>
     </div>
 </section>
 

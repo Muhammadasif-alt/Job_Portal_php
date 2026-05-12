@@ -512,15 +512,15 @@
 <!-- Hero Section -->
 <section class="jobs-hero">
     <div class="container">
-        <span class="eyebrow">
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">
             @if(request()->anyFilled(['position','location','area','postal_code']))
                 Search Results
             @else
                 Job Search
             @endif
         </span>
-        <h1>Find Your Next <span class="accent">Career Move</span> in the USA</h1>
-        <p>Browse {{ number_format($heroStats['total_jobs'] ?? 0) }}+ verified job listings across all 50 U.S. states. Filter by state, area or ZIP — apply free in one click and connect directly with verified employers.</p>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Find Your Next <span class="accent">Career Move</span> in the USA</h1>
+        <p data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Browse {{ number_format($heroStats['total_jobs'] ?? 0) }}+ verified job listings across all 50 U.S. states. Filter by state, area or ZIP — apply free in one click and connect directly with verified employers.</p>
         <div class="hero-stats">
             <div class="stat">
                 <strong>{{ number_format($heroStats['total_jobs'] ?? 0) }}+</strong>

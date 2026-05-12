@@ -727,10 +727,10 @@
         <div class="container">
             <div class="about-hero-row">
                 <div>
-                    <span class="about-hero-tag">About Jobs in USA</span>
-                    <h1>America's trusted job search platform — connecting <span>10M+ professionals</span> with verified U.S. employers</h1>
-                    <p class="lead">Since 2024, Jobs in USA has been on a mission to make the American job market more accessible, transparent, and human. We bring together talented job seekers and verified employers across all 50 states — making the search for meaningful work simpler, safer, and 100% free for candidates.</p>
-                    <div class="about-hero-cta">
+                    <span class="about-hero-tag" data-aos="fade-down" data-aos-duration="600">About Jobs in USA</span>
+                    <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">America's trusted job search platform — connecting <span>10M+ professionals</span> with verified U.S. employers</h1>
+                    <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Since 2024, Jobs in USA has been on a mission to make the American job market more accessible, transparent, and human. We bring together talented job seekers and verified employers across all 50 states — making the search for meaningful work simpler, safer, and 100% free for candidates.</p>
+                    <div class="about-hero-cta" data-aos="fade-up" data-aos-duration="600" data-aos-delay="400">
                         <a href="{{ route('register') }}">Find Your Next Role <i class="icon-feather-arrow-right"></i></a>
                     </div>
                 </div>

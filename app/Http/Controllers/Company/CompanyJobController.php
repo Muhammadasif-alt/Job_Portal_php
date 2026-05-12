@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Company;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Advertiser;
 use App\Models\Category;
@@ -12,7 +14,7 @@ use Illuminate\Support\Str;
 
 /**
  * Company-side job CRUD. A company user only ever sees / edits / deletes
- * jobs whose user_id matches their own — admin-posted or other-company
+ * jobs whose user_id matches their own â€” admin-posted or other-company
  * jobs are invisible to them.
  */
 class CompanyJobController extends Controller
@@ -89,7 +91,7 @@ class CompanyJobController extends Controller
         Job::create($data);
 
         return redirect()->route('company.jobs.index')
-            ->with('success', 'Job posted successfully — candidates can now find it.');
+            ->with('success', 'Job posted successfully â€” candidates can now find it.');
     }
 
     public function edit(Job $job)

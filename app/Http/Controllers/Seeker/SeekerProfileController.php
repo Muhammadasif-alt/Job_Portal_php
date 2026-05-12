@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Seeker;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Job;
 use App\Services\AiResumeParser;
@@ -108,7 +110,7 @@ class SeekerProfileController extends Controller
             $user->update($updates);
         }
 
-        $message = 'Resume uploaded — employers can now view it.';
+        $message = 'Resume uploaded â€” employers can now view it.';
         if (! empty($filled)) {
             $labels = [
                 'name'             => 'name',

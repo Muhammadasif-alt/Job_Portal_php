@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\BlogCatgories;
 use Illuminate\Http\Request;

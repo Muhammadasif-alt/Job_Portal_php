@@ -118,7 +118,7 @@
     <style>
         /* === Hero with Diverse Professionals image + light overlay === */
         .intro-banner.intro-hero-v2 {
-            background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920&q=80&auto=format&fit=crop') !important;
+            background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
@@ -637,32 +637,266 @@
             .hero-stats { gap: 18px; }
             .hero-stats .stat { min-width: calc(50% - 18px); }
         }
+
+        /* =================================================================
+           HERO 2-COL LAYOUT — content left, MacBook mockup right
+           ================================================================= */
+        .hero-2col {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        @media (max-width: 1199px) { .hero-2col { gap: 40px; } }
+        @media (max-width: 991px)  { .hero-2col { grid-template-columns: 1fr; gap: 50px; padding: 0 18px; } }
+
+        /* Override centered alignment from base hero CSS */
+        .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part {
+            text-align: left !important;
+            max-width: none !important;
+            margin: 0 !important;
+        }
+        .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part > span:not(.hero-eyebrow):not(.accent) {
+            margin: 0 0 28px !important;
+        }
+        .intro-banner.intro-hero-v2.hero-split .utf-intro-banner-search-form-block {
+            margin: 24px 0 0 !important;
+        }
+        @media (max-width: 991px) {
+            .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part {
+                text-align: center !important;
+            }
+        }
+
+        /* Trending tags row */
+        .hero-trending {
+            margin-top: 22px;
+            display: flex; align-items: center;
+            gap: 8px; flex-wrap: wrap;
+        }
+        .hero-trending .trending-label {
+            font-size: 13px; font-weight: 700;
+            color: #555;
+            text-transform: none;
+            margin-right: 4px;
+        }
+        .hero-trending .trending-tag {
+            display: inline-flex; align-items: center;
+            background: #fff;
+            border: 1px solid #e5e5e7;
+            color: #0a0a0a;
+            font-size: 13px; font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all .15s ease;
+        }
+        .hero-trending .trending-tag:hover {
+            background: #0a0a0a; color: #fff; border-color: #0a0a0a;
+            transform: translateY(-1px);
+        }
+
+        /* Compact stats row for the split hero */
+        .intro-banner.intro-hero-v2.hero-split .hero-stats {
+            border-top: 1px solid rgba(10,10,10,.10);
+            margin-top: 36px;
+            padding-top: 24px;
+            justify-content: flex-start;
+            gap: 36px;
+        }
+        @media (max-width: 991px) {
+            .intro-banner.intro-hero-v2.hero-split .hero-stats { justify-content: center; }
+        }
+
+        /* === VISUAL: MacBook mockup + floating cards === */
+        .hero-visual {
+            position: relative;
+            padding: 30px 20px 40px;
+        }
+        @media (max-width: 991px) { .hero-visual { padding: 10px 0 20px; max-width: 540px; margin: 0 auto; } }
+
+        .macbook {
+            position: relative;
+            background: linear-gradient(180deg, #2c2c30 0%, #1f1f23 100%);
+            border-radius: 16px 16px 6px 6px;
+            padding: 12px 12px 14px;
+            box-shadow:
+                0 30px 60px rgba(15,23,42,.22),
+                0 12px 24px rgba(15,23,42,.14),
+                inset 0 1px 0 rgba(255,255,255,.06);
+            z-index: 2;
+        }
+        /* MacBook "base" lip */
+        .macbook::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: -3.5%;
+            right: -3.5%;
+            height: 12px;
+            background: linear-gradient(180deg, #3a3a3e 0%, #1c1c1f 80%);
+            border-radius: 0 0 16px 16px / 0 0 100% 100%;
+            z-index: 1;
+        }
+        .macbook-screen {
+            background: #fff;
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+        .macbook-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 12px;
+            background: #ececec;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .macbook-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+        .macbook-dot.red    { background: #ff5f57; }
+        .macbook-dot.yellow { background: #febc2e; }
+        .macbook-dot.green  { background: #28c840; }
+
+        /* Inner UI — looks like the actual job board */
+        .mb-page { padding: 14px 16px 18px; background: #fff; }
+        .mb-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f3;
+        }
+        .mb-logo { font-size: 14px; font-weight: 800; letter-spacing: -.3px; }
+        .mb-logo .a { color: #ff8a00; }
+        .mb-logo .b { color: #2a41e8; }
+        .mb-nav { display: flex; gap: 14px; font-size: 10.5px; color: #555; font-weight: 500; }
+        .mb-search {
+            margin-top: 12px;
+            background: #f5f5f7;
+            border-radius: 7px;
+            padding: 8px 12px;
+            font-size: 10px; color: #999;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .mb-jobs {
+            margin-top: 10px;
+            display: flex; flex-direction: column;
+            gap: 6px;
+        }
+        .mb-job {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 9px;
+            border: 1px solid #f0f0f3;
+            border-radius: 7px;
+            background: #fff;
+        }
+        .mb-job-logo {
+            width: 24px; height: 24px;
+            background: #fef3e7;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .mb-job-info { flex: 1; min-width: 0; }
+        .mb-job-title {
+            font-size: 10px; font-weight: 700; color: #0a0a0a;
+            line-height: 1.3;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .mb-job-meta { font-size: 9px; color: #777; margin-top: 1px; }
+        .mb-badge {
+            font-size: 8.5px; font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            letter-spacing: .2px;
+        }
+        .mb-badge.new    { background: #dcfce7; color: #15803d; }
+        .mb-badge.hot    { background: #fee2e2; color: #b91c1c; }
+        .mb-badge.remote { background: #dbeafe; color: #1d4ed8; }
+
+        /* Floating cards over the MacBook */
+        .hero-float {
+            position: absolute;
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px 14px;
+            box-shadow: 0 14px 30px rgba(15,23,42,.10), 0 4px 10px rgba(15,23,42,.05);
+            display: flex; align-items: center; gap: 12px;
+            z-index: 5;
+            min-width: 200px;
+        }
+        .hero-float.tech   { top: 28px; right: -8px; animation: heroFloat 4s ease-in-out infinite; }
+        .hero-float.health { top: 50%; left: -14px; transform: translateY(-50%); animation: heroFloat 4s ease-in-out 2s infinite; }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-7px); }
+        }
+        .hero-float.health { animation: heroFloatMid 4s ease-in-out 2s infinite; }
+        @keyframes heroFloatMid {
+            0%, 100% { transform: translateY(-50%); }
+            50%      { transform: translateY(calc(-50% - 7px)); }
+        }
+        @media (max-width: 575px) {
+            .hero-float.tech   { top: 6px; right: 6px; min-width: 0; padding: 8px 10px; }
+            .hero-float.health { display: none; }
+        }
+        .float-ico {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .float-ico.tech   { background: #dbeafe; color: #1d4ed8; }
+        .float-ico.health { background: #dcfce7; color: #15803d; }
+        .float-title { font-size: 13.5px; font-weight: 800; color: #0a0a0a; line-height: 1.1; }
+        .float-meta  { font-size: 11.5px; color: #6b7280; margin-top: 3px; }
+        .float-growth {
+            margin-left: 8px;
+            background: #dcfce7; color: #15803d;
+            font-size: 11px; font-weight: 800;
+            padding: 3px 8px; border-radius: 999px;
+            white-space: nowrap;
+        }
+        @media (max-width: 575px) {
+            .float-title { font-size: 11px; }
+            .float-meta { font-size: 10px; }
+            .float-ico { width: 30px; height: 30px; font-size: 14px; }
+        }
     </style>
 
-    <div class="intro-banner intro-hero-v2">
+    <div class="intro-banner intro-hero-v2 hero-split">
         <div class="hero-blob b1"></div>
         <div class="hero-blob b2"></div>
 
         <div class="container">
-            <div class="row">
-                <div class="col-md-12">
+            <div class="hero-2col">
+                {{-- ============ LEFT: Content ============ --}}
+                <div class="hero-content">
                     <div class="utf-banner-headline-text-part">
-                        <span class="hero-eyebrow">
+                        <span class="hero-eyebrow" data-aos="fade-down" data-aos-duration="600">
                             <span class="pulse-dot"></span>
                             Trusted by job seekers across all 50 U.S. states
                         </span>
-                        <h1>Find Your Next Job in the USA &mdash; <span class="accent">Hiring Now</span></h1>
-                        <span>Search {{ number_format($stats['total_jobs'] ?? 230000) }}+ verified jobs from leading U.S. employers in healthcare, IT, logistics, retail, and more. Apply free, get hired faster.</span>
+                        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                            Find Your Next Job in the USA &mdash;
+                            <span class="accent">Hiring Now</span>
+                        </h1>
+                        <span data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">
+                            Search {{ number_format($stats['total_jobs'] ?? 230000) }}+ verified jobs from top U.S. employers in healthcare, IT, logistics, retail, and more. Free to apply. Get hired faster.
+                        </span>
                     </div>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-12">
                     <form method="GET" action="{{ route('jobs.index') }}" role="search"
+                        data-aos="fade-up" data-aos-duration="700" data-aos-delay="400"
                         class="utf-intro-banner-search-form-block margin-top-40">
                         <div class="utf-intro-search-field-item with-autocomplete">
-                            <input id="intro-keywords" name="position" type="text" placeholder="Search jobs, skills, or titles…"
+                            <input id="intro-keywords" name="position" type="text"
+                                placeholder="Search jobs, skills, or titles…"
                                 value="{{ request('position') }}">
                             <i class="icon-feather-search"></i>
                         </div>
@@ -687,33 +921,110 @@
                         </div>
                     </form>
 
-                    <ul class="hero-trust-list" aria-label="Why job seekers choose Jobs in USA">
-                        <li><i class="icon-material-outline-check-circle"></i> 100% free for job seekers</li>
-                        <li><i class="icon-material-outline-check-circle"></i> Verified employers only</li>
-                        <li><i class="icon-material-outline-check-circle"></i> New jobs added every day</li>
-                    </ul>
+                    {{-- Trending tag chips --}}
+                    <div class="hero-trending" data-aos="fade-up" data-aos-duration="600" data-aos-delay="550">
+                        <span class="trending-label">Trending:</span>
+                        <a class="trending-tag" href="{{ route('jobs.search') }}?position=Nurse">Nurse RN</a>
+                        <a class="trending-tag" href="{{ route('jobs.search') }}?position=Warehouse">Warehouse</a>
+                        <a class="trending-tag" href="{{ route('jobs.search') }}?position=Software+Engineer">Software Eng.</a>
+                        <a class="trending-tag" href="{{ route('jobs.search') }}?location=Remote">Remote</a>
+                    </div>
 
                     <div class="hero-stats">
-                        <div class="stat">
+                        <div class="stat" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="700">
                             <strong>{{ number_format($stats['total_jobs'] ?? 0) }}+</strong>
                             <span>Open Jobs</span>
                         </div>
                         <div class="divider"></div>
-                        <div class="stat">
+                        <div class="stat" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="800">
                             <strong>{{ number_format($stats['total_companies'] ?? 0) }}+</strong>
                             <span>Employers</span>
                         </div>
                         <div class="divider"></div>
-                        <div class="stat">
+                        <div class="stat" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="900">
                             <strong>{{ number_format($stats['total_locations'] ?? 50) }}+</strong>
                             <span>Locations</span>
                         </div>
                         <div class="divider"></div>
-                        <div class="stat">
+                        <div class="stat" data-aos="zoom-in" data-aos-duration="600" data-aos-delay="1000">
                             <strong>100%</strong>
                             <span>Free to Apply</span>
                         </div>
                     </div>
+                </div>
+
+                {{-- ============ RIGHT: MacBook mockup + floating cards ============ --}}
+                <div class="hero-visual" data-aos="fade-left" data-aos-duration="900" data-aos-delay="200" aria-hidden="true">
+
+                    {{-- Floating: Healthcare (mid-left of macbook) --}}
+                    <div class="hero-float health">
+                        <div class="float-ico health">🩺</div>
+                        <div>
+                            <div class="float-title">Healthcare</div>
+                            <div class="float-meta">2,340 open roles</div>
+                        </div>
+                        <span class="float-growth">+12%</span>
+                    </div>
+
+                    {{-- MacBook frame --}}
+                    <div class="macbook">
+                        <div class="macbook-screen">
+                            <div class="macbook-bar">
+                                <span class="macbook-dot red"></span>
+                                <span class="macbook-dot yellow"></span>
+                                <span class="macbook-dot green"></span>
+                            </div>
+                            <div class="mb-page">
+                                <div class="mb-header">
+                                    <div class="mb-logo"><span class="a">jobs</span><span class="b">inusa</span></div>
+                                    <div class="mb-nav">
+                                        <span>Jobs</span>
+                                        <span>Employers</span>
+                                        <span>Sign In</span>
+                                    </div>
+                                </div>
+                                <div class="mb-search">
+                                    🔍 Search jobs, skills, titles…
+                                </div>
+                                <div class="mb-jobs">
+                                    <div class="mb-job">
+                                        <div class="mb-job-logo">🏥</div>
+                                        <div class="mb-job-info">
+                                            <div class="mb-job-title">Registered Nurse – ICU</div>
+                                            <div class="mb-job-meta">NYU Langone · New York, NY</div>
+                                        </div>
+                                        <span class="mb-badge new">New</span>
+                                    </div>
+                                    <div class="mb-job">
+                                        <div class="mb-job-logo">🚛</div>
+                                        <div class="mb-job-info">
+                                            <div class="mb-job-title">CDL Truck Driver</div>
+                                            <div class="mb-job-meta">Amazon Logistics · Dallas, TX</div>
+                                        </div>
+                                        <span class="mb-badge hot">Hot</span>
+                                    </div>
+                                    <div class="mb-job">
+                                        <div class="mb-job-logo">💻</div>
+                                        <div class="mb-job-info">
+                                            <div class="mb-job-title">Frontend Engineer</div>
+                                            <div class="mb-job-meta">Stripe · Remote (US)</div>
+                                        </div>
+                                        <span class="mb-badge remote">Remote</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Floating: Tech / IT (top-right of macbook) --}}
+                    <div class="hero-float tech">
+                        <div class="float-ico tech">💻</div>
+                        <div>
+                            <div class="float-title">Tech / IT</div>
+                            <div class="float-meta">1,820 open roles</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -992,14 +1303,14 @@
 
         <section class="industry-section" aria-labelledby="industry-heading">
             <div class="container">
-                <header class="section-head">
+                <header class="section-head" data-aos="fade-up">
                     <span class="section-tag">Industries We Cover</span>
                     <h2 id="industry-heading">Browse Jobs by Industry Across the United States</h2>
                     <p>Explore thousands of verified job openings in America's most in-demand sectors. From healthcare and IT to logistics and skilled trades — find the right career path for you, updated daily.</p>
                 </header>
 
                 <div class="industry-grid">
-                    @foreach ($categories as $category)
+                    @foreach ($categories as $idx => $category)
                         @php
                             $iconClass   = $resolveIndustryIcon($category->name);
                             $displayName = $resolveDisplayName($category->name);
@@ -1009,6 +1320,7 @@
                         @endphp
                         <a href="{{ route('jobs.category', $category->slug) }}"
                            class="industry-card"
+                           data-aos="fade-up" data-aos-delay="{{ ($idx % 6) * 80 }}" data-aos-duration="600"
                            title="View {!! $displayName !!} jobs in the USA"
                            aria-label="Browse {{ $jobsCount }} {{ strip_tags($displayName) }} jobs">
                             <div class="icon-wrap" aria-hidden="true"><i class="{{ $iconClass }}"></i></div>
@@ -1234,14 +1546,14 @@
 
     <section class="process-section-v2" aria-labelledby="process-heading">
         <div class="container">
-            <header class="process-head">
+            <header class="process-head" data-aos="fade-up">
                 <span class="eyebrow">How It Works</span>
                 <h2 id="process-heading">Our <span class="accent">Step-By-Step</span> Job Search Process</h2>
                 <p>From signing up to landing your next role, we guide you through every step with clarity, verified employers, and full support. Whether you're entering the workforce or making your next career move, finding jobs in the USA has never been easier or more transparent.</p>
             </header>
 
             <div class="process-grid">
-                <article class="process-card">
+                <article class="process-card" data-aos="fade-up" data-aos-delay="0" data-aos-duration="700">
                     <span class="step-badge">Step 1</span>
                     <div class="card-image">
                         <img src="{{ asset('public/user/images/home-background-02.jpg') }}"
@@ -1255,7 +1567,7 @@
                     </a>
                 </article>
 
-                <article class="process-card">
+                <article class="process-card" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
                     <span class="step-badge">Step 2</span>
                     <div class="card-image">
                         <img src="{{ asset('public/user/images/home-background-03.jpg') }}"
@@ -1269,7 +1581,7 @@
                     </a>
                 </article>
 
-                <article class="process-card">
+                <article class="process-card" data-aos="fade-up" data-aos-delay="240" data-aos-duration="700">
                     <span class="step-badge">Step 3</span>
                     <div class="card-image">
                         <img src="{{ asset('public/user/images/callout-1.jpg') }}"
@@ -1283,7 +1595,7 @@
                     </a>
                 </article>
 
-                <article class="process-card">
+                <article class="process-card" data-aos="fade-up" data-aos-delay="360" data-aos-duration="700">
                     <span class="step-badge">Step 4</span>
                     <div class="card-image">
                         <img src="{{ asset('public/user/images/callout-2.jpg') }}"

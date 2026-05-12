@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Exports\JobsExport;
 use App\Imports\JobsImport;
@@ -27,7 +29,7 @@ class JobImportExportController extends Controller
         Excel::import($importer, $request->file('file'));
 
         $msg = sprintf(
-            'Import complete — %d new jobs imported, %d duplicates skipped.',
+            'Import complete â€” %d new jobs imported, %d duplicates skipped.',
             $importer->imported,
             $importer->skipped
         );

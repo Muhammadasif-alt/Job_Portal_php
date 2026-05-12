@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Company;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Job;
 use Illuminate\Http\Request;
@@ -8,7 +10,7 @@ use Illuminate\Http\Request;
 class CompanyDashboardController extends Controller
 {
     /**
-     * Company dashboard — overview of the employer's job posts and activity.
+     * Company dashboard â€” overview of the employer's job posts and activity.
      *
      * NOTE: This deliberately keeps the data shape minimal. We don't yet have a
      *       direct user_id column on jobs; once that link is added the queries

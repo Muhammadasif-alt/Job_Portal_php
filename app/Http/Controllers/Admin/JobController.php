@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Advertiser;
 use App\Models\Category;
@@ -151,7 +153,7 @@ class JobController extends Controller
             'application_url' => 'nullable|url',
         ]);
 
-        // Duplicate guard — exclude the current job from the check
+        // Duplicate guard â€” exclude the current job from the check
         $hash = Job::makeDedupeHash(
             $validated['position'] ?? null,
             $validated['advertiser_id'] ?? null,

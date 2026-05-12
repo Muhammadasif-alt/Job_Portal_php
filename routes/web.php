@@ -1,17 +1,24 @@
-<?php
+﻿<?php
 
-use App\Http\Controllers\AdvertiserController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\JobController;
-use App\Http\Controllers\JobImportExportController;
-use App\Http\Controllers\LocationController;
+// Admin controllers (managing site data)
+use App\Http\Controllers\Admin\AdvertiserController;
+use App\Http\Controllers\Admin\BlogCatgoriesController;
+use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\JobController;
+use App\Http\Controllers\Admin\JobImportExportController;
+use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\UserController;
+
+// Public-facing controllers
 use App\Http\Controllers\Public\ApplicationController;
 use App\Http\Controllers\Public\JobSeekerPublicController;
 use App\Http\Controllers\Public\ProfileController;
-use App\Http\Controllers\UserController;
+
+// Site / main website controllers
 use App\Http\Controllers\UserJobController;
-use App\Http\Controllers\BlogCatgoriesController;
-use App\Http\Controllers\BlogController;
+
+// Shared (admin + public)
 use App\Http\Controllers\ContactMessageController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,7 +55,7 @@ Route::get('/job-seekers/{username}', [JobSeekerPublicController::class, 'show']
 Route::get('/about-us', [UserJobController::class, 'about_us'])->name('about.us');
 Route::get('/contact-us', [UserJobController::class, 'contact_us'])->name('contact.us');
 Route::post('/contact-us', [\App\Http\Controllers\ContactMessageController::class, 'store'])->name('contact.store');
-// /jobs/search → redirect to canonical /search (the named jobs.search route declared earlier)
+// /jobs/search â†’ redirect to canonical /search (the named jobs.search route declared earlier)
 Route::get('/jobs/search', fn () => redirect()->route('jobs.search', request()->query(), 301));
 
 // Job detail by SEO slug (no ID in URL). Placed after specific /jobs routes to avoid capturing reserved paths.
@@ -105,37 +112,105 @@ Route::view('/terms-of-service', 'pages.terms')->name('pages.terms');
 Route::view('/contact', 'pages.contact')->name('pages.contact');
 Route::view('/disclaimer', 'pages.disclaimer')->name('pages.disclaimer');
 
-// Simple sitemap (XML) including homepage, static pages and recent job slugs
+// Comprehensive sitemap (XML) â€” includes homepage, static, SEO landing pages, jobs, categories, locations, companies, blogs
 Route::get('/sitemap.xml', function () {
-    $jobs = \App\Models\Job::orderBy('updated_at', 'desc')->take(1000)->get();
+    $today = now()->toDateString();
 
-    $urls = [];
-    $urls[] = url('/');
-    $urls[] = url('/jobs');
-    $urls[] = url('/about-us');
-    $urls[] = url('/contact-us');
-    $urls[] = url('/privacy-policy');
-    $urls[] = url('/terms-of-service');
-    $urls[] = url('/disclaimer');
+    $build = function (string $loc, string $changefreq = 'weekly', string $priority = '0.6', ?string $lastmod = null) {
+        $lastmod = $lastmod ?? now()->toDateString();
+        return "  <url>\n"
+             . "    <loc>" . htmlspecialchars($loc, ENT_XML1) . "</loc>\n"
+             . "    <lastmod>{$lastmod}</lastmod>\n"
+             . "    <changefreq>{$changefreq}</changefreq>\n"
+             . "    <priority>{$priority}</priority>\n"
+             . "  </url>\n";
+    };
 
-    foreach ($jobs as $job) {
-        if (! empty($job->slug)) {
-            $urls[] = url('/jobs/' . $job->slug);
+    $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+    // Core pages (highest priority)
+    $xml .= $build(url('/'),               'daily',   '1.0');
+    $xml .= $build(url('/jobs'),           'hourly',  '0.9');
+    $xml .= $build(url('/companies'),      'daily',   '0.8');
+    $xml .= $build(url('/job-seekers'),    'daily',   '0.7');
+    $xml .= $build(url('/categories'),     'weekly',  '0.7');
+    $xml .= $build(url('/locations'),      'weekly',  '0.7');
+    $xml .= $build(url('/blog'),           'weekly',  '0.7');
+
+    // Static info pages
+    foreach (['/about-us','/contact-us','/privacy-policy','/terms-of-service','/disclaimer'] as $p) {
+        $xml .= $build(url($p), 'monthly', '0.4');
+    }
+
+    // SEO landing pages â€” states
+    $states = ['texas','california','new-york','florida','illinois','pennsylvania','ohio','georgia',
+               'north-carolina','michigan','new-jersey','virginia','washington','arizona','massachusetts'];
+    foreach ($states as $s) {
+        $xml .= $build(url('/jobs-in-' . $s), 'weekly', '0.7');
+    }
+
+    // SEO landing pages â€” industries
+    $industries = ['warehouse-jobs','healthcare-jobs','truck-driver-jobs','customer-service-jobs',
+                   'marketing-jobs','accounting-jobs','retail-jobs','security-guard-jobs',
+                   'remote-jobs-usa','work-from-home-jobs','online-jobs-usa',
+                   'part-time-remote-jobs','entry-level-remote-jobs',
+                   'entry-level-jobs','no-experience-jobs','graduate-jobs','internship-jobs'];
+    foreach ($industries as $i) {
+        $xml .= $build(url('/' . $i), 'weekly', '0.7');
+    }
+
+    // Dynamic â€” categories
+    try {
+        foreach (\App\Models\Categories::query()->whereNotNull('slug')->get(['slug','updated_at']) as $cat) {
+            $xml .= $build(url('/categories/' . $cat->slug), 'weekly', '0.6',
+                           optional($cat->updated_at)->toDateString());
         }
-    }
+    } catch (\Throwable $e) {}
 
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-    foreach ($urls as $u) {
-        $xml .= "  <url>\n";
-        $xml .= "    <loc>{$u}</loc>\n";
-        $xml .= "  </url>\n";
-    }
+    // Dynamic â€” locations
+    try {
+        foreach (\App\Models\Location::query()->get(['id','updated_at']) as $loc) {
+            $xml .= $build(url('/location/' . $loc->id), 'weekly', '0.6',
+                           optional($loc->updated_at)->toDateString());
+        }
+    } catch (\Throwable $e) {}
+
+    // Dynamic â€” companies
+    try {
+        foreach (\App\Models\Advertiser::query()->get(['id','updated_at']) as $c) {
+            $xml .= $build(url('/companies/' . $c->id), 'weekly', '0.5',
+                           optional($c->updated_at)->toDateString());
+        }
+    } catch (\Throwable $e) {}
+
+    // Dynamic â€” recent jobs (most important for indexation)
+    try {
+        $jobs = \App\Models\Job::query()
+            ->whereNotNull('slug')
+            ->orderBy('updated_at', 'desc')
+            ->take(5000)
+            ->get(['slug','updated_at']);
+        foreach ($jobs as $job) {
+            $xml .= $build(url('/jobs/' . $job->slug), 'daily', '0.8',
+                           optional($job->updated_at)->toDateString());
+        }
+    } catch (\Throwable $e) {}
+
+    // Dynamic â€” blog posts
+    try {
+        foreach (\App\Models\Blog::query()->whereNotNull('slug')->get(['slug','updated_at']) as $b) {
+            $xml .= $build(url('/blog/' . $b->slug), 'monthly', '0.5',
+                           optional($b->updated_at)->toDateString());
+        }
+    } catch (\Throwable $e) {}
+
     $xml .= '</urlset>';
 
     return response($xml, 200)
-        ->header('Content-Type', 'application/xml')
-        ->header('X-Content-Type-Options', 'nosniff');
+        ->header('Content-Type', 'application/xml; charset=UTF-8')
+        ->header('X-Content-Type-Options', 'nosniff')
+        ->header('Cache-Control', 'public, max-age=3600');
 });
 
 // ============================================
@@ -162,12 +237,12 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    // Admin Dashboard — admins ONLY
+    // Admin Dashboard â€” admins ONLY
     Route::get('/administration', [JobController::class, 'dashboard'])
         ->middleware(\App\Http\Middleware\EnsureRole::class.':admin')
         ->name('admin.dashboard');
 
-    // Admin Resource Routes — admins ONLY
+    // Admin Resource Routes â€” admins ONLY
     Route::prefix('admin')->name('admin.')->middleware(\App\Http\Middleware\EnsureRole::class.':admin')->group(function () {
         // Shortcut: redirect /admin to the admin dashboard
         Route::get('/', function () {
@@ -204,7 +279,7 @@ Route::middleware([
         // Dangerous: delete all data (jobs, categories, advertisers, locations)
         Route::post('/cleanup', [JobController::class, 'destroyAll'])->name('cleanup');
     });
-    // Generic /dashboard — dispatch based on the user's role
+    // Generic /dashboard â€” dispatch based on the user's role
     Route::get('/dashboard', function () {
         $user = auth()->user();
         if (! $user) return redirect()->route('login');
@@ -213,8 +288,8 @@ Route::middleware([
 
     // Company dashboard (employers posting jobs)
     Route::prefix('company')->name('company.')->middleware(\App\Http\Middleware\EnsureRole::class.':company')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\CompanyDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/profile',   [\App\Http\Controllers\CompanyJobController::class, 'profile'])->name('profile');
+        Route::get('/dashboard', [\App\Http\Controllers\Company\CompanyDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/profile',   [\App\Http\Controllers\Company\CompanyJobController::class, 'profile'])->name('profile');
 
         // Settings (brand-styled, replaces /user/profile for company)
         Route::get   ('/settings',                  [\App\Http\Controllers\SettingsController::class, 'company'])->name('settings');
@@ -224,30 +299,30 @@ Route::middleware([
         Route::delete('/settings/photo',            [\App\Http\Controllers\SettingsController::class, 'removePhoto'])->name('settings.photo.remove');
 
         // Job CRUD scoped to the current company
-        Route::get   ('/jobs',                [\App\Http\Controllers\CompanyJobController::class, 'index'])->name('jobs.index');
-        Route::get   ('/jobs/create',         [\App\Http\Controllers\CompanyJobController::class, 'create'])->name('jobs.create');
-        Route::post  ('/jobs',                [\App\Http\Controllers\CompanyJobController::class, 'store'])->name('jobs.store');
-        Route::get   ('/jobs/{job}/edit',     [\App\Http\Controllers\CompanyJobController::class, 'edit'])->name('jobs.edit');
-        Route::put   ('/jobs/{job}',          [\App\Http\Controllers\CompanyJobController::class, 'update'])->name('jobs.update');
-        Route::delete('/jobs/{job}',          [\App\Http\Controllers\CompanyJobController::class, 'destroy'])->name('jobs.destroy');
+        Route::get   ('/jobs',                [\App\Http\Controllers\Company\CompanyJobController::class, 'index'])->name('jobs.index');
+        Route::get   ('/jobs/create',         [\App\Http\Controllers\Company\CompanyJobController::class, 'create'])->name('jobs.create');
+        Route::post  ('/jobs',                [\App\Http\Controllers\Company\CompanyJobController::class, 'store'])->name('jobs.store');
+        Route::get   ('/jobs/{job}/edit',     [\App\Http\Controllers\Company\CompanyJobController::class, 'edit'])->name('jobs.edit');
+        Route::put   ('/jobs/{job}',          [\App\Http\Controllers\Company\CompanyJobController::class, 'update'])->name('jobs.update');
+        Route::delete('/jobs/{job}',          [\App\Http\Controllers\Company\CompanyJobController::class, 'destroy'])->name('jobs.destroy');
     });
 
     // Job seeker dashboard (candidates browsing/applying)
     Route::prefix('seeker')->name('seeker.')->middleware(\App\Http\Middleware\EnsureRole::class.':job_seeker')->group(function () {
-        Route::get('/dashboard',              [\App\Http\Controllers\JobSeekerDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/dashboard/ai-matches',   [\App\Http\Controllers\JobSeekerDashboardController::class, 'aiMatches'])->name('dashboard.ai-matches');
+        Route::get('/dashboard',              [\App\Http\Controllers\Seeker\JobSeekerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/ai-matches',   [\App\Http\Controllers\Seeker\JobSeekerDashboardController::class, 'aiMatches'])->name('dashboard.ai-matches');
 
         // Profile
-        Route::get   ('/profile',     [\App\Http\Controllers\SeekerProfileController::class, 'show'])->name('profile');
-        Route::put   ('/profile',     [\App\Http\Controllers\SeekerProfileController::class, 'update'])->name('profile.update');
+        Route::get   ('/profile',     [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'show'])->name('profile');
+        Route::put   ('/profile',     [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'update'])->name('profile.update');
 
         // Resume / CV
-        Route::get   ('/resume',      [\App\Http\Controllers\SeekerProfileController::class, 'resume'])->name('resume');
-        Route::post  ('/resume',      [\App\Http\Controllers\SeekerProfileController::class, 'uploadResume'])->name('resume.upload');
-        Route::delete('/resume',      [\App\Http\Controllers\SeekerProfileController::class, 'deleteResume'])->name('resume.delete');
+        Route::get   ('/resume',      [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'resume'])->name('resume');
+        Route::post  ('/resume',      [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'uploadResume'])->name('resume.upload');
+        Route::delete('/resume',      [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'deleteResume'])->name('resume.delete');
 
         // My Applications
-        Route::get   ('/applications', [\App\Http\Controllers\SeekerProfileController::class, 'applications'])->name('applications');
+        Route::get   ('/applications', [\App\Http\Controllers\Seeker\SeekerProfileController::class, 'applications'])->name('applications');
 
         // Settings (brand-styled, replaces /user/profile for seeker)
         Route::get   ('/settings',          [\App\Http\Controllers\SettingsController::class, 'seeker'])->name('settings');
@@ -256,7 +331,7 @@ Route::middleware([
         Route::delete('/settings/photo',    [\App\Http\Controllers\SettingsController::class, 'removePhoto'])->name('settings.photo.remove');
     });
 
-    // AI Assistant — shared across admin / company / seeker panels
+    // AI Assistant â€” shared across admin / company / seeker panels
     Route::prefix('ai')->name('ai.')->group(function () {
         Route::post('/job-description',     [\App\Http\Controllers\AiAssistantController::class, 'jobDescription'])->name('job-description');
         Route::post('/polish-bio',          [\App\Http\Controllers\AiAssistantController::class, 'polishBio'])->name('polish-bio');
