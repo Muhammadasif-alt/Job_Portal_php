@@ -16,7 +16,7 @@ use App\Http\Controllers\Public\JobSeekerPublicController;
 use App\Http\Controllers\Public\ProfileController;
 
 // Site / main website controllers
-use App\Http\Controllers\UserJobController;
+use App\Http\Controllers\Site\UserJobController;
 
 // Shared (admin + public)
 use App\Http\Controllers\ContactMessageController;

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Site;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Advertiser;
 use App\Models\Category;
@@ -19,7 +21,7 @@ class UserJobController extends Controller
      */
     public function index()
     {
-        // Use DB::table — returns plain stdClass, ~10× smaller serialized than Eloquent models.
+        // Use DB::table â€” returns plain stdClass, ~10Ã— smaller serialized than Eloquent models.
         // Avoids "MySQL server has gone away" when storing in DB cache (max_allowed_packet).
         $locations = Cache::remember('home.locations', 600, function () {
             return DB::table('locations')->select('name')->distinct()->orderBy('name')->get();
@@ -74,8 +76,8 @@ class UserJobController extends Controller
     {
         $result = $searchService->search($request, 12);
 
-        // DB::table returns lightweight stdClass — same property access ($loc->name), same
-        // Collection methods (->where, ->pluck, ->values) — but a fraction of Eloquent's bytes.
+        // DB::table returns lightweight stdClass â€” same property access ($loc->name), same
+        // Collection methods (->where, ->pluck, ->values) â€” but a fraction of Eloquent's bytes.
         $uniqueLocations = Cache::remember('jobs.uniqueLocations', 600, function () {
             return DB::table('locations')->select('name')->distinct()->orderBy('name')->get();
         });
@@ -201,7 +203,7 @@ class UserJobController extends Controller
             $query->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); });
         }])->orderBy('name')->paginate(12);
 
-        // The N+1 below is the major slowdown — already covered by jobs_count above
+        // The N+1 below is the major slowdown â€” already covered by jobs_count above
         // Keep the active_openings property in sync without a query per row
         $categories->each(function ($category) {
             $category->active_openings = $category->jobs_count;
