@@ -486,16 +486,68 @@
                 @endif
 
                 {{-- Apply Banner --}}
+                @php $isSaved = auth()->check() && auth()->user()->hasSavedJob($job); @endphp
                 <div class="jd-apply-banner">
                     <h3>Ready to apply for this {{ $job->position }} role?</h3>
                     <p>Take the next step in your career — submit your application directly with the employer.</p>
-                    <a href="{{ $applyUrl }}"
-                       class="{{ !$hasApply ? 'disabled' : '' }}"
-                       @if($hasApply) target="_blank" rel="noopener" @endif>
-                        <i class="icon-line-awesome-briefcase"></i>
-                        {{ $hasApply ? 'Apply For This Position' : 'Application Not Available' }}
-                    </a>
+                    <div class="jd-apply-actions">
+                        <a href="{{ $applyUrl }}"
+                           class="jd-apply-primary {{ !$hasApply ? 'disabled' : '' }}"
+                           @if($hasApply) target="_blank" rel="noopener" @endif>
+                            <i class="icon-line-awesome-briefcase"></i>
+                            {{ $hasApply ? 'Apply For This Position' : 'Application Not Available' }}
+                        </a>
+                        <form method="POST" action="{{ route('jobs.save', $job) }}" class="jd-save-form" data-save-job>
+                            @csrf
+                            <button type="submit" class="jd-save-btn {{ $isSaved ? 'is-saved' : '' }}"
+                                    aria-pressed="{{ $isSaved ? 'true' : 'false' }}"
+                                    title="{{ $isSaved ? 'Remove from saved jobs' : 'Save this job for later' }}">
+                                <i class="icon-feather-bookmark"></i>
+                                <span class="label">{{ $isSaved ? 'Saved' : 'Save Job' }}</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
+
+                <style>
+                    .jd-apply-banner .jd-apply-actions {
+                        display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+                        margin-top: 18px;
+                    }
+                    .jd-apply-banner .jd-apply-primary {
+                        display: inline-flex; align-items: center; gap: 10px;
+                        background: #fff; color: #0a0a0a !important;
+                        padding: 14px 28px; border-radius: 10px;
+                        font-weight: 700; font-size: 15px; text-decoration: none;
+                        transition: all .15s ease;
+                    }
+                    .jd-apply-banner .jd-apply-primary:hover {
+                        background: #ff8a00; color: #fff !important;
+                        transform: translateY(-1px); box-shadow: 0 12px 24px rgba(255,138,0,.25);
+                    }
+                    .jd-apply-banner .jd-apply-primary.disabled {
+                        opacity: .55; pointer-events: none; cursor: not-allowed;
+                    }
+                    .jd-save-form { margin: 0; }
+                    .jd-save-btn {
+                        display: inline-flex; align-items: center; gap: 8px;
+                        background: transparent; color: #fff;
+                        border: 1.5px solid rgba(255,255,255,.35);
+                        padding: 13px 22px; border-radius: 10px;
+                        font-weight: 700; font-size: 15px;
+                        cursor: pointer; font-family: inherit;
+                        transition: all .15s ease;
+                    }
+                    .jd-save-btn:hover {
+                        background: rgba(255,255,255,.10);
+                        border-color: #fff;
+                    }
+                    .jd-save-btn.is-saved {
+                        background: #fff; color: #0a0a0a; border-color: #fff;
+                    }
+                    .jd-save-btn.is-saved i { color: #ff5722; }
+                    .jd-save-btn i { font-size: 16px; }
+                </style>
 
                 {{-- Internal links --}}
                 <div class="jd-card">

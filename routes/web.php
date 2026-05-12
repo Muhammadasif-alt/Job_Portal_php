@@ -50,8 +50,9 @@ Route::middleware([
     Route::get('/profile', [ProfileController::class, 'show'])->name('public.profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('public.profile.update');
 
-    // Save Jobs (future feature)
+    // Save Jobs (toggle save/unsave + list saved)
     Route::post('/jobs/{job}/save', [ProfileController::class, 'saveJob'])->name('jobs.save');
+    Route::get ('/my-saved-jobs',   [ProfileController::class, 'savedJobs'])->name('jobs.saved');
 
     // Role-specific dashboards split into separate files
     require __DIR__ . '/admin.php';

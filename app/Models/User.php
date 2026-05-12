@@ -105,4 +105,21 @@ class User extends Authenticatable
             default               => 'home', // legacy 'user' or unknown roles → public home (no auth) so we never loop
         };
     }
+
+    /**
+     * Jobs this user has saved/bookmarked.
+     */
+    public function savedJobs(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Job::class, 'saved_jobs')
+            ->withTimestamps()
+            ->orderByDesc('saved_jobs.created_at');
+    }
+
+    /** Has this user saved the given job? */
+    public function hasSavedJob(int|Job $job): bool
+    {
+        $jobId = $job instanceof Job ? $job->id : (int) $job;
+        return $this->savedJobs()->where('jobs.id', $jobId)->exists();
+    }
 }
