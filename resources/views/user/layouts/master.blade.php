@@ -95,6 +95,9 @@
                 rgba(247,244,239,0.82) 40%,
                 rgba(255,255,255,0.95) 100%) !important;
             background-color: transparent !important;
+            border-radius: 0 !important;
+            filter: none !important;
+            transform: none !important;
             z-index: 1 !important;
             pointer-events: none !important;
             opacity: 1 !important;
@@ -111,6 +114,20 @@
         body .utf-page-heading-area > * {
             position: relative;
             z-index: 2;
+        }
+
+        /* Hide page-local decorative blob ::after on heroes (now use unified image bg) */
+        body .intro-banner.intro-hero-v2::after,
+        body .about-hero::after,
+        body .contact-hero::after,
+        body .jobs-hero::after,
+        body .cat-hero::after,
+        body .loc-hero::after,
+        body .companies-hero::after,
+        body .blog-hero::after,
+        body .utf-page-heading-area::after {
+            display: none !important;
+            content: none !important;
         }
 
         /* === Global 2-color H1 accent (orange gradient) across ALL hero variations === */

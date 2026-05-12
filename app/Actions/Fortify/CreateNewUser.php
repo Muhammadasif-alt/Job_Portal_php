@@ -3,7 +3,9 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -32,7 +34,7 @@ class CreateNewUser implements CreatesNewUsers
             'role.in'        => 'Account type must be Company or Job Seeker.',
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name'      => $input['name'],
             'username'  => $input['username'],
             'email'     => $input['email'],
@@ -40,5 +42,15 @@ class CreateNewUser implements CreatesNewUsers
             'role'      => $input['role'],
             'is_active' => true,
         ]);
+
+        // Send the welcome email. Wrapped in try/catch so a mail failure
+        // (bad SMTP creds, etc.) never blocks signup.
+        try {
+            $user->notify(new WelcomeNotification());
+        } catch (\Throwable $e) {
+            Log::warning('WelcomeNotification failed for user '.$user->id.': '.$e->getMessage());
+        }
+
+        return $user;
     }
 }

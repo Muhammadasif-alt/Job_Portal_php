@@ -2,7 +2,24 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// =============================================================================
+// Scheduled tasks
+// =============================================================================
+// Runs every hour — the alerts:send command itself uses the "due" scope so
+// daily alerts only fire once per 24h, weekly only once per 7d. Hourly cadence
+// keeps email arrival time reasonable without flooding.
+//
+// For this to actually run in production, the OS cron must execute:
+//   * * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
+// =============================================================================
+Schedule::command('alerts:send')
+    ->hourly()
+    ->withoutOverlapping(10) // 10-minute lock — long sends won't overlap
+    ->onOneServer()
+    ->runInBackground();

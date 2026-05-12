@@ -8,6 +8,7 @@
 | group (defined in web.php). Uses EnsureRole:job_seeker.
 */
 
+use App\Http\Controllers\Seeker\JobAlertController;
 use App\Http\Controllers\Seeker\JobSeekerDashboardController;
 use App\Http\Controllers\Seeker\SeekerProfileController;
 use App\Http\Controllers\SettingsController;
@@ -35,4 +36,8 @@ Route::prefix('seeker')->name('seeker.')->middleware(EnsureRole::class.':job_see
     Route::put   ('/settings/account',  [SettingsController::class, 'updateAccount'])->name('settings.account');
     Route::put   ('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::delete('/settings/photo',    [SettingsController::class, 'removePhoto'])->name('settings.photo.remove');
+
+    // Job alerts — subscriptions to receive new matching jobs by email
+    Route::resource('job-alerts', JobAlertController::class)->except(['show']);
+    Route::post('job-alerts/{jobAlert}/toggle', [JobAlertController::class, 'toggle'])->name('job-alerts.toggle');
 });

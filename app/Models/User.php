@@ -122,4 +122,10 @@ class User extends Authenticatable
         $jobId = $job instanceof Job ? $job->id : (int) $job;
         return $this->savedJobs()->where('jobs.id', $jobId)->exists();
     }
+
+    /** Job alert subscriptions belonging to this user. */
+    public function jobAlerts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(JobAlert::class)->orderByDesc('created_at');
+    }
 }
