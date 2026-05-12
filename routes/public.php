@@ -191,15 +191,17 @@ Route::get('/sitemap.xml', function () {
         }
     } catch (\Throwable $e) {}
 
-    // Dynamic — recent jobs (most important for indexation)
+    // Dynamic — recent jobs (most important for indexation). Slug is derived from position + location.
     try {
         $jobs = \App\Models\Job::query()
-            ->whereNotNull('slug')
+            ->with('location:id,name')
             ->orderBy('updated_at', 'desc')
             ->take(5000)
-            ->get(['slug','updated_at']);
+            ->get(['id', 'position', 'location_id', 'updated_at']);
         foreach ($jobs as $job) {
-            $xml .= $build(url('/jobs/' . $job->slug), 'daily', '0.8',
+            $slug = \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''));
+            if ($slug === '') { continue; }
+            $xml .= $build(url('/jobs/' . $slug), 'daily', '0.8',
                            optional($job->updated_at)->toDateString());
         }
     } catch (\Throwable $e) {}

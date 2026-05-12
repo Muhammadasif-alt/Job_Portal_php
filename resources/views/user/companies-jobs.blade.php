@@ -157,40 +157,120 @@
 
             <!-- Job Listings -->
             <div class="col-lg-8 col-md-12">
-                <div class="utf-listings-container-part compact-list-layout margin-top-20">
+                <style>
+                    /* Match /jobs listing card pattern */
+                    .jobs-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 20px;
+                        margin-top: 20px;
+                    }
+                    @media (max-width: 991px) { .jobs-grid { grid-template-columns: repeat(2, 1fr); } }
+                    @media (max-width: 575px) { .jobs-grid { grid-template-columns: 1fr; } }
+
+                    .job-card {
+                        display: flex; flex-direction: column;
+                        background: #fff; border: 1px solid #ececec;
+                        border-radius: 14px; padding: 22px 20px;
+                        text-decoration: none; color: inherit; height: 100%;
+                        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+                    }
+                    .job-card:hover {
+                        border-color: #0a0a0a;
+                        box-shadow: 0 14px 32px rgba(15,23,42,.08);
+                        transform: translateY(-3px);
+                    }
+                    .job-card-top {
+                        display: flex; justify-content: space-between; align-items: flex-start;
+                        margin-bottom: 14px;
+                    }
+                    .job-card-logo {
+                        width: 56px; height: 56px; border-radius: 12px;
+                        background: #f5f5f7;
+                        display: flex; align-items: center; justify-content: center;
+                        overflow: hidden; flex-shrink: 0;
+                    }
+                    .job-card-logo img { max-width: 80%; max-height: 80%; object-fit: contain; }
+                    .job-card-badge {
+                        font-size: 11px; font-weight: 700;
+                        padding: 5px 11px; border-radius: 6px;
+                        color: #fff;
+                        display: inline-flex; align-items: center; gap: 4px;
+                        white-space: nowrap; text-transform: uppercase; letter-spacing: .5px;
+                    }
+                    .job-card-badge.green  { background: #047857; }
+                    .job-card-badge.yellow { background: #b45309; }
+                    .job-card-title {
+                        font-size: 16.5px; font-weight: 700; color: #0a0a0a;
+                        margin: 0 0 12px; line-height: 1.35;
+                        display: -webkit-box; -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical; overflow: hidden; min-height: 46px;
+                    }
+                    .job-card-meta { list-style: none; padding: 0; margin: 0 0 18px; flex-grow: 1; }
+                    .job-card-meta li {
+                        font-size: 13px; color: #555; margin-bottom: 6px;
+                        display: flex; align-items: center; gap: 8px;
+                    }
+                    .job-card-meta li i { color: #0a0a0a; font-size: 14px; }
+                    .job-card-button {
+                        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+                        background: #0a0a0a; color: #fff !important;
+                        padding: 11px 14px; border-radius: 10px;
+                        font-size: 13.5px; font-weight: 600;
+                        margin-top: auto;
+                        transition: background .2s ease;
+                        border: 1.5px solid #0a0a0a;
+                    }
+                    .job-card:hover .job-card-button { background: #1a1a1a; border-color: #1a1a1a; }
+
+                    .no-jobs {
+                        grid-column: 1 / -1; text-align: center;
+                        padding: 60px 20px; background: #fafafa;
+                        border: 1px dashed #ddd; border-radius: 14px;
+                    }
+                    .no-jobs i { font-size: 50px; color: #c7c7cc; }
+                    .no-jobs h4 { font-size: 18px; color: #0a0a0a; margin: 14px 0 6px; font-weight: 700; }
+                    .no-jobs p { color: #777; margin: 0; }
+                </style>
+
+                <div class="jobs-grid">
                     @forelse($jobs as $job)
-                    <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? '')) ) }}" class="utf-job-listing">
-                        <div class="utf-job-listing-details">
-                            <div class="utf-job-listing-company-logo">
-                                <img src="{{ $company->logo ? asset('public/storage/' . $company->logo) : asset('public/user/images/jobimages.png') }}"
-                                     alt="{{ $company->name }}">
-                            </div>
-                            <div class="utf-job-listing-description">
-                                <h3 class="utf-job-listing-title">{{ $job->position }}</h3>
-                                <div class="utf-job-listing-footer">
-                                    <ul>
-                                        @if($job->category)
-                                        <li><i class="icon-feather-briefcase"></i> {{ $job->category->name }}</li>
-                                        @endif
-                                        @if($job->location)
-                                        <li><i class="icon-material-outline-location-on"></i>
-                                            {{ $job->location->name }}
-                                            @if($job->location->area)
-                                                , {{ $job->location->area }}
-                                            @endif
-                                        </li>
-                                        @endif
-                                        <li><i class="icon-material-outline-access-time"></i> {{ $job->created_at->diffForHumans() }}</li>
-                                    </ul>
+                        <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? '')) ) }}" class="job-card">
+                            <div class="job-card-top">
+                                <div class="job-card-logo">
+                                    <img src="{{ $company->logo ? asset('public/storage/' . $company->logo) : asset('public/user/images/jobimages.png') }}"
+                                         alt="{{ $company->name }}" loading="lazy">
                                 </div>
+                                <span class="job-card-badge {{ ($job->employment_type ?? '') == 'Part Time' ? 'yellow' : 'green' }}">
+                                    <i class="icon-material-outline-business-center"></i>
+                                    {{ $job->employment_type ?? 'Full Time' }}
+                                </span>
                             </div>
-                            <span class="list-apply-button ripple-effect">View Job <i class="icon-line-awesome-bullhorn"></i></span>
-                        </div>
-                    </a>
+
+                            <h3 class="job-card-title">{{ $job->position }}</h3>
+
+                            <ul class="job-card-meta">
+                                @if($job->category)
+                                    <li><i class="icon-feather-briefcase"></i> {{ $job->category->name }}</li>
+                                @endif
+                                @if($job->location)
+                                    <li><i class="icon-material-outline-location-on"></i>
+                                        {{ $job->location->name }}{{ $job->location->area ? ', ' . $job->location->area : '' }}
+                                    </li>
+                                @endif
+                                <li><i class="icon-material-outline-access-time"></i>
+                                    {{ $job->created_at->diffForHumans() }}
+                                </li>
+                            </ul>
+
+                            <span class="job-card-button">Browse Job <i class="icon-feather-arrow-right"></i></span>
+                        </a>
                     @empty
-                    <div class="notification warning closeable">
-                        <p>No jobs found for this company.</p>
-                    </div>
+                        <div class="no-jobs">
+                            <i class="icon-feather-search"></i>
+                            <h4>No open jobs right now</h4>
+                            <p>{{ $company->name }} doesn't have any active openings at the moment. Check back soon.</p>
+                        </div>
                     @endforelse
                 </div>
 

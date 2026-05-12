@@ -38,9 +38,10 @@ class JobAlertMatchesNotification extends Notification
             ->line("We found **{$count} new " . ($count === 1 ? 'job' : 'jobs') . "** matching your alert" . ($label ? " for {$label}" : '') . " since we last checked.")
             ->line('---');
 
-        // Show top 5 inline (rest behind a link)
+        // Show top 5 inline (rest behind a link). Slug derived from position + location.
         foreach ($this->jobs->take(5) as $job) {
-            $url = route('jobs.show', $job->slug ?? $job->id);
+            $slug = \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''));
+            $url = $slug !== '' ? route('jobs.show', $slug) : route('jobs.index');
             $where = $job->location->name ?? 'USA';
             $company = $job->advertiser->name ?? 'Verified employer';
             $mail->line("**[{$job->position}]({$url})** — {$company} · {$where}");

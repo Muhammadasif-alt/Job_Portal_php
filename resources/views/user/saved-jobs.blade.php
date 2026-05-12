@@ -176,7 +176,7 @@
                         </div>
                         <div class="info">
                             <h3>
-                                <a href="{{ route('jobs.show', $job->slug ?? $job->id) }}">{{ $job->position }}</a>
+                                <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''))) }}">{{ $job->position }}</a>
                             </h3>
                             <div class="meta">
                                 @if($job->advertiser)
@@ -200,7 +200,7 @@
                                     <i class="icon-feather-trash-2"></i> Remove
                                 </button>
                             </form>
-                            <a href="{{ route('jobs.show', $job->slug ?? $job->id) }}" class="btn-view">
+                            <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''))) }}" class="btn-view">
                                 View Job <i class="icon-feather-arrow-right"></i>
                             </a>
                         </div>
