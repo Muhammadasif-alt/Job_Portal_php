@@ -116,9 +116,9 @@
 
     <!-- Intro Banner -->
     <style>
-        /* === Hero with Diverse Professionals image + light overlay === */
+        /* === Hero with home.png background + light overlay === */
         .intro-banner.intro-hero-v2 {
-            background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
+            background-image: url('{{ asset('public/user/images/home.png') }}') !important;
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
@@ -395,6 +395,7 @@
             min-width: 280px !important;
             width: 100% !important;
             background: #fff !important;
+            background-color: #fff !important;
             max-height: 340px !important;
             left: 0 !important;
             right: auto !important;
@@ -402,9 +403,23 @@
             /* Anchor at the bottom edge of the trigger so the menu opens DOWNWARD */
             top: 100% !important;
             bottom: auto !important;
+            /* Above hero stats / trending which have z-index 2 from global rule */
+            z-index: 1050 !important;
+        }
+        /* When dropdown is open, raise the WHOLE bootstrap-select wrapper so its menu sits above siblings */
+        .intro-banner.intro-hero-v2 .utf-intro-search-field-item .bootstrap-select.show,
+        .intro-banner.intro-hero-v2 .utf-intro-search-field-item .bootstrap-select.open {
+            z-index: 1050 !important;
+            position: relative !important;
+        }
+        /* Same for the search form block so the entire search area can overflow above stats */
+        .intro-banner.intro-hero-v2 .utf-intro-banner-search-form-block {
+            position: relative;
+            z-index: 100;
         }
         .intro-banner.intro-hero-v2 .utf-intro-search-field-item .bootstrap-select .dropdown-menu.show {
             position: absolute !important;
+            z-index: 1050 !important;
         }
         /* When menu is open below the trigger, flip chevron to point UP (collapse hint) */
         .intro-banner.intro-hero-v2 .utf-intro-search-field-item .bootstrap-select.show > .btn::after {
@@ -664,6 +679,39 @@
         }
         .intro-banner.intro-hero-v2.hero-split .utf-intro-banner-search-form-block {
             margin: 24px 0 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        /* Trending + stats: stretch to same column width as search box for visual alignment */
+        .intro-banner.intro-hero-v2.hero-split .hero-trending,
+        .intro-banner.intro-hero-v2.hero-split .hero-stats {
+            width: 100%;
+            gap: 18px !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+        }
+        .intro-banner.intro-hero-v2.hero-split .hero-stats .stat {
+            min-width: 0 !important;
+            flex: 1 1 0 !important;
+            text-align: left;
+        }
+        .intro-banner.intro-hero-v2.hero-split .hero-stats .stat strong {
+            font-size: 22px !important;
+            letter-spacing: -.3px;
+        }
+        .intro-banner.intro-hero-v2.hero-split .hero-stats .stat span {
+            font-size: 11px !important;
+            letter-spacing: .8px;
+        }
+        .intro-banner.intro-hero-v2.hero-split .hero-stats .divider { display: none !important; }
+        /* Tablet/mobile: allow stats to wrap (2x2) */
+        @media (max-width: 768px) {
+            .intro-banner.intro-hero-v2.hero-split .hero-stats {
+                flex-wrap: wrap !important;
+            }
+            .intro-banner.intro-hero-v2.hero-split .hero-stats .stat {
+                flex: 0 0 calc(50% - 12px) !important;
+            }
         }
         @media (max-width: 991px) {
             .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part {

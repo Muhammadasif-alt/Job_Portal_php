@@ -35,18 +35,23 @@ class BlogContentSeeder extends Seeder
             $cats[$name] = BlogCatgories::create(['name' => $name, 'slug' => $slug]);
         }
 
-        // === Image pool — cycle through existing site images ===
+        // === Image pool — real-world city + industry scenes (no face thumbnails) ===
         $images = [
-            'public/user/images/comm_small_1.png',
-            'public/user/images/comm_small_2.png',
-            'public/user/images/comm_small_3.png',
-            'public/user/images/comm_small_4.png',
-            'public/user/images/comm_small_5.png',
-            'public/user/images/home-background-02.jpg',
-            'public/user/images/home-background-03.jpg',
-            'public/user/images/jobimages.png',
-            'public/user/images/job-detail-inner.png',
-            'public/user/images/mockup3.png',
+            'public/user/images/popular-location-01.jpg',
+            'public/user/images/job-category-01.jpg',
+            'public/user/images/popular-location-02.jpg',
+            'public/user/images/job-category-02.jpg',
+            'public/user/images/popular-location-03.jpg',
+            'public/user/images/job-category-03.jpg',
+            'public/user/images/popular-location-04.jpg',
+            'public/user/images/job-category-04.jpg',
+            'public/user/images/popular-location-05.jpg',
+            'public/user/images/job-category-05.jpg',
+            'public/user/images/popular-location-06.jpg',
+            'public/user/images/job-category-07.jpg',
+            'public/user/images/popular-location-07.jpg',
+            'public/user/images/job-category-08.jpg',
+            'public/user/images/popular-location-08.jpg',
         ];
 
         // === 15 SEO-optimized blog posts ===

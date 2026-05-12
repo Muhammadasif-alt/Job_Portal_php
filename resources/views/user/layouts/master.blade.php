@@ -54,7 +54,7 @@
         /* Prevent horizontal scroll on mobile */
         html, body { overflow-x: hidden; max-width: 100%; }
 
-        /* === Unified hero background image across ALL pages === */
+        /* === Unified hero layout (size, position, overlay) — image is per-page below === */
         body .intro-banner.intro-hero-v2,
         body .about-hero,
         body .contact-hero,
@@ -66,13 +66,39 @@
         body .js-hero,
         body .seeker-hero,
         body .utf-page-heading-area {
-            background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
             background-color: transparent !important;
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
             position: relative !important;
             isolation: isolate;
+        }
+
+        /* === Per-page hero background images ===
+           Pages without a dedicated upload fall back to hero-diverse-professionals.jpg. */
+        body .intro-banner.intro-hero-v2 {
+            background-image: url('{{ asset('public/user/images/home.png') }}') !important;
+        }
+        body .blog-hero {
+            background-image: url('{{ asset('public/user/images/blog.png') }}') !important;
+        }
+        body .contact-hero {
+            background-image: url('{{ asset('public/user/images/contact.png') }}') !important;
+        }
+        body .jobs-hero {
+            background-image: url('{{ asset('public/user/images/job.png') }}') !important;
+        }
+        body .companies-hero {
+            background-image: url('{{ asset('public/user/images/companies.png') }}') !important;
+        }
+        /* Pages without a custom upload yet — keep the original diverse-professionals image */
+        body .about-hero,
+        body .cat-hero,
+        body .loc-hero,
+        body .js-hero,
+        body .seeker-hero,
+        body .utf-page-heading-area {
+            background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
         }
         body .intro-banner.intro-hero-v2::before,
         body .about-hero::before,
