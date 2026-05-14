@@ -142,7 +142,7 @@
                     <div class="utf-sidebar-widget-item">
                         <div class="utf-company-overview margin-bottom-30">
                             <div class="company-logo-img">
-                                <img src="{{ $company->logo ? asset('public/storage/' . $company->logo) : asset('public/user/images/companies.png') }}"
+                                <img src="{{ $company->logo ? asset('public/storage/' . $company->logo) : asset('public/user/images/companies.jpg') }}"
                                      alt="{{ $company->name }}" class="img-fluid">
                             </div>
                             <div class="company-desc">

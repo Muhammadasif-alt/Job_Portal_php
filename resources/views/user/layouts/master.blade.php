@@ -80,38 +80,38 @@
            WebP with PNG/JPG fallback via image-set() — ~83% smaller on supporting browsers (97% of users).
            Pages without a dedicated upload fall back to hero-diverse-professionals. */
         body .intro-banner.intro-hero-v2 {
-            background-image: url('{{ asset('public/user/images/home.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/home.jpg') }}') !important;
             background-image: image-set(
                 url('{{ asset('public/user/images/home.webp') }}') type('image/webp'),
-                url('{{ asset('public/user/images/home.png') }}') type('image/png')
+                url('{{ asset('public/user/images/home.jpg') }}') type('image/jpeg')
             ) !important;
         }
         body .blog-hero {
-            background-image: url('{{ asset('public/user/images/blog.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/blog.jpg') }}') !important;
             background-image: image-set(
                 url('{{ asset('public/user/images/blog.webp') }}') type('image/webp'),
-                url('{{ asset('public/user/images/blog.png') }}') type('image/png')
+                url('{{ asset('public/user/images/blog.jpg') }}') type('image/jpeg')
             ) !important;
         }
         body .contact-hero {
-            background-image: url('{{ asset('public/user/images/contact.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/contact.jpg') }}') !important;
             background-image: image-set(
                 url('{{ asset('public/user/images/contact.webp') }}') type('image/webp'),
-                url('{{ asset('public/user/images/contact.png') }}') type('image/png')
+                url('{{ asset('public/user/images/contact.jpg') }}') type('image/jpeg')
             ) !important;
         }
         body .jobs-hero {
-            background-image: url('{{ asset('public/user/images/job.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/job.jpg') }}') !important;
             background-image: image-set(
                 url('{{ asset('public/user/images/job.webp') }}') type('image/webp'),
-                url('{{ asset('public/user/images/job.png') }}') type('image/png')
+                url('{{ asset('public/user/images/job.jpg') }}') type('image/jpeg')
             ) !important;
         }
         body .companies-hero {
-            background-image: url('{{ asset('public/user/images/companies.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/companies.jpg') }}') !important;
             background-image: image-set(
                 url('{{ asset('public/user/images/companies.webp') }}') type('image/webp'),
-                url('{{ asset('public/user/images/companies.png') }}') type('image/png')
+                url('{{ asset('public/user/images/companies.jpg') }}') type('image/jpeg')
             ) !important;
         }
         /* Pages without a custom upload yet — keep the diverse-professionals image */

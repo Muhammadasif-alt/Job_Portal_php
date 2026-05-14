@@ -116,9 +116,9 @@
 
     <!-- Intro Banner -->
     <style>
-        /* === Hero with home.png background + light overlay === */
+        /* === Hero with home.jpg background + light overlay === */
         .intro-banner.intro-hero-v2 {
-            background-image: url('{{ asset('public/user/images/home.png') }}') !important;
+            background-image: url('{{ asset('public/user/images/home.jpg') }}') !important;
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
