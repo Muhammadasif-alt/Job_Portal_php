@@ -603,15 +603,41 @@
                         }
 
                         /* Logo — light + dark variants swap via dark-mode class on <html> */
-                        #header #logo { flex-shrink: 0; }
-                        #header #logo img { max-height: 44px; width: auto; display: block; }
-                        #header #logo .logo-dark  { display: none; }
-                        html.dark-mode #header #logo .logo-light { display: none; }
-                        html.dark-mode #header #logo .logo-dark  { display: block; }
+                        #header #logo {
+                            flex: 0 0 auto;
+                            display: inline-flex !important;
+                            align-items: center;
+                            min-width: 150px;
+                            height: 76px;
+                        }
+                        #header #logo a {
+                            display: inline-flex !important;
+                            align-items: center;
+                            text-decoration: none;
+                            height: 100%;
+                            line-height: 1;
+                        }
+                        #header #logo img.logo-light,
+                        #header #logo img.logo-dark {
+                            width: 200px !important;
+                            height: 40px !important;
+                            max-width: none;
+                            max-height: none;
+                            visibility: visible;
+                            object-fit: contain;
+                            vertical-align: middle;
+                            margin: 0 !important;
+                        }
+                        /* Light mode: show light, hide dark */
+                        html:not(.dark-mode) #header #logo img.logo-light { display: inline-block !important; }
+                        html:not(.dark-mode) #header #logo img.logo-dark  { display: none !important; }
+                        /* Dark mode: show dark, hide light */
+                        html.dark-mode #header #logo img.logo-light { display: none !important; }
+                        html.dark-mode #header #logo img.logo-dark  { display: inline-block !important; }
 
-                        /* Nav menu */
+                        /* Nav menu — centered between logo and right-side via flex */
                         #header #navigation {
-                            flex: 1;
+                            flex: 1 1 auto;
                             display: flex;
                             justify-content: center;
                         }
@@ -961,7 +987,22 @@
                             #header .mmenu-trigger .utf-hamburger-inner-item { top: 50% !important; margin-top: -1.25px !important; }
                             #header .mmenu-trigger .utf-hamburger-inner-item::before { top: -8px !important; content: "" !important; display: block !important; }
                             #header .mmenu-trigger .utf-hamburger-inner-item::after { bottom: -8px !important; top: auto !important; content: "" !important; display: block !important; }
-                            #header #logo img { max-height: 32px !important; }
+                            #header #logo { min-width: 170px; }
+                            #header #logo img.logo-light,
+                            #header #logo img.logo-dark {
+                                width: 170px !important;
+                                height: 34px !important;
+                            }
+                            #header .utf-left-side { min-width: 0; flex: 1 1 auto; }
+                        }
+                        @media (max-width: 480px) {
+                            #header #logo { min-width: 150px; }
+                            #header #logo img.logo-light,
+                            #header #logo img.logo-dark {
+                                width: 150px !important;
+                                height: 30px !important;
+                            }
+                            #header .container { padding: 0 10px !important; gap: 6px !important; }
                         }
 
                         /* === Mobile menu (mmenu) — visual feedback on items === */

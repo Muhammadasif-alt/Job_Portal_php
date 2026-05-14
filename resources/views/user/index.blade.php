@@ -196,24 +196,94 @@
         .intro-banner.intro-hero-v2 .utf-banner-headline-text-part { text-align: center; max-width: 980px; margin: 0 auto; }
         .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 {
             color: #0a0a0a !important;
-            font-size: clamp(34px, 5vw, 64px) !important;
+            font-size: clamp(26px, 5vw, 64px) !important;
             font-weight: 800 !important;
-            line-height: 1.08 !important;
-            letter-spacing: -1.4px !important;
+            line-height: 1.12 !important;
+            letter-spacing: -1.2px !important;
             margin: 0 0 18px !important;
             text-shadow: none !important;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        /* Clean responsive — based on companies page approach which works flawlessly */
+        @media (max-width: 991px) {
+            .hero-visual { display: none !important; }
+            .hero-2col {
+                grid-template-columns: minmax(0, 1fr) !important;
+                gap: 30px !important;
+                padding: 0 16px !important;
+            }
+            .hero-content { min-width: 0; }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 {
+                font-size: clamp(22px, 5vw, 36px) !important;
+                letter-spacing: -.4px !important;
+                line-height: 1.2 !important;
+            }
+            .intro-banner.intro-hero-v2 .hero-eyebrow {
+                font-size: 11.5px;
+                line-height: 1.4;
+            }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part > span:not(.hero-eyebrow) {
+                font-size: 14.5px !important;
+                line-height: 1.6 !important;
+            }
+        }
+        @media (max-width: 575px) {
+            .intro-banner.intro-hero-v2 { padding: 50px 0 40px !important; }
+            .hero-2col { padding: 0 14px !important; gap: 24px !important; }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 {
+                font-size: 22px !important;
+                letter-spacing: -.2px !important;
+            }
+            .intro-banner.intro-hero-v2 .hero-eyebrow {
+                font-size: 10.5px;
+                padding: 5px 10px;
+                max-width: 100%;
+                white-space: normal;
+                text-align: left;
+                display: inline-flex !important;
+            }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part > span:not(.hero-eyebrow) {
+                font-size: 13.5px !important;
+            }
+            .hero-stats { flex-wrap: wrap !important; gap: 14px !important; }
+            .hero-stats .divider { display: none !important; }
+            .hero-stats .stat { min-width: calc(50% - 7px) !important; }
+        }
+        @media (max-width: 480px) {
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 {
+                font-size: 21px !important;
+                letter-spacing: -.3px !important;
+            }
+            .intro-banner.intro-hero-v2 { padding: 50px 0 40px !important; }
+            .intro-banner.intro-hero-v2 .container {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+            .intro-banner.intro-hero-v2 .hero-eyebrow { font-size: 10.5px !important; padding: 5px 9px !important; }
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part > span { font-size: 13px !important; }
         }
         .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 .accent {
             font-size: inherit !important;
             font-weight: inherit !important;
             line-height: inherit !important;
-            display: inline !important;
+            display: inline-block !important;
             margin: 0 !important;
+            padding: 0 2px !important;
             background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40) !important;
             -webkit-background-clip: text !important;
             background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             color: transparent !important;
+            overflow: visible !important;
+        }
+        @media (min-width: 768px) {
+            .intro-banner.intro-hero-v2 .utf-banner-headline-text-part h1 .accent { white-space: nowrap; }
         }
         .intro-banner.intro-hero-v2 .utf-banner-headline-text-part > span {
             display: block !important;
@@ -672,7 +742,7 @@
             padding: 0 24px;
         }
         @media (max-width: 1199px) { .hero-2col { gap: 40px; } }
-        @media (max-width: 991px)  { .hero-2col { grid-template-columns: 1fr; gap: 50px; padding: 0 18px; } }
+        @media (max-width: 991px)  { .hero-2col { grid-template-columns: minmax(0, 1fr); gap: 50px; padding: 0 18px; } }
 
         /* Override centered alignment from base hero CSS */
         .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part {
@@ -722,6 +792,8 @@
         @media (max-width: 991px) {
             .intro-banner.intro-hero-v2.hero-split .utf-banner-headline-text-part {
                 text-align: center !important;
+                max-width: 100% !important;
+                width: 100% !important;
             }
         }
 

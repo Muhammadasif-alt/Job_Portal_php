@@ -414,26 +414,38 @@
     /* Benefits split */
     .benefits-row {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 60px;
-        align-items: center;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 40px;
+        align-items: stretch;
     }
-    @media (max-width: 991px) { .benefits-row { grid-template-columns: 1fr; gap: 40px; } }
+    @media (max-width: 991px) { .benefits-row { grid-template-columns: 1fr; gap: 36px; } }
     .benefits-visual {
+        position: relative;
         border-radius: 20px;
         overflow: hidden;
-        aspect-ratio: 5 / 6;
-        max-width: 480px;
-        max-height: 540px;
-        margin: 0 auto;
         box-shadow: 0 25px 50px rgba(15,23,42,.12);
         animation: aboutFloat 7s ease-in-out infinite;
+        height: 100%;
+        min-height: 100%;
+    }
+    .benefits-visual img {
+        position: absolute;
+        inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover; display: block;
     }
     @media (max-width: 991px) {
-        .benefits-visual { max-width: 420px; max-height: 460px; }
+        .benefits-visual {
+            position: static;
+            aspect-ratio: 4 / 3;
+            max-height: 360px;
+            min-height: auto;
+            height: auto;
+        }
+        .benefits-visual img { position: static; }
     }
     @media (max-width: 575px) {
-        .benefits-visual { max-width: 100%; max-height: 380px; aspect-ratio: 4 / 3; }
+        .benefits-visual { max-height: 280px; }
     }
     .benefits-visual img {
         width: 100%; height: 100%;
@@ -470,19 +482,45 @@
         -webkit-text-fill-color: transparent;
         color: transparent;
     }
-    .benefits-list { display: flex; flex-direction: column; gap: 22px; }
-    .benefit-item { display: flex; gap: 18px; align-items: flex-start; }
+    /* 3-column card grid (icon top → heading → text) */
+    .benefits-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: min-content;
+        align-items: start;
+        gap: 14px;
+        align-content: start;
+    }
+    @media (max-width: 1199px) { .benefits-list { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 575px)  { .benefits-list { grid-template-columns: 1fr; } }
+
+    .benefit-item {
+        background: #fff;
+        border: 1px solid #ececec;
+        border-radius: 14px;
+        padding: 18px 16px;
+        text-align: left;
+        height: auto;
+        align-self: start;
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .benefit-item:hover {
+        transform: translateY(-3px);
+        border-color: #ff8a00;
+        box-shadow: 0 14px 28px rgba(15,23,42,.08);
+    }
     .benefit-item .ico {
-        width: 48px; height: 48px;
-        border-radius: 12px;
+        width: 42px; height: 42px;
+        border-radius: 11px;
         background: #0a0a0a;
         color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 20px;
-        flex-shrink: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 14px rgba(10,10,10,.18);
     }
-    .benefit-item h4 { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: #0a0a0a; }
-    .benefit-item p { font-size: 14.5px; line-height: 1.7; color: #555; margin: 0; }
+    .benefit-item h4 { font-size: 15px; font-weight: 800; margin: 0 0 6px; color: #0a0a0a; line-height: 1.3; }
+    .benefit-item p { font-size: 13px; line-height: 1.55; color: #555; margin: 0; }
 
     /* Testimonials */
     .testimonial-grid {
@@ -916,6 +954,33 @@
     html.dark-mode .about-page [style*="background: #fff"] {
         background: var(--site-card-bg, #1c2128) !important;
     }
+
+    /* ===== Dark mode: gradient-text spans (were black-on-black → invisible) ===== */
+    html.dark-mode .benefits-head h2 span,
+    html.dark-mode .story-content h2 span,
+    html.dark-mode .about-hero h1 span {
+        background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+    }
+
+    /* ===== Dark mode: "Find Your Next Role" hero button → orange ===== */
+    html.dark-mode .about-hero-cta a {
+        background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+        border-color: #ff8a00 !important;
+        color: #fff !important;
+        box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+    }
+    html.dark-mode .about-hero-cta a:hover {
+        background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+        box-shadow: 0 14px 28px rgba(255,138,0,.45) !important;
+    }
+
+    /* ===== Dark mode: FAQ +/− icons (were black-on-black → invisible) ===== */
+    html.dark-mode .about-faq-item summary::after { color: #ff8a00 !important; }
+    html.dark-mode .about-faq-item[open] summary::after { color: #ff8a00 !important; }
 </style>
 
 <div class="about-page">
@@ -1042,44 +1107,59 @@
     {{-- Benefits Split --}}
     <section class="about-section">
         <div class="container">
+            <div class="benefits-head" style="text-align: center; margin-bottom: 44px;">
+                <span class="tag">Why Jobs in USA</span>
+                <h2>Built for job seekers who care about <span>quality</span></h2>
+            </div>
             <div class="benefits-row">
                 <div class="benefits-visual">
                     <img src="{{ asset('public/user/images/partir-usa.webp') }}" alt="Why job seekers choose Jobs in USA" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('public/user/images/partir-usa.jpg') }}'">
                 </div>
-                <div>
-                    <div class="benefits-head">
-                        <span class="tag">Why Jobs in USA</span>
-                        <h2>Built for job seekers who care about <span>quality</span></h2>
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-shield"></i></div>
+                        <h4>Every Listing Verified</h4>
+                        <p>Real jobs from screened employers — no scams or ghost posts.</p>
                     </div>
-                    <div class="benefits-list">
-                        <div class="benefit-item">
-                            <div class="ico"><i class="icon-feather-shield"></i></div>
-                            <div>
-                                <h4>Every Listing Verified</h4>
-                                <p>Our team reviews each employer and listing to keep the platform free of scams, ghost jobs, and bait-and-switch posts.</p>
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <div class="ico"><i class="icon-feather-zap"></i></div>
-                            <div>
-                                <h4>Apply in One Click</h4>
-                                <p>Save your resume once and apply instantly. No re-typing the same information across dozens of forms.</p>
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <div class="ico"><i class="icon-feather-bell"></i></div>
-                            <div>
-                                <h4>Smart Job Alerts</h4>
-                                <p>Get notified the moment a role matching your skills, location, or salary expectations goes live.</p>
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <div class="ico"><i class="icon-feather-lock"></i></div>
-                            <div>
-                                <h4>Privacy by Default</h4>
-                                <p>Your data is yours. Strict privacy controls keep your job search confidential — your current employer won't see your profile.</p>
-                            </div>
-                        </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-zap"></i></div>
+                        <h4>Apply in One Click</h4>
+                        <p>Save your resume once and apply instantly to any role.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-bell"></i></div>
+                        <h4>Smart Job Alerts</h4>
+                        <p>Real-time pings when matching roles go live.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-lock"></i></div>
+                        <h4>Privacy by Default</h4>
+                        <p>Your data stays yours — current employers never see it.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-dollar-sign"></i></div>
+                        <h4>100% Free Forever</h4>
+                        <p>Browse, apply, and get hired without paying a cent.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-target"></i></div>
+                        <h4>AI-Matched Roles</h4>
+                        <p>Jobs that actually match your skills — not just keywords.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-message-square"></i></div>
+                        <h4>Direct Messaging</h4>
+                        <p>Reach hiring managers directly — skip the recruiters.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-trending-up"></i></div>
+                        <h4>Career Growth Tools</h4>
+                        <p>Free resume tips, interview guides, and salary insights.</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="ico"><i class="icon-feather-check-square"></i></div>
+                        <h4>Application Tracking</h4>
+                        <p>Track every application from submit to offer in one dashboard.</p>
                     </div>
                 </div>
             </div>
@@ -1510,6 +1590,90 @@
         html.dark-mode .about-industry [style*="color:#1a1a1a"] { color: #fff !important; }
         html.dark-mode .about-industry [style*="color:#5a5a5a"],
         html.dark-mode .about-press + section [style*="color:#5a5a5a"] { color: var(--site-muted, #b8c0cc) !important; }
+
+        /* =================================================================
+           DARK MODE — comprehensive catch-all (loaded LAST, highest priority)
+           ================================================================= */
+
+        /* Gradient text spans — were dark gradient (invisible on dark bg) → orange */
+        html.dark-mode .about-page .benefits-head h2 span,
+        html.dark-mode .about-page .story-content h2 span,
+        html.dark-mode .about-page .about-hero h1 span,
+        html.dark-mode .about-page h1 .accent,
+        html.dark-mode .about-page h2 .accent {
+            background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            color: transparent !important;
+        }
+
+        /* "Find Your Next Role" hero CTA → orange gradient */
+        html.dark-mode .about-page .about-hero-cta a {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            border-color: #ff8a00 !important;
+            color: #fff !important;
+            box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .about-page .about-hero-cta a:hover {
+            background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+            box-shadow: 0 14px 28px rgba(255,138,0,.45) !important;
+        }
+
+        /* FAQ +/− toggles → orange (were #0a0a0a black) */
+        html.dark-mode .about-page .about-faq-item summary::after,
+        html.dark-mode .about-page .about-faq-item[open] summary::after {
+            color: #ff8a00 !important;
+        }
+        html.dark-mode .about-page .about-faq-item summary { color: #fff !important; }
+
+        /* Catch-all for benefits-head / story-content headings themselves */
+        html.dark-mode .about-page .benefits-head h2,
+        html.dark-mode .about-page .story-content h2 { color: #fff !important; }
+        html.dark-mode .about-page .benefits-head .tag {
+            background: rgba(255,138,0,.12) !important;
+            border-color: rgba(255,138,0,.30) !important;
+            color: #ff8a00 !important;
+        }
+
+        /* Story paragraphs */
+        html.dark-mode .about-page .story-content p { color: var(--site-muted, #b8c0cc) !important; }
+        html.dark-mode .about-page .benefits-list .benefit-item h4 { color: #fff !important; }
+        html.dark-mode .about-page .benefits-list .benefit-item p { color: var(--site-muted, #b8c0cc) !important; }
+
+        /* Testimonial stars stay amber */
+        html.dark-mode .about-page .testimonial-stars { color: #ffb800 !important; }
+
+        /* Industry card icons (.ico) → orange gradient (matches site theme) */
+        html.dark-mode .about-page .industry-card .ico {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 10px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .about-page .industry-card:hover .ico {
+            background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+        }
+
+        /* "Three simple steps" how-card icons (.ico) → orange gradient */
+        html.dark-mode .about-page .how-card .ico {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 6px 14px rgba(255,138,0,.30) !important;
+        }
+
+        /* Mission / Vision / Values icons (.ico) → orange gradient */
+        html.dark-mode .about-page .mvv-card .ico {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 6px 14px rgba(255,138,0,.30) !important;
+        }
+
+        /* Benefit list ("Built for job seekers...") icons → orange gradient */
+        html.dark-mode .about-page .benefit-item .ico {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 10px rgba(255,138,0,.30) !important;
+        }
     </style>
 
     {{-- Visible FAQ --}}

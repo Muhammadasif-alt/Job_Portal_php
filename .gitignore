@@ -29,3 +29,7 @@ ExcelImport.zip
 
 # Raw generated image variants (~147MB) — kept locally as backup, not for repo
 /public/user/images/_archive_raw_uploads/
+
+# Deploy bundle + builder (local only)
+/deploy.zip
+/create_deploy_zip.ps1

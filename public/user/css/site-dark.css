@@ -1781,3 +1781,38 @@
             color: #fff !important;
             border-color: #ff8a00 !important;
         }
+
+        /* Home page CTAs: "Get Started — It's Free" + "Contact Support" → orange in dark */
+        html.dark-mode .why-cta {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .why-cta:hover {
+            background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+            box-shadow: 0 14px 28px rgba(255,138,0,.45) !important;
+        }
+        html.dark-mode .faq-left .contact-btn {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .faq-left .contact-btn:hover {
+            background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+            box-shadow: 0 14px 28px rgba(255,138,0,.45) !important;
+        }
+
+        /* Home hero "Search Jobs" button → orange in dark mode */
+        html.dark-mode .utf-intro-search-button .button,
+        html.dark-mode .intro-banner.intro-hero-v2 .utf-intro-search-button button {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            border-color: #ff8a00 !important;
+            color: #fff !important;
+            box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .utf-intro-search-button .button:hover,
+        html.dark-mode .intro-banner.intro-hero-v2 .utf-intro-search-button button:hover {
+            background: linear-gradient(135deg, #ff7a00, #ff4722) !important;
+            box-shadow: 0 14px 28px rgba(255,138,0,.45) !important;
+        }
+        html.dark-mode .utf-intro-search-button .button i { color: #fff !important; }
