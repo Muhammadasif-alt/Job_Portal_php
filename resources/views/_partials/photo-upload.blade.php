@@ -13,6 +13,7 @@
         background: #fafbff; border: 1px solid #eef0f4;
         border-radius: 12px;
         margin-bottom: 14px;
+        flex-wrap: wrap;
     }
     .photo-upload .photo-preview {
         width: 84px; height: 84px;
@@ -27,9 +28,13 @@
     .photo-upload .photo-preview img {
         width: 100%; height: 100%; object-fit: cover;
     }
-    .photo-upload .photo-info { flex: 1; min-width: 0; }
+    .photo-upload .photo-info {
+        flex: 1 1 200px;
+        min-width: 0;
+        max-width: 100%;
+    }
     .photo-upload .photo-info .label { font-weight: 700; font-size: 14px; color: #0a0a0a; margin: 0 0 3px; }
-    .photo-upload .photo-info .hint  { font-size: 12.5px; color: #6b7280; margin: 0; }
+    .photo-upload .photo-info .hint  { font-size: 12.5px; color: #6b7280; margin: 0; line-height: 1.45; }
     .photo-upload .photo-actions {
         display: inline-flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0;
     }
@@ -40,6 +45,7 @@
         cursor: pointer; border: 1px solid #e5e7eb;
         background: #fff; color: #374151;
         transition: all .15s ease;
+        white-space: nowrap;
     }
     .photo-upload .btn-photo:hover { border-color: #0a0a0a; color: #0a0a0a; background: #f3f4f6; }
     .photo-upload .btn-photo.danger { color: #b91c1c; border-color: #fecaca; }
@@ -48,7 +54,37 @@
     .photo-upload .selected-name {
         font-size: 12px; color: #047857;
         margin-top: 6px; display: block;
-        word-break: break-all;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Mobile: stack preview top, info center, actions full-width */
+    @media (max-width: 575px) {
+        .photo-upload {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .photo-upload .photo-preview {
+            width: 72px; height: 72px;
+            border-radius: 16px;
+            margin: 0 auto;
+        }
+        .photo-upload .photo-info {
+            flex: 1 1 100%;
+            text-align: center;
+        }
+        .photo-upload .photo-actions {
+            justify-content: center;
+            flex: 1 1 100%;
+        }
+        .photo-upload .btn-photo {
+            flex: 1;
+            justify-content: center;
+            padding: 9px 14px;
+            font-size: 12.5px;
+        }
     }
 </style>
 

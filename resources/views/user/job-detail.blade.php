@@ -66,12 +66,30 @@
 
     .jd-hero-row {
         display: grid;
-        grid-template-columns: 100px 1fr;
+        grid-template-columns: 100px minmax(0, 1fr);
         gap: 28px;
         align-items: center;
     }
     @media (max-width: 768px) {
-        .jd-hero-row { grid-template-columns: 1fr; gap: 18px; text-align: center; justify-items: center; }
+        .jd-hero-row {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 18px;
+            text-align: center;
+            justify-items: center;
+        }
+    }
+    @media (max-width: 575px) {
+        .jd-hero { padding: 20px 0 24px; }
+        .jd-hero-bc {
+            font-size: 11px;
+            padding: 5px 11px;
+            margin-bottom: 14px;
+            max-width: 100%;
+            gap: 5px;
+            line-height: 1.5;
+        }
+        .jd-hero-bc li { gap: 5px; }
+        .jd-hero-row { gap: 10px; }
     }
     .jd-hero-logo {
         width: 100px; height: 100px;
@@ -81,15 +99,28 @@
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         box-shadow: 0 14px 32px rgba(15,23,42,.08);
+        flex-shrink: 0;
+    }
+    @media (max-width: 575px) {
+        .jd-hero-logo { width: 60px; height: 60px; border-radius: 12px; }
     }
     .jd-hero-logo img { max-width: 75%; max-height: 75%; object-fit: contain; }
+    .jd-hero-text {
+        min-width: 0;
+        max-width: 100%;
+    }
     .jd-hero-text h1 {
-        font-size: clamp(24px, 3vw, 36px);
+        font-size: clamp(20px, 3vw, 36px);
         font-weight: 800;
-        line-height: 1.15;
+        line-height: 1.2;
         color: #0a0a0a;
         margin: 0 0 14px;
-        letter-spacing: -.7px;
+        letter-spacing: -.5px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+    @media (max-width: 575px) {
+        .jd-hero-text h1 { font-size: 17px; letter-spacing: -.2px; margin: 0 0 8px; line-height: 1.25; }
     }
     .jd-hero-meta {
         display: flex;
@@ -98,6 +129,12 @@
         font-size: 14.5px;
         color: #555;
         align-items: center;
+        justify-content: inherit;
+    }
+    @media (max-width: 575px) {
+        .jd-hero-meta { gap: 6px 12px; font-size: 12px; justify-content: center; line-height: 1.4; }
+        .jd-hero-meta i { font-size: 14px; }
+        .jd-hero-meta span.badge-pill { font-size: 10px; padding: 3px 9px; letter-spacing: .8px; }
     }
     .jd-hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
     .jd-hero-meta i { color: #0a0a0a; font-size: 16px; }

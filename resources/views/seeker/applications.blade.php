@@ -51,9 +51,16 @@
     .application .when { font-size: 12px; color: #9ca3af; white-space: nowrap; }
 
     .empty { text-align: center; padding: 70px 20px; }
-    .empty i { font-size: 56px; color: #d1d5db; }
+    .empty > i { font-size: 56px; color: #d1d5db; display: block; margin: 0 auto 6px; }
     .empty h4 { color: #0a0a0a; font-weight: 700; margin: 14px 0 6px; font-size: 18px; }
     .empty p { color: #6b7280; margin: 0 0 22px; font-size: 14.5px; }
+    .empty .btn i { font-size: 14px; color: inherit; display: inline-block; margin: 0; }
+    @media (max-width: 575px) {
+        .empty { padding: 48px 16px; }
+        .empty > i { font-size: 48px; }
+        .empty h4 { font-size: 16px; }
+        .empty p { font-size: 13.5px; }
+    }
 
     .btn { padding: 10px 22px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none !important; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: #0a0a0a; color: #fff !important; border: 1px solid #0a0a0a; }

@@ -69,22 +69,39 @@
 
     /* === Existing resume card === */
     .resume-card {
-        display: flex; align-items: center; gap: 18px;
-        padding: 18px 22px;
+        display: flex; align-items: center; gap: 16px;
+        padding: 16px 18px;
         background: #fafbff;
         border: 1px solid #e5e7eb;
         border-radius: 14px;
+        flex-wrap: wrap;
     }
     .resume-card .file-icon {
-        width: 56px; height: 56px; border-radius: 12px;
+        width: 48px; height: 48px; border-radius: 12px;
         background: #fef2f2; color: #dc2626;
         display: inline-flex; align-items: center; justify-content: center;
-        font-size: 26px; flex-shrink: 0;
+        font-size: 22px; flex-shrink: 0;
     }
-    .resume-card .file-info { flex: 1; min-width: 0; }
-    .resume-card .file-name { font-weight: 700; color: #0a0a0a; font-size: 14.5px; margin: 0 0 3px; word-break: break-all; }
+    .resume-card .file-info { flex: 1 1 0; min-width: 0; max-width: 100%; }
+    .resume-card .file-name {
+        font-weight: 700;
+        color: #0a0a0a;
+        font-size: 14px;
+        margin: 0 0 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+    }
     .resume-card .file-meta { font-size: 12px; color: #6b7280; }
     .resume-card .actions { display: inline-flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+    @media (max-width: 575px) {
+        .resume-card { padding: 14px; gap: 12px; }
+        .resume-card .file-icon { width: 42px; height: 42px; font-size: 19px; }
+        .resume-card .file-info { flex: 1 1 100%; min-width: 0; }
+        .resume-card .actions { flex: 1 1 100%; }
+        .resume-card .actions .btn { flex: 1; justify-content: center; font-size: 12.5px; padding: 8px 12px; }
+    }
 
     .btn { padding: 9px 18px; border-radius: 10px; font-weight: 600; font-size: 13.5px; text-decoration: none !important; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; transition: transform .15s ease; }
     .btn-primary { background: #0a0a0a !important; color: #fff !important; border: 1px solid #0a0a0a !important; box-shadow: 0 6px 14px rgba(10,10,10,.18); }
