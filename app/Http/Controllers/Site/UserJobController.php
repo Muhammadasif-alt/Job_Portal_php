@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Advertiser;
 use App\Models\Category;
 use App\Models\Job;
 use App\Models\Location;
+use App\Services\JobSearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use App\Services\JobSearchService;
 
 class UserJobController extends Controller
 {
@@ -56,7 +55,9 @@ class UserJobController extends Controller
         // Latest career-advice blog posts for the homepage section above the FAQ
         $careerPosts = Cache::remember('home.careerPosts', 600, function () {
             return \App\Models\Blog::with('category')
-                ->where(function ($q) { $q->where('status', 'published')->orWhereNull('status'); })
+                ->where(function ($q) {
+                    $q->where('status', 'published')->orWhereNull('status');
+                })
                 ->latest('published_at')
                 ->take(6)
                 ->get();
@@ -98,7 +99,7 @@ class UserJobController extends Controller
 
         $heroStats = Cache::remember('jobs.heroStats', 600, function () {
             return [
-                'total_jobs'      => Job::count(),
+                'total_jobs' => Job::count(),
                 'total_companies' => Advertiser::count(),
                 'total_locations' => Location::select('name')->distinct()->count('name'),
             ];
@@ -119,13 +120,45 @@ class UserJobController extends Controller
                 ->get();
         });
 
+        // Top skills/keywords across all jobs — built from seo_keywords column.
+        // Falls back to a curated list when the DB is fresh (no jobs imported yet).
+        $topSkills = Cache::remember('jobs.topSkills', 600, function () {
+            $raw = DB::table('jobs')
+                ->whereNotNull('seo_keywords')
+                ->where('seo_keywords', '!=', '')
+                ->pluck('seo_keywords');
+
+            $counts = [];
+            foreach ($raw as $csv) {
+                foreach (explode(',', (string) $csv) as $skill) {
+                    $s = trim($skill);
+                    if ($s === '') {
+                        continue;
+                    }
+                    $counts[$s] = ($counts[$s] ?? 0) + 1;
+                }
+            }
+            arsort($counts);
+            $top = array_slice(array_keys($counts), 0, 16);
+
+            // Fallback list — popular searches that match the keyword dictionary
+            if (empty($top)) {
+                $top = ['Remote', 'JavaScript', 'Python', 'React', 'Node.js', 'AWS',
+                    'SEO', 'CDL', 'RN', 'Customer Service', 'Marketing', 'SQL',
+                    'Project Management', 'Agile', 'Salesforce', 'Adobe Photoshop'];
+            }
+
+            return $top;
+        });
+
         return view('user.jobs-listings', array_merge($result, [
-            'uniqueLocations'   => $uniqueLocations,
-            'uniqueAreas'       => $uniqueAreas,
+            'uniqueLocations' => $uniqueLocations,
+            'uniqueAreas' => $uniqueAreas,
             'uniquePostalCodes' => $uniquePostalCodes,
-            'heroStats'         => $heroStats,
-            'topCategories'     => $topCategories,
-            'topStates'         => $topStates,
+            'heroStats' => $heroStats,
+            'topCategories' => $topCategories,
+            'topStates' => $topStates,
+            'topSkills' => $topSkills,
         ]));
     }
 
@@ -141,10 +174,15 @@ class UserJobController extends Controller
 
     private function getRelatedJobs(Job $job)
     {
-        return Job::with(['advertiser', 'location', 'category'])
+        // Dedupe by (position, advertiser_id) so "Similar Jobs" shows variety, not 6 copies
+        // of the same role with different ZIP codes (Jobg8 imports one row per ZIP).
+        $dedupedIds = DB::table('jobs')
+            ->select(DB::raw('MAX(id) as id'))
             ->where('id', '!=', $job->id)
-            ->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); })
-            ->where(function($q) use ($job) {
+            ->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            })
+            ->where(function ($q) use ($job) {
                 if ($job->category_id) {
                     $q->orWhere('category_id', $job->category_id);
                 }
@@ -152,6 +190,13 @@ class UserJobController extends Controller
                     $q->orWhere('location_id', $job->location_id);
                 }
             })
+            ->where('position', '!=', $job->position) // also skip the same title as the current job
+            ->groupBy('position', 'advertiser_id')
+            ->pluck('id')
+            ->toArray();
+
+        return Job::with(['advertiser', 'location', 'category'])
+            ->whereIn('id', $dedupedIds)
             ->latest()
             ->take(6)
             ->get();
@@ -173,11 +218,11 @@ class UserJobController extends Controller
 
         foreach ($words as $word) {
             $w = $word;
-            $query->where(function($q) use ($w) {
+            $query->where(function ($q) use ($w) {
                 $q->where('position', 'like', "%{$w}%")
-                  ->orWhereHas('location', function($sub) use ($w) {
-                      $sub->where('name', 'like', "%{$w}%")->orWhere('area', 'like', "%{$w}%");
-                  });
+                    ->orWhereHas('location', function ($sub) use ($w) {
+                        $sub->where('name', 'like', "%{$w}%")->orWhere('area', 'like', "%{$w}%");
+                    });
             });
         }
 
@@ -186,9 +231,10 @@ class UserJobController extends Controller
 
         // Compare generated slug (standardized format: position-location) from each candidate and return the first exact match
         foreach ($candidates as $job) {
-            $generated = \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''));
+            $generated = \Illuminate\Support\Str::slug($job->position.'-'.($job->location->name ?? ''));
             if ($generated === $slug) {
                 $relatedJobs = $this->getRelatedJobs($job);
+
                 return view('user.job-detail', compact('job', 'relatedJobs'));
             }
         }
@@ -200,7 +246,9 @@ class UserJobController extends Controller
     public function categories(Request $request)
     {
         $categories = Category::withCount(['jobs' => function ($query) {
-            $query->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); });
+            $query->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            });
         }])->orderBy('name')->paginate(12);
 
         // The N+1 below is the major slowdown â€” already covered by jobs_count above
@@ -211,10 +259,10 @@ class UserJobController extends Controller
 
         $heroStats = Cache::remember('categoriesPage.heroStats', 600, function () {
             return [
-                'total_jobs'       => Job::count(),
+                'total_jobs' => Job::count(),
                 'total_categories' => Category::count(),
-                'total_companies'  => Advertiser::count(),
-                'total_locations'  => Location::select('name')->distinct()->count('name'),
+                'total_companies' => Advertiser::count(),
+                'total_locations' => Location::select('name')->distinct()->count('name'),
             ];
         });
 
@@ -229,8 +277,10 @@ class UserJobController extends Controller
 
             // Base query for active jobs at this location
             $query = Job::with(['advertiser', 'category'])
-                    ->where('location_id', $location->id)
-                    ->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); });
+                ->where('location_id', $location->id)
+                ->where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                });
 
             // Filter by job types (supports single or multiple)
             if ($jobTypes = $request->query('job_type')) {
@@ -262,6 +312,17 @@ class UserJobController extends Controller
                     break;
             }
 
+            // Dedupe by (position, advertiser_id) — Jobg8 imports one row per ZIP, so the
+            // same role shows up 8+ times in a state. Show one card per unique role.
+            $dedupedIds = (clone $query)
+                ->getQuery()
+                ->reorder()
+                ->select(DB::raw('MAX(jobs.id) as id'))
+                ->groupBy('jobs.position', 'jobs.advertiser_id')
+                ->pluck('id')
+                ->toArray();
+            $query->whereIn('jobs.id', $dedupedIds);
+
             // Paginate and preserve query string
             $jobs = $query->paginate(10)->appends($filters);
 
@@ -269,18 +330,24 @@ class UserJobController extends Controller
             $jobTypesList = Job::selectRaw('job_type, COUNT(*) as count')
                 ->where('location_id', $location->id)
                 ->whereNotNull('job_type')
-                ->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); })
+                ->where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                })
                 ->groupBy('job_type')
                 ->get();
 
             // Sidebar: other locations (exclude current) with active job counts
             $otherLocations = Location::withCount(['jobs' => function ($q) use ($location) {
-                $q->where(function($q2){ $q2->where('status', 'active')->orWhereNull('status'); })->where('id', '!=', $location->id);
+                $q->where(function ($q2) {
+                    $q2->where('status', 'active')->orWhereNull('status');
+                })->where('id', '!=', $location->id);
             }])->orderBy('name')->take(15)->get();
 
             // Sidebar: categories with counts for this location
             $categories = Category::withCount(['jobs' => function ($q) use ($location) {
-                $q->where(function($q2){ $q2->where('status', 'active')->orWhereNull('status'); })->where('location_id', $location->id);
+                $q->where(function ($q2) {
+                    $q2->where('status', 'active')->orWhereNull('status');
+                })->where('location_id', $location->id);
             }])->orderBy('name')->get();
 
             return view('user.location-jobs', compact('jobs', 'location', 'jobTypesList', 'otherLocations', 'categories', 'filters'));
@@ -293,20 +360,60 @@ class UserJobController extends Controller
 
     /**
      * Display all locations with job counts.
+     * Locations are grouped by name + area so duplicate ZIP entries
+     * (e.g. two Huntsville rows for ZIPs 35810 and 35803) collapse into one card.
      */
     public function locations()
     {
-        $locations = Location::withCount(['jobs' => function ($query) {
-            $query->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); }); // Count only active or unspecified jobs
-        }])->orderBy('name')->paginate(12); // 12 locations per page
+        // Pre-aggregate job counts per location_id ONCE (cheap, indexed), then join
+        // against locations. This avoids a 10K × 68K LEFT JOIN on every page load.
+        // Cache per page so pagination works while keeping everything snappy.
+        // Aggregate by STATE only — one card per state ("Jobs in Texas", "Jobs in California", etc.)
+        // The locations table stores `name = state` and `area = city`, so we group on locations.name
+        // and roll up city counts. Only states with at least one active job are shown.
+        $page = request()->input('page', 1);
+        $locations = Cache::remember('locationsPage.list.v2.p' . $page, 600, function () {
+            $jobCounts = DB::table('jobs')
+                ->select('location_id', DB::raw('COUNT(*) as cnt'))
+                ->where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                })
+                ->whereNotNull('location_id')
+                ->groupBy('location_id');
 
-        $defaultImage = 'user/images/popular-location-02.jpg';
+            return DB::table('locations')
+                ->joinSub($jobCounts, 'jc', 'jc.location_id', '=', 'locations.id')
+                ->select(
+                    'locations.name',
+                    DB::raw('NULL as area'),
+                    DB::raw('MIN(locations.id) as id'),
+                    DB::raw('SUM(jc.cnt) as jobs_count')
+                )
+                ->groupBy('locations.name')
+                ->orderByDesc('jobs_count')
+                ->orderBy('locations.name')
+                ->paginate(12);
+        });
+
+        // Pool of background images for cards — picked deterministically per card.
+        $locationImages = [
+            'user/images/popular-location-01.jpg',
+            'user/images/popular-location-02.jpg',
+            'user/images/popular-location-03.jpg',
+            'user/images/popular-location-04.jpg',
+            'user/images/popular-location-05.jpg',
+            'user/images/popular-location-06.jpg',
+            'user/images/popular-location-07.jpg',
+            'user/images/popular-location-08.jpg',
+            'user/images/popular-location-09.jpg',
+        ];
+        $defaultImage = $locationImages[0];
 
         $heroStats = Cache::remember('locationsPage.heroStats', 600, function () {
             return [
-                'total_jobs'      => Job::count(),
+                'total_jobs' => Job::count(),
                 'total_locations' => Location::count(),
-                'total_states'    => Location::select('name')->distinct()->count('name'),
+                'total_states' => Location::select('name')->distinct()->count('name'),
                 'total_companies' => Advertiser::count(),
             ];
         });
@@ -321,7 +428,7 @@ class UserJobController extends Controller
                 ->get();
         });
 
-        return view('user.locations', compact('locations', 'defaultImage', 'heroStats', 'topStates'));
+        return view('user.locations', compact('locations', 'defaultImage', 'locationImages', 'heroStats', 'topStates'));
     }
 
     public function showCategory($categorySlug)
@@ -329,10 +436,21 @@ class UserJobController extends Controller
         // Get the category with the given slug
         $category = Category::where('slug', $categorySlug)->firstOrFail();
 
+        // Dedupe by (position, advertiser_id) — Jobg8 imports one row per ZIP, so a single
+        // role multiplies into 8+ cards in the same category. Show one card per unique role.
+        $dedupedIds = DB::table('jobs')
+            ->select(DB::raw('MAX(id) as id'))
+            ->where('category_id', $category->id)
+            ->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            })
+            ->groupBy('position', 'advertiser_id')
+            ->pluck('id')
+            ->toArray();
+
         // Get active jobs in this category with pagination
         $jobs = Job::with(['advertiser', 'location'])
-            ->where('category_id', $category->id)
-            ->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); })
+            ->whereIn('id', $dedupedIds)
             ->latest()
             ->paginate(9);
 
@@ -344,7 +462,9 @@ class UserJobController extends Controller
 
         // Get all categories with job counts for the sidebar
         $categories = Category::withCount(['jobs' => function ($query) {
-            $query->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); });
+            $query->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            });
         }])
             ->orderBy('name')
             ->get();
@@ -360,14 +480,16 @@ class UserJobController extends Controller
     public function companies(Request $request)
     {
         $search = trim((string) $request->input('q', ''));
-        $sort   = $request->input('sort', 'name');
+        $sort = $request->input('sort', 'name');
 
         $query = Advertiser::withCount(['jobs' => function ($q) {
-            $q->where(function($qq){ $qq->where('status', 'active')->orWhereNull('status'); });
+            $q->where(function ($qq) {
+                $qq->where('status', 'active')->orWhereNull('status');
+            });
         }]);
 
         if ($search !== '') {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         switch ($sort) {
@@ -385,10 +507,14 @@ class UserJobController extends Controller
 
         $stats = [
             'total_companies' => Advertiser::count(),
-            'total_jobs'      => Job::where(function($q){ $q->where('status', 'active')->orWhereNull('status'); })->count(),
-            'hiring_now'      => Advertiser::whereHas('jobs', function ($q) {
-                                    $q->where(function($qq){ $qq->where('status', 'active')->orWhereNull('status'); });
-                                })->count(),
+            'total_jobs' => Job::where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            })->count(),
+            'hiring_now' => Advertiser::whereHas('jobs', function ($q) {
+                $q->where(function ($qq) {
+                    $qq->where('status', 'active')->orWhereNull('status');
+                });
+            })->count(),
         ];
 
         return view('user.companies', compact('companies', 'stats', 'search', 'sort'));
@@ -399,10 +525,21 @@ class UserJobController extends Controller
      */
     public function showCompany(Advertiser $advertiser)
     {
+        // Dedupe by position — Jobg8 lists the same role under one company across many ZIPs.
+        // Show each role once on the company-jobs page.
+        $dedupedIds = DB::table('jobs')
+            ->select(DB::raw('MAX(id) as id'))
+            ->where('advertiser_id', $advertiser->id)
+            ->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            })
+            ->groupBy('position')
+            ->pluck('id')
+            ->toArray();
+
         // Get active jobs for this company with pagination
         $jobs = Job::with(['category', 'location'])
-            ->where('advertiser_id', $advertiser->id)
-            ->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); })
+            ->whereIn('id', $dedupedIds)
             ->latest()
             ->paginate(10);
 
@@ -414,7 +551,9 @@ class UserJobController extends Controller
 
         // Get all categories with job counts for the sidebar
         $categories = Category::withCount(['jobs' => function ($query) {
-            $query->where(function($q){ $q->where('status', 'active')->orWhereNull('status'); });
+            $query->where(function ($q) {
+                $q->where('status', 'active')->orWhereNull('status');
+            });
         }])
             ->orderBy('name')
             ->get();
@@ -439,11 +578,80 @@ class UserJobController extends Controller
 
     public function search(Request $request, JobSearchService $searchService)
     {
-        $result = $searchService->search($request, 10);
+        $result = $searchService->search($request, 9);
 
         return view('user.search-results', array_merge($result, [
             'selectedLocation' => $request->location,
             'keywords' => $request->input('keywords') ?? $request->input('position'),
         ]));
+    }
+
+    /**
+     * Autocomplete suggestions for the global search box.
+     * Returns up to 10 grouped suggestions: jobs, categories, locations.
+     */
+    public function autocomplete(Request $request)
+    {
+        $q = trim((string) $request->input('q', ''));
+        if (mb_strlen($q) < 2) {
+            return response()->json(['suggestions' => []]);
+        }
+
+        // Cache identical queries for 30s — type fast = same query repeats
+        $cacheKey = 'autocomplete.'.mb_strtolower($q);
+        $payload = Cache::remember($cacheKey, 30, function () use ($q) {
+            $like = "%{$q}%";
+            $suggestions = [];
+
+            // 1) Job positions (deduplicated, popular first)
+            $jobs = Job::select('position')
+                ->where('position', 'like', $like)
+                ->where(function ($qb) {
+                    $qb->where('status', 'active')->orWhereNull('status');
+                })
+                ->groupBy('position')
+                ->orderByRaw('COUNT(*) DESC')
+                ->limit(5)
+                ->pluck('position');
+            foreach ($jobs as $title) {
+                $suggestions[] = [
+                    'type' => 'job',
+                    'icon' => 'briefcase',
+                    'label' => $title,
+                    'url' => route('jobs.index', ['position' => $title]),
+                ];
+            }
+
+            // 2) Categories
+            $cats = Category::where('name', 'like', $like)
+                ->limit(3)
+                ->get(['name', 'slug']);
+            foreach ($cats as $cat) {
+                $suggestions[] = [
+                    'type' => 'category',
+                    'icon' => 'tag',
+                    'label' => $cat->name,
+                    'url' => route('jobs.category', $cat->slug),
+                ];
+            }
+
+            // 3) Locations
+            $locs = Location::where('name', 'like', $like)
+                ->orderBy('name')
+                ->limit(3)
+                ->get(['id', 'name']);
+            foreach ($locs as $loc) {
+                $suggestions[] = [
+                    'type' => 'location',
+                    'icon' => 'geo-alt',
+                    'label' => $loc->name,
+                    'url' => route('jobs.index', ['location' => $loc->name]),
+                ];
+            }
+
+            return $suggestions;
+        });
+
+        return response()->json(['suggestions' => $payload]);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Advertiser;
 use App\Models\Category;
 use App\Models\Job;
@@ -46,8 +45,10 @@ class JobController extends Controller
      */
     public function index()
     {
-        // eager-load relations to avoid N+1 queries
-        $jobs = Job::with(['category', 'advertiser', 'location'])->paginate(15);
+        // eager-load relations to avoid N+1 queries; show newest jobs first
+        $jobs = Job::with(['category', 'advertiser', 'location'])
+            ->latest('id')
+            ->paginate(15);
 
         return view('admin.jobs.index', compact('jobs')); // Updated view path
     }

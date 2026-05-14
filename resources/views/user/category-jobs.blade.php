@@ -425,7 +425,7 @@
                             <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? '')) ) }}" class="cat-job-card">
                                 <div class="cat-job-top">
                                     <div class="cat-job-logo">
-                                        <img src="{{ $job->advertiser->logo ? asset('public/storage/' . $job->advertiser->logo) : asset('public/user/images/jobimages.png') }}" alt="{{ $job->advertiser->name ?? 'Company' }}">
+                                        <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}" alt="{{ $job->advertiser->name ?? 'Company' }}" loading="lazy" decoding="async">
                                     </div>
                                     @if($job->job_type === 'full_time')
                                         <span class="cat-job-badge green">Full Time</span>

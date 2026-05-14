@@ -4,6 +4,76 @@
 @section('content')
 
 <style>
+    /* === Contact page hero (replaces legacy thin titlebar) === */
+    .contact-page-hero {
+        position: relative;
+        padding: 110px 0 90px;
+        overflow: hidden;
+        border-bottom: 1px solid #f0f0f3;
+    }
+    @media (max-width: 991px) { .contact-page-hero { padding: 80px 0 60px; } }
+    @media (max-width: 575px) { .contact-page-hero { padding: 60px 0 50px; } }
+    .contact-page-hero .container { position: relative; z-index: 2; text-align: center; }
+    .contact-page-hero .breadcrumbs-mini {
+        color: #777; font-size: 13px; margin-bottom: 14px;
+    }
+    .contact-page-hero .breadcrumbs-mini a {
+        color: #0a0a0a; text-decoration: none; font-weight: 600;
+    }
+    .contact-page-hero .breadcrumbs-mini a:hover { color: #ff8a00; }
+    .contact-page-hero .eyebrow {
+        display: inline-block;
+        background: #fff;
+        border: 1px solid #e5e5e7;
+        color: #555;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        padding: 7px 16px;
+        border-radius: 999px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    }
+    .contact-page-hero h1 {
+        color: #0a0a0a;
+        font-size: clamp(34px, 4.8vw, 56px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1.2px;
+        margin: 0 0 20px;
+        max-width: 880px;
+        margin-left: auto; margin-right: auto;
+    }
+    .contact-page-hero h1 .accent {
+        background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+    .contact-page-hero p.lead {
+        color: #555;
+        font-size: clamp(15px, 1.5vw, 18px);
+        line-height: 1.65;
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+    /* Dark mode for contact hero */
+    html.dark-mode .contact-page-hero {
+        border-bottom-color: rgba(255,255,255,.08) !important;
+    }
+    html.dark-mode .contact-page-hero .breadcrumbs-mini { color: #b8c0cc !important; }
+    html.dark-mode .contact-page-hero .breadcrumbs-mini a { color: #ff8a00 !important; }
+    html.dark-mode .contact-page-hero .eyebrow {
+        background: rgba(255,138,0,.12) !important;
+        border-color: rgba(255,138,0,.30) !important;
+        color: #ff8a00 !important;
+    }
+    html.dark-mode .contact-page-hero h1 { color: #fff !important; }
+    html.dark-mode .contact-page-hero p.lead { color: #b8c0cc !important; }
+
     .contact-section { padding: 60px 0; }
     .contact-section h1 {
         font-size: 34px;
@@ -264,7 +334,9 @@
         border-color: #ff8a00;
         color: inherit;
     }
-    .contact-blog-thumb { height: 180px; overflow: hidden; background: #f5f5f5; }
+    .contact-blog-thumb { height: 150px; overflow: hidden; background: #f5f5f5; }
+    @media (max-width: 991px) { .contact-blog-thumb { height: 140px; } }
+    @media (max-width: 575px) { .contact-blog-thumb { height: 180px; } }
     .contact-blog-thumb img {
         width: 100%; height: 100%; object-fit: cover;
         transition: transform .35s ease;
@@ -295,23 +367,100 @@
         font-weight: 600;
         font-size: 12px;
     }
+
+    /* =========================================
+       DARK MODE — Contact page sections
+       ========================================= */
+    html.dark-mode .contact-section {
+        background: var(--site-bg, #0f1216) !important;
+    }
+    html.dark-mode .contact-section .form-control,
+    html.dark-mode .contact-form-card .form-control {
+        background: #1c2128 !important;
+        border-color: rgba(255,255,255,.12) !important;
+        color: #fff !important;
+    }
+    html.dark-mode .contact-form-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .contact-form-card h1,
+    html.dark-mode .contact-form-card h2 { color: #fff !important; }
+    html.dark-mode .contact-form-card label { color: #d0d6df !important; }
+    html.dark-mode .contact-form-card .lead { color: #b8c0cc !important; }
+    html.dark-mode .contact-form-card .form-control:focus { border-color: #ff8a00 !important; }
+
+    /* Quick contact cards */
+    html.dark-mode .quick-contact-section { background: transparent !important; }
+    html.dark-mode .quick-contact-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .quick-contact-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .quick-contact-card h4 { color: #fff !important; }
+    html.dark-mode .quick-contact-card p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .quick-contact-icon {
+        background: rgba(255,138,0,.15) !important;
+        color: #ff8a00 !important;
+    }
+    html.dark-mode .quick-contact-card:hover .quick-contact-icon {
+        background: #ff8a00 !important; color: #fff !important;
+    }
+
+    /* "From Our Blog" teaser section */
+    html.dark-mode .contact-blog-section {
+        background: var(--site-bg, #0f1216) !important;
+        border-top-color: rgba(255,255,255,.06) !important;
+    }
+    html.dark-mode .contact-blog-section .section-head h2 { color: #fff !important; }
+    html.dark-mode .contact-blog-section .section-head p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .contact-blog-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .contact-blog-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .contact-blog-thumb { background: #15181d !important; }
+    html.dark-mode .contact-blog-body .meta { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .contact-blog-body h4 { color: #fff !important; }
+    html.dark-mode .contact-blog-body p { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* FAQ section */
+    html.dark-mode .contact-faq-section {
+        background: #161a20 !important;
+        border-top-color: rgba(255,255,255,.06) !important;
+    }
+    html.dark-mode .contact-faq-section .faq-head h2 { color: #fff !important; }
+    html.dark-mode .contact-faq-section .faq-head p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .contact-faq-item {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .contact-faq-item:hover,
+    html.dark-mode .contact-faq-item[open] { border-color: #ff8a00 !important; }
+    html.dark-mode .contact-faq-item summary { color: #fff !important; }
+    html.dark-mode .contact-faq-item .faq-answer { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* Contact info card (dark gradient — keep but tighten on dark theme) */
+    html.dark-mode .contact-info-card {
+        background: linear-gradient(135deg, #1c2128 0%, #15181d 100%) !important;
+        border: 1px solid rgba(255,255,255,.08) !important;
+    }
 </style>
 
-<div id="titlebar" class="gradient">
+<section class="contact-hero contact-page-hero">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Contact Us</h2>
-                <nav id="breadcrumbs">
-                    <ul>
-                        <li><a href="{{ route('home') }}">Home</a></li>
-                        <li>Contact</li>
-                    </ul>
-                </nav>
-            </div>
+        <div class="breadcrumbs-mini">
+            <a href="{{ route('home') }}">Home</a> &nbsp;&rsaquo;&nbsp; Contact Us
         </div>
+        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">We're Here to Help</span>
+        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+            Get in Touch With <span class="accent">Jobs in USA</span>
+        </h1>
+        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">
+            Have a question, need support, or want to partner with us? Our team responds within 24 hours on business days. Pick the contact channel that works best for you below.
+        </p>
     </div>
-</div>
+</section>
 
 <!-- Quick Contact Cards -->
 <div class="quick-contact-section">
@@ -446,9 +595,13 @@
                 <a href="{{ route('blog.show', $post->slug) }}" class="contact-blog-card">
                     <div class="contact-blog-thumb">
                         @if($post->featured_image)
-                            <img src="{{ asset('public/storage/' . $post->featured_image) }}" alt="{{ $post->title }}">
+                            <img src="{{ asset('public/storage/' . $post->featured_image) }}"
+                                 alt="{{ $post->title }}"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='{{ asset('public/user/images/blog-compact-post-01.jpg') }}'">
                         @else
-                            <img src="{{ asset('public/user/images/blog-compact-post-01.jpg') }}" alt="{{ $post->title }}">
+                            <img src="{{ asset('public/user/images/blog-compact-post-01.jpg') }}"
+                                 alt="{{ $post->title }}" loading="lazy">
                         @endif
                     </div>
                     <div class="contact-blog-body">

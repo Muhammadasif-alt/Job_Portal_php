@@ -353,18 +353,30 @@
             .rs-item-body .rs-bullets li { font-size: 13.5px; }
         </style>
 
-        <div style="margin-top: 8px;">
+        <div style="margin-top: 8px;" id="resumeContentBlock">
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom: 14px;">
                 <h2 style="font-size: 20px; font-weight: 800; color: #0a0a0a; margin: 0; display:flex; align-items:center; gap:10px;">
                     <i class="bi bi-file-earmark-richtext" style="color:#5e2bff"></i>
                     Full Resume Content
                 </h2>
-                <span style="font-size:12px; color:#6b7280; background:#f3efff; border:1px solid #ddd6fe; padding:4px 10px; border-radius:999px; font-weight:600;">
-                    <i class="bi bi-magic" style="margin-right:4px;"></i> Auto-extracted from your CV
-                </span>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="resume-meta-pill" style="font-size:12px; color:#6b7280; background:#f3efff; border:1px solid #ddd6fe; padding:4px 10px; border-radius:999px; font-weight:600;">
+                        <i class="bi bi-magic" style="margin-right:4px;"></i> Auto-extracted from your CV
+                    </span>
+                    @if(! empty($orderedSections))
+                    <button type="button" class="resume-edit-toggle" id="resumeEditToggle"
+                        style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;
+                               padding:7px 14px; border-radius:999px; border:1px solid #0a0a0a;
+                               background:#0a0a0a; color:#fff; cursor:pointer; transition:all .15s ease;">
+                        <i class="bi bi-pencil"></i> <span class="label">Edit content</span>
+                    </button>
+                    @endif
+                </div>
             </div>
 
             @if(! empty($orderedSections))
+                {{-- ===== VIEW MODE ===== --}}
+                <div id="resumeViewMode">
                 @foreach($orderedSections as $sec)
                     @php
                         $heading    = trim($sec['heading'] ?? '');
@@ -434,6 +446,216 @@
                         </div>
                     </div>
                 @endforeach
+                </div>
+
+                {{-- ===== EDIT MODE ===== --}}
+                <form id="resumeEditMode" method="POST" action="{{ route('seeker.resume-data.update') }}" style="display:none;">
+                    @csrf
+                    @method('PUT')
+
+                    <style>
+                        .re-input, .re-textarea {
+                            width: 100%; padding: 9px 12px;
+                            border: 1px solid #e5e7eb; border-radius: 8px;
+                            font-size: 13.5px; color: #0f172a; background: #fff;
+                            font-family: inherit;
+                            transition: border-color .15s ease, box-shadow .15s ease;
+                        }
+                        .re-input:focus, .re-textarea:focus {
+                            outline: none; border-color: #0a0a0a;
+                            box-shadow: 0 0 0 3px rgba(10,10,10,.08);
+                        }
+                        .re-textarea { min-height: 70px; resize: vertical; line-height: 1.55; }
+                        .re-label {
+                            font-size: 11px; font-weight: 700; color: #6b7280;
+                            text-transform: uppercase; letter-spacing: .5px;
+                            margin: 12px 0 5px; display: block;
+                        }
+                        .re-label:first-child { margin-top: 0; }
+                        .re-help {
+                            font-size: 11.5px; color: #9ca3af; margin: 4px 0 0;
+                            font-style: italic;
+                        }
+                        .re-item {
+                            padding: 14px; background: #fafbff;
+                            border: 1px solid #eef0f4; border-radius: 10px;
+                            margin-bottom: 12px;
+                        }
+                        .re-item-head { font-size:12px; font-weight:700; color:#5e2bff; text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+                        .re-item-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                        @media (max-width: 720px) { .re-item-cols { grid-template-columns: 1fr; } }
+                        .re-actions {
+                            position: sticky; bottom: 12px;
+                            display: flex; justify-content: flex-end; gap: 10px;
+                            padding: 14px; background: rgba(255,255,255,.96);
+                            border: 1px solid #eef0f4; border-radius: 12px;
+                            backdrop-filter: blur(8px);
+                            box-shadow: 0 12px 24px rgba(15,23,42,.06);
+                            margin-top: 16px;
+                        }
+                        .re-btn {
+                            display: inline-flex; align-items: center; gap: 6px;
+                            padding: 10px 18px; border-radius: 8px;
+                            font-size: 13.5px; font-weight: 600;
+                            cursor: pointer; border: 1px solid transparent;
+                            text-decoration: none;
+                        }
+                        .re-btn-primary { background: #0a0a0a; color: #fff; border-color: #0a0a0a; }
+                        .re-btn-primary:hover { background: #1a1a1a; }
+                        .re-btn-ghost   { background: #fff; color: #374151; border-color: #e5e7eb; }
+                        .re-btn-ghost:hover   { background: #f9fafb; border-color: #d1d5db; }
+                    </style>
+
+                    @foreach($orderedSections as $sIdx => $sec)
+                        @php
+                            $heading    = trim($sec['heading'] ?? '');
+                            $type       = $sec['type'] ?? 'paragraph';
+                            $paragraphs = $sec['paragraphs'] ?? [];
+                            $bullets    = $sec['bullets'] ?? [];
+                            $items      = $sec['items'] ?? [];
+                            if ($heading === '' || (empty($paragraphs) && empty($bullets) && empty($items))) continue;
+
+                            $bulletsLabel = $type === 'skills' ? 'Skills' : 'Bullet points';
+                            $bulletsHelp  = $type === 'skills'
+                                ? 'One skill per line. Each line becomes a separate skill chip.'
+                                : 'One bullet per line. Each line becomes a separate bullet point.';
+                        @endphp
+
+                        <div class="resume-card">
+                            <div class="resume-card-head">
+                                <h3 style="flex:1;">
+                                    <i class="{{ $iconFor($heading) }}"></i>
+                                    <input type="text"
+                                           name="sections[{{ $sIdx }}][heading]"
+                                           value="{{ $heading }}"
+                                           class="re-input"
+                                           style="font-weight:800; font-size:14px; letter-spacing:1.2px; text-transform:uppercase;"
+                                           placeholder="Section name (e.g. Experience)">
+                                </h3>
+                                <input type="hidden" name="sections[{{ $sIdx }}][type]" value="{{ $type }}">
+                            </div>
+                            <div class="resume-card-body">
+
+                                @if(!empty($paragraphs))
+                                    <label class="re-label">Paragraphs</label>
+                                    <textarea
+                                        name="sections[{{ $sIdx }}][paragraphs_text]"
+                                        class="re-textarea"
+                                        rows="{{ max(3, count($paragraphs) + 1) }}"
+                                        placeholder="Separate paragraphs with a blank line.">{{ implode("\n\n", $paragraphs) }}</textarea>
+                                    <p class="re-help">Separate paragraphs with a blank line.</p>
+                                @endif
+
+                                @if(!empty($bullets))
+                                    <label class="re-label">{{ $bulletsLabel }}</label>
+                                    <textarea
+                                        name="sections[{{ $sIdx }}][bullets_text]"
+                                        class="re-textarea"
+                                        rows="{{ max(4, count($bullets) + 1) }}"
+                                        placeholder="One per line.">{{ implode("\n", $bullets) }}</textarea>
+                                    <p class="re-help">{{ $bulletsHelp }}</p>
+                                @endif
+
+                                @if(!empty($items))
+                                    <label class="re-label">Entries</label>
+                                    @foreach($items as $iIdx => $item)
+                                        <div class="re-item">
+                                            <div class="re-item-head">Entry #{{ $iIdx + 1 }}</div>
+                                            <div class="re-item-cols">
+                                                <div>
+                                                    <label class="re-label">Title</label>
+                                                    <input type="text"
+                                                        name="sections[{{ $sIdx }}][items][{{ $iIdx }}][title]"
+                                                        value="{{ $item['title'] ?? '' }}"
+                                                        class="re-input"
+                                                        placeholder="e.g. Software Engineer">
+                                                </div>
+                                                <div>
+                                                    <label class="re-label">Subtitle / Company</label>
+                                                    <input type="text"
+                                                        name="sections[{{ $sIdx }}][items][{{ $iIdx }}][subtitle]"
+                                                        value="{{ $item['subtitle'] ?? '' }}"
+                                                        class="re-input"
+                                                        placeholder="e.g. Acme Inc">
+                                                </div>
+                                            </div>
+                                            <label class="re-label">Date / Location</label>
+                                            <input type="text"
+                                                name="sections[{{ $sIdx }}][items][{{ $iIdx }}][meta]"
+                                                value="{{ $item['meta'] ?? '' }}"
+                                                class="re-input"
+                                                placeholder="e.g. 2022 – Present • Lahore, Pakistan">
+
+                                            @if(!empty($item['paragraphs']))
+                                                <label class="re-label">Description (paragraphs)</label>
+                                                <textarea
+                                                    name="sections[{{ $sIdx }}][items][{{ $iIdx }}][paragraphs_text]"
+                                                    class="re-textarea"
+                                                    rows="3">{{ implode("\n\n", $item['paragraphs']) }}</textarea>
+                                            @else
+                                                <input type="hidden" name="sections[{{ $sIdx }}][items][{{ $iIdx }}][paragraphs_text]" value="">
+                                            @endif
+
+                                            @if(!empty($item['bullets']))
+                                                <label class="re-label">Bullets</label>
+                                                <textarea
+                                                    name="sections[{{ $sIdx }}][items][{{ $iIdx }}][bullets_text]"
+                                                    class="re-textarea"
+                                                    rows="{{ max(3, count($item['bullets']) + 1) }}">{{ implode("\n", $item['bullets']) }}</textarea>
+                                                <p class="re-help">One bullet per line.</p>
+                                            @else
+                                                <input type="hidden" name="sections[{{ $sIdx }}][items][{{ $iIdx }}][bullets_text]" value="">
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @endif
+
+                                @if(empty($paragraphs))
+                                    <input type="hidden" name="sections[{{ $sIdx }}][paragraphs_text]" value="">
+                                @endif
+                                @if(empty($bullets))
+                                    <input type="hidden" name="sections[{{ $sIdx }}][bullets_text]" value="">
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <div class="re-actions">
+                        <button type="button" class="re-btn re-btn-ghost" id="resumeEditCancel">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </button>
+                        <button type="submit" class="re-btn re-btn-primary">
+                            <i class="bi bi-check2"></i> Save changes
+                        </button>
+                    </div>
+                </form>
+
+                <script>
+                    (function () {
+                        const toggle  = document.getElementById('resumeEditToggle');
+                        const cancel  = document.getElementById('resumeEditCancel');
+                        const viewBox = document.getElementById('resumeViewMode');
+                        const editBox = document.getElementById('resumeEditMode');
+                        if (!toggle || !viewBox || !editBox) return;
+
+                        const setMode = (editing) => {
+                            viewBox.style.display = editing ? 'none'  : '';
+                            editBox.style.display = editing ? 'block' : 'none';
+                            const lbl = toggle.querySelector('.label');
+                            const ico = toggle.querySelector('i');
+                            if (editing) {
+                                if (lbl) lbl.textContent = 'Cancel edit';
+                                if (ico) ico.className = 'bi bi-x-lg';
+                            } else {
+                                if (lbl) lbl.textContent = 'Edit content';
+                                if (ico) ico.className = 'bi bi-pencil';
+                            }
+                        };
+
+                        toggle.addEventListener('click', () => setMode(editBox.style.display === 'none'));
+                        if (cancel) cancel.addEventListener('click', () => setMode(false));
+                    })();
+                </script>
             @else
                 <div class="resume-card">
                     <div class="resume-card-head"><h3><i class="bi bi-file-earmark-text"></i> Resume Content</h3></div>

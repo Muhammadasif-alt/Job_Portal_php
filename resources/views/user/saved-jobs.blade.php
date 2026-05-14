@@ -168,11 +168,7 @@
                 @foreach($jobs as $idx => $job)
                     <article class="saved-card" data-aos="fade-up" data-aos-duration="500" data-aos-delay="{{ min($idx * 60, 400) }}">
                         <div class="logo">
-                            @if($job->advertiser && $job->advertiser->logo)
-                                <img src="{{ asset('public/storage/' . $job->advertiser->logo) }}" alt="{{ $job->advertiser->name ?? 'Company' }}">
-                            @else
-                                <span class="placeholder">{{ strtoupper(substr($job->advertiser->name ?? $job->position ?? 'J', 0, 1)) }}</span>
-                            @endif
+                            <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}" alt="{{ $job->advertiser->name ?? 'Company' }}" loading="lazy" decoding="async">
                         </div>
                         <div class="info">
                             <h3>

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Job;
 use App\Models\Location;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class JobSearchService
 {
@@ -17,7 +17,7 @@ class JobSearchService
     {
         $filters = $request->only([
             'keywords', 'position', 'location', 'area', 'postal_code', 'sort',
-            'category', 'job_type', 'salary_min', 'salary_max', 'experience_level', 'per_page'
+            'category', 'job_type', 'salary_min', 'salary_max', 'experience_level', 'per_page',
         ]);
 
         $query = Job::with(['advertiser', 'category', 'location'])->active();
@@ -30,8 +30,8 @@ class JobSearchService
 
         // Location handling — supports state, area, and ZIP code filters together
         $location = $request->input('location');
-        $area     = $request->input('area');
-        $postal   = $request->input('postal_code');
+        $area = $request->input('area');
+        $postal = $request->input('postal_code');
 
         if ($location || $area || $postal) {
             $query->whereHas('location', function ($q) use ($location, $area, $postal) {
@@ -88,7 +88,7 @@ class JobSearchService
                     // Basic relevance: prioritize position matches
                     if ($keywords) {
                         $like = "%{$keywords}%";
-                        $query->orderByRaw("CASE WHEN position LIKE ? THEN 0 ELSE 1 END", [$like])->latest();
+                        $query->orderByRaw('CASE WHEN position LIKE ? THEN 0 ELSE 1 END', [$like])->latest();
                     } else {
                         $query->latest();
                     }
@@ -101,15 +101,37 @@ class JobSearchService
             // If keywords provided, boost relevance; otherwise latest
             if ($keywords) {
                 $like = "%{$keywords}%";
-                $query->orderByRaw("CASE WHEN position LIKE ? THEN 0 ELSE 1 END", [$like])->latest();
+                $query->orderByRaw('CASE WHEN position LIKE ? THEN 0 ELSE 1 END', [$like])->latest();
             } else {
                 $query->latest();
             }
         }
 
+        // Dedupe — Jobg8 pushes the SAME role as a separate row for every ZIP code in a state.
+        // Without this, /jobs shows 8 cards of "Respiratory Therapist - Louisiana" with only the
+        // city changing. Pick the latest job per unique (position, advertiser_id) from the filtered
+        // set so the listing shows variety (different roles) instead of duplicate titles.
+        $dedupedIds = (clone $query)
+            ->getQuery()
+            ->reorder()
+            ->select(DB::raw('MAX(jobs.id) as id'))
+            ->groupBy('jobs.position', 'jobs.advertiser_id')
+            ->pluck('id')
+            ->toArray();
+        $query->whereIn('jobs.id', $dedupedIds);
+
         $perPage = intval($request->input('per_page', $perPage));
         $jobs = $query->paginate($perPage)->appends($filters);
-        $locations = Location::orderBy('name')->get();
+        $locations = Location::query()
+            ->whereHas('jobs', function ($q) {
+                $q->where(function ($qq) {
+                    $qq->where('status', 'active')->orWhereNull('status');
+                });
+            })
+            ->select('name')
+            ->distinct()
+            ->orderBy('name')
+            ->get();
 
         return [
             'jobs' => $jobs,

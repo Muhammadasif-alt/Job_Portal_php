@@ -221,9 +221,15 @@
         position: relative;
         border-radius: 20px;
         overflow: hidden;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 6 / 5;
+        max-width: 540px;
+        max-height: 460px;
+        margin-left: auto;
         box-shadow: 0 25px 60px rgba(15,23,42,.15);
         animation: aboutFloat 6s ease-in-out infinite;
+    }
+    @media (max-width: 991px) {
+        .about-hero-visual { max-width: 100%; max-height: 380px; margin: 0 auto; aspect-ratio: 4 / 3; }
     }
     .about-hero-visual img {
         width: 100%; height: 100%;
@@ -416,9 +422,18 @@
     .benefits-visual {
         border-radius: 20px;
         overflow: hidden;
-        aspect-ratio: 4 / 5;
+        aspect-ratio: 5 / 6;
+        max-width: 480px;
+        max-height: 540px;
+        margin: 0 auto;
         box-shadow: 0 25px 50px rgba(15,23,42,.12);
         animation: aboutFloat 7s ease-in-out infinite;
+    }
+    @media (max-width: 991px) {
+        .benefits-visual { max-width: 420px; max-height: 460px; }
+    }
+    @media (max-width: 575px) {
+        .benefits-visual { max-width: 100%; max-height: 380px; aspect-ratio: 4 / 3; }
     }
     .benefits-visual img {
         width: 100%; height: 100%;
@@ -548,9 +563,18 @@
     .story-visual {
         border-radius: 20px;
         overflow: hidden;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 6 / 5;
+        max-width: 520px;
+        max-height: 460px;
+        margin: 0 auto;
         box-shadow: 0 25px 50px rgba(15,23,42,.12);
         animation: aboutFloat 8s ease-in-out infinite reverse;
+    }
+    @media (max-width: 991px) {
+        .story-visual { max-width: 460px; max-height: 400px; }
+    }
+    @media (max-width: 575px) {
+        .story-visual { max-width: 100%; max-height: 320px; aspect-ratio: 4 / 3; }
     }
     .story-visual img {
         width: 100%; height: 100%;
@@ -718,6 +742,180 @@
         .about-section { padding: 50px 0; }
         .about-stat-card .stat-num { font-size: 28px; }
     }
+
+    /* =========================================
+       DARK MODE — About Us
+       ========================================= */
+    html.dark-mode .about-page p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .about-page h2,
+    html.dark-mode .about-page h3,
+    html.dark-mode .about-page h4 { color: #ffffff !important; }
+
+    /* Hero */
+    html.dark-mode .about-hero {
+        background: linear-gradient(180deg, #111418 0%, #161a20 50%, #1c2128 100%) !important;
+        border-bottom-color: rgba(255,255,255,.08) !important;
+    }
+    html.dark-mode .about-hero-tag {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+        border-color: rgba(255,138,0,.30) !important;
+    }
+    html.dark-mode .about-hero h1 { color: #fff !important; }
+    html.dark-mode .about-hero-float {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+        color: #fff !important;
+    }
+    html.dark-mode .about-hero-float strong { color: #fff !important; }
+    html.dark-mode .about-hero-float span { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* Stats */
+    html.dark-mode .about-stats { background: transparent !important; }
+    html.dark-mode .about-stat-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .about-stat-card:hover {
+        border-color: #ff8a00 !important;
+        background: var(--site-card-bg, #1c2128) !important;
+    }
+    html.dark-mode .about-stat-card .stat-num { color: #ff8a00 !important; }
+    html.dark-mode .about-stat-card .stat-label { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* Sections */
+    html.dark-mode .about-section { background: var(--site-bg, #0f1216) !important; }
+    html.dark-mode .about-section.gray {
+        background: #161a20 !important;
+        border-top-color: rgba(255,255,255,.06) !important;
+        border-bottom-color: rgba(255,255,255,.06) !important;
+    }
+    html.dark-mode .about-section-head .tag {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+        border-color: rgba(255,138,0,.30) !important;
+    }
+    html.dark-mode .about-section.gray .about-section-head .tag {
+        background: rgba(255,138,0,.12) !important;
+    }
+    html.dark-mode .about-section-head p { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* "Three simple steps" cards */
+    html.dark-mode .how-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .how-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .how-card h3 { color: #fff !important; }
+    html.dark-mode .how-card p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .how-card .step-num {
+        background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+        color: #fff !important;
+    }
+    html.dark-mode .how-card .icon-wrap {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+    }
+
+    /* "Built for job seekers who care about quality" — benefit items */
+    html.dark-mode .benefit-item {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .benefit-item:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .benefit-item h4 { color: #fff !important; }
+    html.dark-mode .benefit-item p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .benefit-item .icon-wrap,
+    html.dark-mode .benefit-item .b-icon {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+    }
+
+    /* Testimonials */
+    html.dark-mode .testimonial-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .testimonial-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .testimonial-card p,
+    html.dark-mode .testimonial-card .testimonial-text { color: var(--site-muted, #d0d6df) !important; }
+    html.dark-mode .testimonial-stars { color: #ffb800 !important; }
+    html.dark-mode .testimonial-author .name { color: #fff !important; }
+    html.dark-mode .testimonial-author .role { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* Story section ("Why Jobs in USA exists") */
+    html.dark-mode .story-row p,
+    html.dark-mode .story-row .story-text p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .story-row h2 { color: #fff !important; }
+
+    /* Mission / Vision / Values cards */
+    html.dark-mode .mvv-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .mvv-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .mvv-card h3 { color: #fff !important; }
+    html.dark-mode .mvv-card p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .mvv-card .icon-wrap,
+    html.dark-mode .mvv-card .mvv-ico {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+    }
+
+    /* Industry pills/cards */
+    html.dark-mode .industry-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .industry-card:hover {
+        border-color: #ff8a00 !important;
+        background: var(--site-card-bg, #1c2128) !important;
+    }
+    html.dark-mode .industry-card .name { color: #fff !important; }
+    html.dark-mode .industry-card .count,
+    html.dark-mode .industry-card .meta { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .industry-card .ind-ico,
+    html.dark-mode .industry-card .icon-wrap {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+    }
+
+    /* "Trusted name" trust cards */
+    html.dark-mode .trust-card,
+    html.dark-mode .about-trust-card {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .trust-card:hover,
+    html.dark-mode .about-trust-card:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .trust-card h4,
+    html.dark-mode .trust-card h3,
+    html.dark-mode .about-trust-card h4,
+    html.dark-mode .about-trust-card h3 { color: #fff !important; }
+    html.dark-mode .trust-card p,
+    html.dark-mode .about-trust-card p { color: var(--site-muted, #b8c0cc) !important; }
+    html.dark-mode .trust-card .icon-wrap,
+    html.dark-mode .about-trust-card .icon-wrap {
+        background: rgba(255,138,0,.12) !important;
+        color: #ff8a00 !important;
+    }
+
+    /* FAQ */
+    html.dark-mode .about-faq-item {
+        background: var(--site-card-bg, #1c2128) !important;
+        border-color: rgba(255,255,255,.10) !important;
+    }
+    html.dark-mode .about-faq-item:hover { border-color: #ff8a00 !important; }
+    html.dark-mode .about-faq-item summary,
+    html.dark-mode .about-faq-item .faq-q { color: #fff !important; }
+    html.dark-mode .about-faq-item p,
+    html.dark-mode .about-faq-item .faq-a { color: var(--site-muted, #b8c0cc) !important; }
+
+    /* Generic helper: any white card on this page */
+    html.dark-mode .about-page [style*="background:#fff"],
+    html.dark-mode .about-page [style*="background: #fff"] {
+        background: var(--site-card-bg, #1c2128) !important;
+    }
 </style>
 
 <div class="about-page">
@@ -735,9 +933,10 @@
                     </div>
                 </div>
                 <div class="about-hero-visual">
-                    <img src="{{ asset('public/user/images/single-company.jpg') }}"
+                    <img src="{{ asset('public/user/images/single-company.webp') }}"
                          alt="About Jobs in USA — America's trusted employment platform connecting verified employers and job seekers nationwide"
-                         loading="lazy">
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ asset('public/user/images/single-company.jpg') }}'">
                     <div class="about-hero-float tl">
                         <div class="ico"><i class="icon-feather-users"></i></div>
                         <div>
@@ -845,7 +1044,7 @@
         <div class="container">
             <div class="benefits-row">
                 <div class="benefits-visual">
-                    <img src="{{ asset('public/user/images/partir-usa.jpg') }}" alt="Why job seekers choose Jobs in USA">
+                    <img src="{{ asset('public/user/images/partir-usa.webp') }}" alt="Why job seekers choose Jobs in USA" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('public/user/images/partir-usa.jpg') }}'">
                 </div>
                 <div>
                     <div class="benefits-head">
@@ -900,7 +1099,7 @@
                     <div class="testimonial-stars">★★★★★</div>
                     <p class="testimonial-text">I switched from a dead-end retail role to a full-time customer success position in 19 days. The verified job filter alone saved me hours of frustration with sketchy postings.</p>
                     <div class="testimonial-author">
-                        <img src="{{ asset('public/user/images/user_small_1.jpg') }}" alt="">
+                        <img src="{{ asset('public/user/images/user_small_1.jpg') }}" alt="" loading="lazy" decoding="async">
                         <div>
                             <div class="name">Erin J.</div>
                             <div class="role">Customer Success Manager · Texas</div>
@@ -911,7 +1110,7 @@
                     <div class="testimonial-stars">★★★★★</div>
                     <p class="testimonial-text">After being laid off in tech, I was skeptical about job boards. Jobs in USA matched me with three remote roles within a week. I accepted the second one and started the next month.</p>
                     <div class="testimonial-author">
-                        <img src="{{ asset('public/user/images/user_small_2.jpg') }}" alt="">
+                        <img src="{{ asset('public/user/images/user_small_2.jpg') }}" alt="" loading="lazy" decoding="async">
                         <div>
                             <div class="name">Michelle D.</div>
                             <div class="role">Senior Software Engineer · Remote</div>
@@ -922,7 +1121,7 @@
                     <div class="testimonial-stars">★★★★★</div>
                     <p class="testimonial-text">The job alerts are a game-changer. Got pinged about a healthcare role 30 minutes after it went live, applied immediately, and was interviewed the same week. Couldn't recommend enough.</p>
                     <div class="testimonial-author">
-                        <img src="{{ asset('public/user/images/user_small_3.jpg') }}" alt="">
+                        <img src="{{ asset('public/user/images/user_small_3.jpg') }}" alt="" loading="lazy" decoding="async">
                         <div>
                             <div class="name">Marcus T.</div>
                             <div class="role">Registered Nurse · Florida</div>
@@ -945,7 +1144,7 @@
                     <p>Today, we serve millions of professionals across all 50 states. From entry-level workers to senior executives, from healthcare to construction to remote tech, we're proud to be a small piece of the journey for every American who deserves a better way to work.</p>
                 </div>
                 <div class="story-visual">
-                    <img src="{{ asset('public/user/images/callout-1.jpg') }}" alt="Why Jobs in USA was founded">
+                    <img src="{{ asset('public/user/images/about-founders.jpg') }}" alt="Jobs in USA founders" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -1258,6 +1457,59 @@
             color: #6b7280;
             font-weight: 500;
         }
+
+        /* === Dark mode — press / trust strip / states chips / inline heading === */
+        html.dark-mode .press-card {
+            background: var(--site-card-bg, #1c2128) !important;
+            border-color: rgba(255,255,255,.10) !important;
+        }
+        html.dark-mode .press-card:hover { border-color: #ff8a00 !important; }
+        html.dark-mode .press-card::before { background: linear-gradient(90deg, #ff8a00, #ff5722) !important; }
+        html.dark-mode .press-card h3 { color: #fff !important; }
+        html.dark-mode .press-card p { color: var(--site-muted, #b8c0cc) !important; }
+        html.dark-mode .press-card .press-ico {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+        }
+        html.dark-mode .press-card .press-badge {
+            background: rgba(255,138,0,.14) !important;
+            color: #ff8a00 !important;
+        }
+
+        html.dark-mode .press-strip {
+            background: var(--site-card-bg, #1c2128) !important;
+            border-color: rgba(255,255,255,.10) !important;
+        }
+        html.dark-mode .press-strip-item i {
+            background: rgba(255,138,0,.14) !important;
+            color: #ff8a00 !important;
+        }
+        html.dark-mode .press-strip-item strong { color: #fff !important; }
+        html.dark-mode .press-strip-item span { color: var(--site-muted, #b8c0cc) !important; }
+
+        html.dark-mode .press-btn {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            box-shadow: 0 8px 18px rgba(255,138,0,.30) !important;
+        }
+        html.dark-mode .press-btn:hover { background: linear-gradient(135deg, #ff7a00, #ff4722) !important; }
+        html.dark-mode .press-cta-note { color: var(--site-muted, #b8c0cc) !important; }
+
+        html.dark-mode .states-chips a {
+            background: var(--site-card-bg, #1c2128) !important;
+            border-color: rgba(255,255,255,.10) !important;
+            color: var(--site-muted, #d0d6df) !important;
+        }
+        html.dark-mode .states-chips a:hover {
+            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+            color: #fff !important;
+            border-color: #ff8a00 !important;
+        }
+
+        /* Hiring across 50 states heading (inline style override) */
+        html.dark-mode .about-press + section [style*="color:#1a1a1a"],
+        html.dark-mode .about-industry [style*="color:#1a1a1a"] { color: #fff !important; }
+        html.dark-mode .about-industry [style*="color:#5a5a5a"],
+        html.dark-mode .about-press + section [style*="color:#5a5a5a"] { color: var(--site-muted, #b8c0cc) !important; }
     </style>
 
     {{-- Visible FAQ --}}

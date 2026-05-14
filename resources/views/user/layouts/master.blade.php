@@ -49,7 +49,7 @@
     <link rel="stylesheet" href="{{ asset('public/user/css/style.css') }}">
     <style>
         @media (min-width: 1200px) {
-            .container { max-width: 1440px !important; }
+            .container { max-width: 1800px !important; }
         }
         /* Prevent horizontal scroll on mobile */
         html, body { overflow-x: hidden; max-width: 100%; }
@@ -63,6 +63,8 @@
         body .loc-hero,
         body .companies-hero,
         body .blog-hero,
+        body .blog-detail-hero,
+        body .jd-hero,
         body .js-hero,
         body .seeker-hero,
         body .utf-page-heading-area {
@@ -75,30 +77,57 @@
         }
 
         /* === Per-page hero background images ===
-           Pages without a dedicated upload fall back to hero-diverse-professionals.jpg. */
+           WebP with PNG/JPG fallback via image-set() — ~83% smaller on supporting browsers (97% of users).
+           Pages without a dedicated upload fall back to hero-diverse-professionals. */
         body .intro-banner.intro-hero-v2 {
             background-image: url('{{ asset('public/user/images/home.png') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/home.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/home.png') }}') type('image/png')
+            ) !important;
         }
         body .blog-hero {
             background-image: url('{{ asset('public/user/images/blog.png') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/blog.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/blog.png') }}') type('image/png')
+            ) !important;
         }
         body .contact-hero {
             background-image: url('{{ asset('public/user/images/contact.png') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/contact.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/contact.png') }}') type('image/png')
+            ) !important;
         }
         body .jobs-hero {
             background-image: url('{{ asset('public/user/images/job.png') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/job.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/job.png') }}') type('image/png')
+            ) !important;
         }
         body .companies-hero {
             background-image: url('{{ asset('public/user/images/companies.png') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/companies.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/companies.png') }}') type('image/png')
+            ) !important;
         }
-        /* Pages without a custom upload yet — keep the original diverse-professionals image */
+        /* Pages without a custom upload yet — keep the diverse-professionals image */
         body .about-hero,
         body .cat-hero,
         body .loc-hero,
         body .js-hero,
         body .seeker-hero,
+        body .blog-detail-hero,
+        body .jd-hero,
         body .utf-page-heading-area {
             background-image: url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') !important;
+            background-image: image-set(
+                url('{{ asset('public/user/images/hero-diverse-professionals.webp') }}') type('image/webp'),
+                url('{{ asset('public/user/images/hero-diverse-professionals.jpg') }}') type('image/jpeg')
+            ) !important;
         }
         body .intro-banner.intro-hero-v2::before,
         body .about-hero::before,
@@ -108,6 +137,8 @@
         body .loc-hero::before,
         body .companies-hero::before,
         body .blog-hero::before,
+        body .blog-detail-hero::before,
+        body .jd-hero::before,
         body .js-hero::before,
         body .seeker-hero::before,
         body .utf-page-heading-area::before {
@@ -137,6 +168,8 @@
         body .loc-hero > *,
         body .companies-hero > *,
         body .blog-hero > *,
+        body .blog-detail-hero > *,
+        body .jd-hero > *,
         body .utf-page-heading-area > * {
             position: relative;
             z-index: 2;
@@ -254,17 +287,23 @@
       });
     </script>
 
-    {{-- AOS (Animate On Scroll) — lightweight animation library --}}
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-    <style>
-        /* Reduce motion preference — accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            [data-aos] { transition-duration: 0.01ms !important; transform: none !important; opacity: 1 !important; }
-        }
-        /* Subtle custom AOS variants */
-        [data-aos="fade-up-soft"] { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        [data-aos="fade-up-soft"].aos-animate { opacity: 1; transform: translateY(0); }
-    </style>
+    {{-- AOS (Animate On Scroll) — lightweight animation library. Lazy-loaded so it doesn't block first paint. --}}
+    <link rel="preload" href="https://unpkg.com/aos@2.3.4/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
+    {{-- Bootstrap Icons — used across auth, seeker, admin. Lazy-loaded; icons appear when CSS resolves. --}}
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
+    <link rel="stylesheet" href="{{ asset('public/user/css/site-dark.css') }}">
+    {{-- Pre-apply theme BEFORE body paints (no flash) --}}
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                if (t === 'dark') document.documentElement.classList.add('dark-mode');
+            } catch (_) {}
+        })();
+    </script>
 </head>
 
 <body>
@@ -290,15 +329,19 @@
             <div id="header">
                 <div class="container">
                     <div class="utf-left-side">
-                        <div id="logo"> <a href="/"><img src="{{ asset('public/user/images/jobs-in-usa.png') }}"
-                                    alt="Jobs in USA" loading="lazy"></a> </div>
+                        <div id="logo">
+                            <a href="/">
+                                <img class="logo-light" src="{{ asset('public/user/images/jobsinusa-navbar.svg') }}" alt="Jobs in USA" loading="lazy">
+                                <img class="logo-dark"  src="{{ asset('public/user/images/jobsinusa-navbar-dark.svg') }}" alt="Jobs in USA" loading="lazy">
+                            </a>
+                        </div>
                         <nav id="navigation">
                             <ul id="responsive">
 
                                 <li>
-                                    <a href="{{ route('about.us') }}"
-                                        class="{{ request()->routeIs('about.us') ? 'current' : '' }}">
-                                        About Us
+                                    <a href="{{ route('home') }}"
+                                        class="{{ request()->routeIs('home') ? 'current' : '' }}">
+                                        Home
                                     </a>
                                 </li>
 
@@ -326,23 +369,13 @@
                                 <li>
                                     <a href="{{ route('blog.index') }}"
                                         class="{{ request()->routeIs('blog.*') ? 'current' : '' }}">
-                                        Blogs
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a href="{{ route('contact.us') }}"
-                                        class="{{ request()->routeIs('contact.us') ? 'current' : '' }}">
-                                        Contact
+                                        Career Advice
                                     </a>
                                 </li>
 
                                 @guest
                                     <li class="mobile-only-auth">
                                         <a href="{{ route('login') }}">Sign In</a>
-                                    </li>
-                                    <li class="mobile-only-auth">
-                                        <a href="{{ route('register') }}">Sign Up</a>
                                     </li>
                                 @endguest
 
@@ -353,6 +386,14 @@
                     </div>
 
                     <div class="utf-right-side">
+                        {{-- Theme toggle (light / dark) — works for guests + authed --}}
+                        <button type="button" class="theme-toggle" id="themeToggle"
+                                aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
+                            <span class="tt-thumb">
+                                <i class="bi bi-sun-fill ic-sun"></i>
+                                <i class="bi bi-moon-stars-fill ic-moon"></i>
+                            </span>
+                        </button>
                         @auth
                             @php
                                 $authUser = auth()->user();
@@ -384,13 +425,13 @@
                             </div>
                         @else
                             <div class="utf-header-widget-item">
-                                <a href="{{ route('login') }}" class="log-in-button">
-                                    <i class="icon-feather-log-in"></i> <span>Sign In</span>
+                                <a href="{{ route('login') }}" class="register-cv-btn">
+                                    <i class="icon-feather-file-text"></i> <span>Register CV</span>
                                 </a>
                             </div>
                             <div class="utf-header-widget-item">
-                                <a href="{{ route('register') }}" class="utf-button-header-bg">
-                                    <i class="icon-feather-user-plus"></i> <span>Sign Up</span>
+                                <a href="{{ route('login') }}" class="log-in-button">
+                                    <i class="icon-feather-log-in"></i> <span>Sign In</span>
                                 </a>
                             </div>
                         @endauth
@@ -403,6 +444,43 @@
                         </span>
                     </div>
                     <style>
+                        /* === Register CV button (guest navbar — dark in light mode, gold in dark mode) === */
+                        .utf-header-widget-item .register-cv-btn {
+                            display: inline-flex; align-items: center; gap: 8px;
+                            height: 44px; padding: 0 18px;
+                            background: linear-gradient(135deg, #0a0a0a, #1f1f1f);
+                            color: #fff !important;
+                            border: 1.5px solid #0a0a0a;
+                            border-radius: 10px;
+                            font: 700 14px/1 'Nunito', system-ui, sans-serif;
+                            text-decoration: none;
+                            transition: filter .15s ease, transform .12s ease, box-shadow .15s ease;
+                            box-shadow: 0 4px 12px rgba(10,10,10,.25);
+                        }
+                        /* Match the Sign In button shape (theme toggle is now a sliding pill) */
+                        #header .utf-right-side .log-in-button { border-radius: 10px !important; }
+                        .utf-header-widget-item .register-cv-btn:hover {
+                            filter: brightness(1.15);
+                            transform: translateY(-1px);
+                            box-shadow: 0 8px 18px rgba(10,10,10,.35);
+                        }
+                        .utf-header-widget-item .register-cv-btn i,
+                        .utf-header-widget-item .register-cv-btn span { color: #fff !important; }
+                        html.dark-mode .utf-header-widget-item .register-cv-btn {
+                            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+                            border-color: #ff8a00 !important;
+                            color: #fff !important;
+                            box-shadow: 0 4px 12px rgba(255,138,0,.45) !important;
+                        }
+                        html.dark-mode .utf-header-widget-item .register-cv-btn i,
+                        html.dark-mode .utf-header-widget-item .register-cv-btn span { color: #fff !important; }
+                        html.dark-mode .utf-header-widget-item .register-cv-btn:hover {
+                            box-shadow: 0 8px 18px rgba(255,138,0,.55) !important;
+                        }
+                        @media (max-width: 991px) {
+                            .utf-header-widget-item .register-cv-btn { display: none; }
+                        }
+
                         /* === User dropdown chip (logged-in navbar) === */
                         .utf-user-dropdown { position: relative; }
                         .utf-user-chip {
@@ -524,9 +602,12 @@
                             height: 76px !important;
                         }
 
-                        /* Logo */
+                        /* Logo — light + dark variants swap via dark-mode class on <html> */
                         #header #logo { flex-shrink: 0; }
-                        #header #logo img { max-height: 38px; width: auto; }
+                        #header #logo img { max-height: 44px; width: auto; display: block; }
+                        #header #logo .logo-dark  { display: none; }
+                        html.dark-mode #header #logo .logo-light { display: none; }
+                        html.dark-mode #header #logo .logo-dark  { display: block; }
 
                         /* Nav menu */
                         #header #navigation {
@@ -1233,11 +1314,10 @@
 
             /* Brand column */
             #footer .footer-logo {
-                max-width: 170px;
+                max-width: 220px;
                 height: auto;
                 margin-bottom: 22px;
-                filter: brightness(0) invert(1);
-                opacity: .95;
+                opacity: 1;
             }
             #footer .utf-footer-item-links p {
                 color: #8a9bb0 !important;
@@ -1351,6 +1431,44 @@
                 #footer .utf-footer-section-item-block { padding-top: 60px !important; }
                 #footer::before { width: 100%; height: 320px; }
             }
+
+            /* === Dark mode — match site bg + brand orange (replaces navy blue look) === */
+            html.dark-mode #footer {
+                background: var(--site-bg) !important;
+                color: var(--site-text) !important;
+                border-top: 1px solid var(--site-card-bd);
+            }
+            html.dark-mode #footer::before {
+                background: radial-gradient(ellipse at top left, rgba(255,138,0,.14) 0%, rgba(255,138,0,.05) 30%, transparent 65%) !important;
+            }
+            html.dark-mode #footer .utf-footer-item-links h3 { color: #ff8a00 !important; }
+            html.dark-mode #footer .utf-footer-item-links p { color: #cbd5e1 !important; }
+            html.dark-mode #footer .utf-footer-item-links p a { color: #e5e7eb !important; }
+            html.dark-mode #footer .utf-footer-item-links p a:hover { color: #ff8a00 !important; }
+            html.dark-mode #footer .utf-footer-item-links ul li a { color: #cbd5e1 !important; }
+            html.dark-mode #footer .utf-footer-item-links ul li a:hover { color: #ff8a00 !important; }
+            html.dark-mode #footer .utf-footer-item-links ul li a i { color: var(--site-muted) !important; }
+            html.dark-mode #footer .utf-footer-item-links ul li a:hover i { color: #ff8a00 !important; }
+            html.dark-mode #footer .footer-hub-link {
+                background: rgba(255,138,0,.10) !important;
+                border-color: rgba(255,138,0,.30) !important;
+                color: #ff8a00 !important;
+            }
+            html.dark-mode #footer .footer-hub-link:hover {
+                background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+                color: #fff !important;
+                border-color: #ff8a00 !important;
+            }
+            html.dark-mode #footer .footer-hub-link strong,
+            html.dark-mode #footer .footer-hub-link span,
+            html.dark-mode #footer .footer-hub-link i { color: inherit !important; }
+            html.dark-mode #footer .utf-footer-copyright-item {
+                background: transparent !important;
+                border-top-color: var(--site-card-bd) !important;
+                color: var(--site-muted) !important;
+            }
+            html.dark-mode #footer .utf-footer-copyright-item .row,
+            html.dark-mode #footer .utf-footer-copyright-item .col-xl-12 { color: var(--site-muted) !important; }
         </style>
 
         <!-- Footer -->
@@ -1361,7 +1479,7 @@
                         <div class="col-xl-4 col-md-12">
                             <div class="utf-footer-item-links">
                                 <a href="/"><img class="footer-logo"
-                                        src="{{ asset('public/user/images/jobs-in-usa.png') }}" alt=""></a>
+                                        src="{{ asset('public/user/images/jobsinusa-dark-logo.svg') }}" alt="Jobs in USA"></a>
                                 <p>Jobs in USA is your premier destination for finding job opportunities across the
                                     United States. We connect job seekers with employers in various industries,
                                     locations, and experience levels. Discover your next career opportunity with our
@@ -1382,41 +1500,11 @@
                                     <li><a href="{{ route('jobs.categories') }}" class="footer-hub-link"><i
                                                 class="icon-feather-grid"></i> <span><strong>Browse All Categories</strong></span></a>
                                     </li>
-                                    <li><a href="{{ route('pages.warehouse-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Warehouse Jobs</span></a>
-                                    </li>
-                                    <li><a href="{{ route('pages.healthcare-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Healthcare
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.truck-driver-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Truck Driver
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.construction-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Construction
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.it-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>IT Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.software-developer-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Software Developer
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.data-entry-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Data Entry
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.customer-service-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Customer Service
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.marketing-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Marketing Jobs</span></a>
-                                    </li>
-                                    <li><a href="{{ route('pages.accounting-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Accounting
-                                                Jobs</span></a></li>
-                                    <li><a href="{{ route('pages.retail-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Retail Jobs</span></a>
-                                    </li>
-                                    <li><a href="{{ route('pages.security-guard-jobs') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Security Guard
-                                                Jobs</span></a></li>
+                                    @foreach(($footerCategories ?? collect()) as $cat)
+                                        <li><a href="{{ route('jobs.category', $cat->slug) }}"><i
+                                                    class="icon-feather-chevron-right"></i> <span>{{ $cat->name }}</span></a>
+                                        </li>
+                                    @endforeach
                                 </ul>
                             </div>
                         </div>
@@ -1428,51 +1516,11 @@
                                     <li><a href="{{ route('jobs.locations') }}" class="footer-hub-link"><i
                                                 class="icon-feather-map-pin"></i> <span><strong>Browse All Locations</strong></span></a>
                                     </li>
-                                    <li><a href="{{ route('pages.jobs-in-texas') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in Texas</span></a>
-                                    </li>
-                                    <li><a href="{{ route('pages.jobs-in-california') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                California</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-new-york') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in New
-                                                York</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-florida') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Florida</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-illinois') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Illinois</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-pennsylvania') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Pennsylvania</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-ohio') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in Ohio</span></a>
-                                    </li>
-                                    <li><a href="{{ route('pages.jobs-in-georgia') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Georgia</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-north-carolina') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in North
-                                                Carolina</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-michigan') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Michigan</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-new-jersey') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in New
-                                                Jersey</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-virginia') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Virginia</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-washington') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Washington</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-arizona') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Arizona</span></a></li>
-                                    <li><a href="{{ route('pages.jobs-in-massachusetts') }}"><i
-                                                class="icon-feather-chevron-right"></i> <span>Jobs in
-                                                Massachusetts</span></a></li>
+                                    @foreach(($footerStates ?? collect()) as $state)
+                                        <li><a href="{{ route('jobs.search', ['location' => $state->name]) }}"><i
+                                                    class="icon-feather-chevron-right"></i> <span>Jobs in {{ $state->name }}</span></a>
+                                        </li>
+                                    @endforeach
                                 </ul>
                             </div>
                         </div>
@@ -1606,6 +1654,292 @@
                 }
             });
         </script>
+
+        {{-- ===== Light / dark theme toggle ===== --}}
+        <script>
+        (function () {
+            const btn = document.getElementById('themeToggle');
+            if (!btn) return;
+            btn.addEventListener('click', function () {
+                const isDark = document.documentElement.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_) {}
+            });
+        })();
+        </script>
+
+        {{-- ===== Global autocomplete for search inputs ===== --}}
+        <style>
+            .ac-dropdown {
+                position: absolute; z-index: 1100;
+                background: #fff; border: 1px solid #e5e7eb;
+                border-radius: 12px; box-shadow: 0 16px 36px rgba(15,23,42,.12);
+                max-height: 360px; overflow-y: auto;
+                min-width: 100%;
+                margin-top: 4px;
+                display: none;
+            }
+            .ac-dropdown.show { display: block; }
+            .ac-item {
+                display: flex; align-items: center; gap: 10px;
+                padding: 10px 14px; cursor: pointer;
+                font-size: 14px; color: #0a0a0a;
+                border-bottom: 1px solid #f3f4f6;
+            }
+            .ac-item:last-child { border-bottom: none; }
+            .ac-item:hover, .ac-item.is-active { background: #f9fafb; }
+            .ac-item .ac-icon {
+                width: 28px; height: 28px; border-radius: 8px;
+                background: #f3f4f6; color: #374151;
+                display: inline-flex; align-items: center; justify-content: center;
+                font-size: 14px; flex-shrink: 0;
+            }
+            .ac-item .ac-icon.briefcase { background: #fef3c7; color: #92400e; }
+            .ac-item .ac-icon.tag      { background: #f3efff; color: #5e2bff; }
+            .ac-item .ac-icon.geo-alt  { background: #ecfdf5; color: #047857; }
+            .ac-item .ac-text { flex: 1; min-width: 0; }
+            .ac-item .ac-label { font-weight: 600; line-height: 1.3; }
+            .ac-item .ac-type  { font-size: 11.5px; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; }
+            .ac-item .ac-key   { font-size: 11px; color: #9ca3af; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+            .ac-empty { padding: 16px; text-align: center; font-size: 13px; color: #9ca3af; }
+        </style>
+        <script>
+        (function () {
+            const inputs = document.querySelectorAll('input[data-autocomplete="jobs"]');
+            if (!inputs.length) return;
+
+            const url = "{{ route('jobs.autocomplete') }}";
+
+            inputs.forEach(input => {
+                // Wrap input in a relative wrapper for absolute-positioned dropdown
+                if (!input.parentElement.style.position) {
+                    input.parentElement.style.position = 'relative';
+                }
+                const dropdown = document.createElement('div');
+                dropdown.className = 'ac-dropdown';
+                input.parentElement.appendChild(dropdown);
+
+                let debounce, abortCtrl, items = [], activeIdx = -1;
+
+                const close = () => { dropdown.classList.remove('show'); activeIdx = -1; };
+                const render = (suggestions) => {
+                    items = suggestions || [];
+                    if (items.length === 0) {
+                        dropdown.innerHTML = '<div class="ac-empty">No suggestions</div>';
+                        dropdown.classList.add('show');
+                        return;
+                    }
+                    dropdown.innerHTML = items.map((s, i) => `
+                        <div class="ac-item" data-idx="${i}">
+                            <span class="ac-icon ${s.icon || 'briefcase'}"><i class="bi bi-${s.icon || 'briefcase'}"></i></span>
+                            <div class="ac-text">
+                                <div class="ac-label">${escapeHtml(s.label)}</div>
+                                <div class="ac-type">${s.type}</div>
+                            </div>
+                            <span class="ac-key">↵</span>
+                        </div>
+                    `).join('');
+                    dropdown.classList.add('show');
+                    dropdown.querySelectorAll('.ac-item').forEach(el => {
+                        el.addEventListener('mousedown', e => {
+                            e.preventDefault();
+                            const idx = parseInt(el.dataset.idx, 10);
+                            if (items[idx] && items[idx].url) window.location.href = items[idx].url;
+                        });
+                    });
+                };
+                const escapeHtml = (t) => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+                input.addEventListener('input', () => {
+                    const q = input.value.trim();
+                    if (q.length < 2) { close(); return; }
+                    if (debounce) clearTimeout(debounce);
+                    if (abortCtrl) abortCtrl.abort();
+                    debounce = setTimeout(() => {
+                        abortCtrl = new AbortController();
+                        fetch(url + '?q=' + encodeURIComponent(q), { signal: abortCtrl.signal, headers: { 'Accept': 'application/json' } })
+                            .then(r => r.json())
+                            .then(d => render(d.suggestions || []))
+                            .catch(() => {});
+                    }, 180);
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (!dropdown.classList.contains('show')) return;
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        activeIdx = Math.min(activeIdx + 1, items.length - 1);
+                        updateActive();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        activeIdx = Math.max(activeIdx - 1, -1);
+                        updateActive();
+                    } else if (e.key === 'Enter' && activeIdx >= 0) {
+                        e.preventDefault();
+                        if (items[activeIdx]?.url) window.location.href = items[activeIdx].url;
+                    } else if (e.key === 'Escape') {
+                        close();
+                    }
+                });
+
+                function updateActive() {
+                    dropdown.querySelectorAll('.ac-item').forEach((el, i) => {
+                        el.classList.toggle('is-active', i === activeIdx);
+                    });
+                }
+
+                document.addEventListener('click', (e) => {
+                    if (!input.contains(e.target) && !dropdown.contains(e.target)) close();
+                });
+            });
+        })();
+        </script>
+
+        @guest
+            {{-- Login-prompt popup — appears 10s after page load, once per browser session --}}
+            <div id="loginPromptModal" class="lp-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lpTitle">
+                <div class="lp-modal" tabindex="-1">
+                    <button type="button" class="lp-close" id="lpClose" aria-label="Close">&times;</button>
+                    <div class="lp-icon"><i class="icon-feather-briefcase"></i></div>
+                    <h2 id="lpTitle">Find Your Next Job — Free</h2>
+                    <p>Sign in to apply for jobs in one click, save listings, and get personalized job alerts straight to your inbox.</p>
+                    <a href="{{ route('login') }}" class="lp-cta">Sign In to Apply</a>
+                    <a href="{{ route('register') }}" class="lp-secondary">Don't have an account? Register free</a>
+                    <button type="button" class="lp-dismiss" id="lpDismiss">No thanks, I'll keep browsing</button>
+                </div>
+            </div>
+            <style>
+                .lp-overlay {
+                    position: fixed; inset: 0; z-index: 99999;
+                    background: rgba(10, 10, 10, .65);
+                    backdrop-filter: blur(4px);
+                    display: none;
+                    align-items: center; justify-content: center;
+                    padding: 20px;
+                    opacity: 0;
+                    transition: opacity .25s ease;
+                }
+                .lp-overlay.is-open { display: flex; opacity: 1; }
+                .lp-modal {
+                    position: relative;
+                    width: 100%;
+                    max-width: 460px;
+                    background: #1a1a1a;
+                    color: #fff;
+                    border-radius: 14px;
+                    padding: 36px 32px 28px;
+                    text-align: center;
+                    box-shadow: 0 24px 48px rgba(0, 0, 0, .45);
+                    transform: scale(.96);
+                    transition: transform .25s ease;
+                }
+                .lp-overlay.is-open .lp-modal { transform: scale(1); }
+                .lp-close {
+                    position: absolute; top: 12px; right: 14px;
+                    width: 36px; height: 36px;
+                    background: transparent;
+                    border: 1.5px solid rgba(255, 255, 255, .35);
+                    color: #fff;
+                    border-radius: 50%;
+                    font-size: 22px; line-height: 1;
+                    cursor: pointer;
+                    transition: all .15s ease;
+                    display: inline-flex; align-items: center; justify-content: center;
+                }
+                .lp-close:hover { background: rgba(255, 255, 255, .12); border-color: #fff; }
+                .lp-icon {
+                    width: 64px; height: 64px;
+                    margin: 0 auto 16px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #ff8a00, #ff5722);
+                    display: inline-flex; align-items: center; justify-content: center;
+                    box-shadow: 0 8px 18px rgba(255, 138, 0, .35);
+                }
+                .lp-icon i { color: #fff; font-size: 26px; }
+                .lp-modal h2 {
+                    color: #fff;
+                    font-size: 26px; font-weight: 800;
+                    margin: 0 0 10px;
+                    letter-spacing: -.4px;
+                }
+                .lp-modal p {
+                    color: #cbd5e1;
+                    font-size: 14.5px; line-height: 1.55;
+                    margin: 0 0 22px;
+                    max-width: 360px; margin-left: auto; margin-right: auto;
+                }
+                .lp-cta {
+                    display: block;
+                    background: linear-gradient(135deg, #ff8a00, #ff5722);
+                    color: #fff !important;
+                    padding: 14px 18px;
+                    border-radius: 10px;
+                    font-weight: 800; font-size: 15px;
+                    text-decoration: none !important;
+                    letter-spacing: .2px;
+                    transition: filter .15s ease, transform .12s ease;
+                    box-shadow: 0 6px 16px rgba(255, 138, 0, .35);
+                }
+                .lp-cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+                .lp-secondary {
+                    display: block;
+                    color: #cbd5e1 !important;
+                    font-size: 13px;
+                    text-decoration: none !important;
+                    margin-top: 14px;
+                }
+                .lp-secondary:hover { color: #ff8a00 !important; }
+                .lp-dismiss {
+                    display: block;
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    color: rgba(255, 255, 255, .55);
+                    font-size: 12.5px; font-weight: 600;
+                    margin-top: 18px;
+                    padding: 6px;
+                    cursor: pointer;
+                    text-decoration: underline;
+                    transition: color .15s ease;
+                }
+                .lp-dismiss:hover { color: #fff; }
+                @media (max-width: 480px) {
+                    .lp-modal { padding: 30px 22px 22px; }
+                    .lp-modal h2 { font-size: 22px; }
+                }
+            </style>
+            <script>
+                (function () {
+                    var STORAGE_KEY = 'lpShownThisSession';
+                    if (sessionStorage.getItem(STORAGE_KEY) === '1') return;
+
+                    var overlay = document.getElementById('loginPromptModal');
+                    if (!overlay) return;
+
+                    function open() {
+                        overlay.classList.add('is-open');
+                        overlay.setAttribute('aria-hidden', 'false');
+                        document.body.style.overflow = 'hidden';
+                        sessionStorage.setItem(STORAGE_KEY, '1');
+                    }
+                    function close() {
+                        overlay.classList.remove('is-open');
+                        overlay.setAttribute('aria-hidden', 'true');
+                        document.body.style.overflow = '';
+                    }
+
+                    document.getElementById('lpClose').addEventListener('click', close);
+                    document.getElementById('lpDismiss').addEventListener('click', close);
+                    overlay.addEventListener('click', function (e) {
+                        if (e.target === overlay) close();
+                    });
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+                    });
+
+                    setTimeout(open, 10000);
+                })();
+            </script>
+        @endguest
 
 </body>
 

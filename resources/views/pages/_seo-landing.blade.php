@@ -712,7 +712,7 @@
                    class="seo-job-card">
                     <div class="seo-job-card-top">
                         <div class="seo-job-logo">
-                            <img src="{{ $job->advertiser && $job->advertiser->logo ? asset('public/storage/' . $job->advertiser->logo) : asset('public/user/images/jobimages.png') }}"
+                            <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}"
                                  alt="{{ $job->advertiser->name ?? 'Company' }}" loading="lazy">
                         </div>
                         <span class="seo-job-badge">{{ $job->employment_type ?? 'Full Time' }}</span>

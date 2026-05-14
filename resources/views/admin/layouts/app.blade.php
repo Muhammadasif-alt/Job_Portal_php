@@ -407,6 +407,15 @@
         .text-primary { color: #0a0a0a !important; }
         .bg-primary { background-color: #0a0a0a !important; }
         .border-primary { border-color: #0a0a0a !important; }
+
+        /* Match public site — cap content area at 1800px on desktop */
+        @media (min-width: 1200px) {
+            .app-content .container-fluid {
+                max-width: 1800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
     </style>
 
 </head>

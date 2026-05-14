@@ -1,9 +1,16 @@
 @extends('user.layouts.master')
 @section('title', $job->position . ' at ' . ($job->advertiser->name ?? 'Top Employer') . ' — ' . ($job->location->name ?? 'USA') . ' | Jobs in USA')
-@section('meta_description', 'Apply for ' . $job->position . ' at ' . ($job->advertiser->name ?? 'top employer') . ' in ' . ($job->location->name ?? 'USA') . '. ' . \Illuminate\Support\Str::limit(strip_tags($job->description ?? ''), 130))
+@section('meta_description', $job->meta_description ?: ('Apply for ' . $job->position . ' at ' . ($job->advertiser->name ?? 'top employer') . ' in ' . ($job->location->name ?? 'USA') . '. ' . \Illuminate\Support\Str::limit(strip_tags($job->description ?? ''), 130)))
 @section('og_title', $job->position . ' at ' . ($job->advertiser->name ?? 'Top Employer'))
 @section('og_description', \Illuminate\Support\Str::limit(strip_tags($job->description ?? 'Apply now on Jobs in USA.'), 160))
 @section('canonical', route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? ''))))
+
+@push('meta')
+    {{-- SEO keywords meta tag — auto-extracted from job description --}}
+    @if($job->seo_keywords)
+        <meta name="keywords" content="{{ $job->seo_keywords }}">
+    @endif
+@endpush
 
 @section('content')
 
@@ -183,6 +190,51 @@
     .jd-description ul, .jd-description ol { margin: 14px 0 14px 24px; }
     .jd-description ul li, .jd-description ol li { margin-bottom: 6px; line-height: 1.7; }
     .jd-description br { line-height: 2.4; }
+
+    /* === Formatted description (output of JobDescriptionFormatter) === */
+    .jd-formatted .jd-h {
+        font-size: 17px; font-weight: 800; color: #0a0a0a;
+        margin: 22px 0 10px; padding-bottom: 8px;
+        border-bottom: 2px solid #0a0a0a;
+        display: inline-block; letter-spacing: -.2px;
+    }
+    .jd-formatted .jd-h:first-child { margin-top: 0; }
+    .jd-formatted p { margin: 0 0 14px; color: #2a2a2a; }
+    .jd-formatted .jd-empty { color: #9ca3af; font-style: italic; }
+    .jd-formatted .jd-ul, .jd-formatted .jd-ol {
+        list-style: none; padding-left: 0; margin: 8px 0 16px;
+    }
+    .jd-formatted .jd-ul li, .jd-formatted .jd-ol li {
+        position: relative; padding-left: 26px; margin-bottom: 8px;
+        line-height: 1.7;
+    }
+    .jd-formatted .jd-ul li::before {
+        content: ""; position: absolute; left: 8px; top: 11px;
+        width: 8px; height: 8px; border-radius: 50%;
+        background: linear-gradient(135deg, #ff8a00, #ff5722);
+    }
+    .jd-formatted .jd-ol {
+        counter-reset: jd-counter;
+    }
+    .jd-formatted .jd-ol li {
+        counter-increment: jd-counter;
+    }
+    .jd-formatted .jd-ol li::before {
+        content: counter(jd-counter);
+        position: absolute; left: 0; top: 0;
+        width: 22px; height: 22px;
+        background: #0a0a0a; color: #fff;
+        border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 11.5px; font-weight: 800;
+    }
+    .jd-formatted .jd-link {
+        color: #ff5722; font-weight: 600;
+        border-bottom: 1.5px solid #ff5722;
+        padding-bottom: 1px;
+        text-decoration: none;
+    }
+    .jd-formatted .jd-link:hover { color: #c44114; border-color: #c44114; }
     .jd-description a {
         color: #0a0a0a;
         font-weight: 600;
@@ -196,31 +248,20 @@
     .jd-aside { position: sticky; top: 90px; }
 
     /* Apply card — dark with brand-color glow (matches modern CTA) */
-    .jd-aside-apply {
-        background: #0a0a0a;
-        color: #fff;
-        text-align: center;
-        padding: 30px 26px;
+    /* === Sidebar — Why Apply Through Us card === */
+    .jd-why-card {
+        background: #fff;
+        border: 1px solid #ececec;
         border-radius: 16px;
+        padding: 26px 24px;
         margin-bottom: 22px;
-        position: relative;
-        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(15,23,42,.05);
     }
-    .jd-aside-apply::before, .jd-aside-apply::after {
-        content: ""; position: absolute;
-        border-radius: 50%;
-        filter: blur(50px);
-        opacity: .3;
-        pointer-events: none;
-    }
-    .jd-aside-apply::before { width: 200px; height: 200px; background: #ff5722; top: -60px; right: -50px; }
-    .jd-aside-apply::after { width: 160px; height: 160px; background: #5e2bff; bottom: -50px; left: -40px; }
-    .jd-aside-apply > * { position: relative; z-index: 2; }
-    .jd-aside-apply .eyebrow {
+    .jd-why-card .eyebrow {
         display: inline-block;
-        background: rgba(255,255,255,.10);
-        border: 1px solid rgba(255,255,255,.20);
-        color: rgba(255,255,255,.85);
+        background: #fff4e6;
+        border: 1px solid #ffd9b3;
+        color: #b45309;
         font-size: 10.5px;
         font-weight: 700;
         letter-spacing: 1.4px;
@@ -229,25 +270,62 @@
         border-radius: 999px;
         margin-bottom: 12px;
     }
-    .jd-aside-apply h4 { color: #fff; font-size: 18px; font-weight: 800; margin: 0 0 8px; line-height: 1.3; }
-    .jd-aside-apply p { color: rgba(255,255,255,0.78); font-size: 13.5px; margin: 0 0 18px; line-height: 1.55; }
-    .jd-aside-apply a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        background: #fff;
+    .jd-why-card h4 {
         color: #0a0a0a;
-        padding: 12px 24px;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 14px;
-        text-decoration: none;
-        transition: all .15s ease;
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0 0 18px;
+        line-height: 1.3;
+        letter-spacing: -.2px;
     }
-    .jd-aside-apply a:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.25); }
-    .jd-aside-apply a.disabled { opacity: 0.5; cursor: not-allowed; }
+    .jd-why-list { list-style: none; padding: 0; margin: 0; }
+    .jd-why-list li {
+        display: grid;
+        grid-template-columns: 36px 1fr;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-top: 1px dashed #ececec;
+    }
+    .jd-why-list li:first-child { border-top: 0; padding-top: 0; }
+    .jd-why-list li:last-child { padding-bottom: 0; }
+    .jd-why-list .ico {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff8a00, #ff5722);
+        color: #fff;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(255,138,0,.25);
+        flex-shrink: 0;
+    }
+    .jd-why-list strong {
+        display: block;
+        color: #0a0a0a;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+    .jd-why-list span {
+        display: block;
+        color: #555;
+        font-size: 12.5px;
+        line-height: 1.5;
+    }
+    html.dark-mode .jd-why-card {
+        background: var(--site-card-bg) !important;
+        border-color: var(--site-card-bd) !important;
+        box-shadow: var(--site-shadow) !important;
+    }
+    html.dark-mode .jd-why-card .eyebrow {
+        background: rgba(255,138,0,.15) !important;
+        border-color: rgba(255,138,0,.30) !important;
+        color: #ffab40 !important;
+    }
+    html.dark-mode .jd-why-card h4 { color: #fff !important; }
+    html.dark-mode .jd-why-list li { border-top-color: var(--site-card-bd) !important; }
+    html.dark-mode .jd-why-list strong { color: #fff !important; }
+    html.dark-mode .jd-why-list span { color: #cbd5e1 !important; }
 
     .jd-aside-card {
         background: #fff;
@@ -429,11 +507,7 @@
             </ul>
             <div class="jd-hero-row">
                 <div class="jd-hero-logo">
-                    @if($job->advertiser && $job->advertiser->logo)
-                        <img src="{{ asset('public/storage/' . $job->advertiser->logo) }}" alt="{{ $job->advertiser->name ?? 'Company' }}">
-                    @else
-                        <img src="{{ asset('public/user/images/jobimages.png') }}" alt="Company">
-                    @endif
+                    <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}" alt="{{ $job->advertiser->name ?? 'Company' }}">
                 </div>
                 <div class="jd-hero-text">
                     <h1>{{ $job->position }}</h1>
@@ -462,16 +536,16 @@
             <div>
                 <div class="jd-card">
                     <h2><i class="icon-feather-info"></i> Job Description</h2>
-                    <div class="jd-description">
-                        {!! $job->description ?? '<p>No job description available.</p>' !!}
+                    <div class="jd-description jd-formatted">
+                        {!! \App\Support\JobDescriptionFormatter::toHtml($job->description) !!}
                     </div>
                 </div>
 
                 @if($job->requirements)
                     <div class="jd-card">
                         <h2><i class="icon-feather-check-square"></i> Requirements</h2>
-                        <div class="jd-description">
-                            {!! $job->requirements !!}
+                        <div class="jd-description jd-formatted">
+                            {!! \App\Support\JobDescriptionFormatter::toHtml($job->requirements) !!}
                         </div>
                     </div>
                 @endif
@@ -483,6 +557,50 @@
                             {!! $job->benefits !!}
                         </div>
                     </div>
+                @endif
+
+                {{-- ===== Auto-extracted skills / keywords (clickable) ===== --}}
+                @php $skills = $job->seo_keywords_array ?? []; @endphp
+                @if(!empty($skills))
+                    <div class="jd-card">
+                        <h2><i class="icon-feather-tag"></i> Skills &amp; Keywords</h2>
+                        <p style="color:#6b7280;font-size:13.5px;margin:0 0 14px;">Auto-detected from this job's description. Click any skill to find similar roles.</p>
+                        <div class="jd-skills">
+                            @foreach($skills as $skill)
+                                <a href="{{ route('jobs.index', ['position' => $skill]) }}" class="jd-skill" rel="nofollow">
+                                    {{ $skill }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    <style>
+                        .jd-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+                        .jd-skill {
+                            display: inline-flex; align-items: center;
+                            background: #f5f5f7; color: #0a0a0a !important;
+                            font-size: 13px; font-weight: 600;
+                            padding: 7px 14px; border-radius: 999px;
+                            text-decoration: none !important;
+                            border: 1px solid #e5e5e7;
+                            transition: all .15s ease;
+                        }
+                        .jd-skill:hover {
+                            background: linear-gradient(135deg, #ff8a00, #ff5722);
+                            border-color: #ff8a00;
+                            color: #fff !important;
+                            transform: translateY(-1px);
+                        }
+                        html.dark-mode .jd-skill {
+                            background: rgba(255,255,255,.06) !important;
+                            border-color: rgba(255,255,255,.12) !important;
+                            color: #e5e7eb !important;
+                        }
+                        html.dark-mode .jd-skill:hover {
+                            background: linear-gradient(135deg, #ff8a00, #ff5722) !important;
+                            border-color: #ff8a00 !important;
+                            color: #fff !important;
+                        }
+                    </style>
                 @endif
 
                 {{-- Apply Banner --}}
@@ -568,16 +686,39 @@
             {{-- Sidebar --}}
             <aside>
                 <div class="jd-aside">
-                    <div class="jd-aside-apply">
-                        <span class="eyebrow">Interested?</span>
-                        <h4>Apply for this role today</h4>
-                        <p>Apply directly with {{ $job->advertiser->name ?? 'the employer' }} — it only takes a minute and is 100% free.</p>
-                        <a href="{{ $applyUrl }}"
-                           class="{{ !$hasApply ? 'disabled' : '' }}"
-                           @if($hasApply) target="_blank" rel="noopener" @endif>
-                            {{ $hasApply ? 'Apply Now' : 'Not Available' }}
-                            @if($hasApply)<i class="icon-feather-arrow-right"></i>@endif
-                        </a>
+                    <div class="jd-why-card">
+                        <span class="eyebrow">Why Apply Through Us</span>
+                        <h4>Trusted by job seekers across the USA</h4>
+                        <ul class="jd-why-list">
+                            <li>
+                                <span class="ico"><i class="icon-feather-check-circle"></i></span>
+                                <div>
+                                    <strong>Verified Employer</strong>
+                                    <span>Every company on Jobs in USA is reviewed by our trust &amp; safety team.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="ico"><i class="icon-feather-zap"></i></span>
+                                <div>
+                                    <strong>Free for Job Seekers</strong>
+                                    <span>No hidden fees — applying and creating alerts is 100% free.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="ico"><i class="icon-feather-shield"></i></span>
+                                <div>
+                                    <strong>Safe &amp; Secure</strong>
+                                    <span>We never share your data without your consent.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="ico"><i class="icon-feather-clock"></i></span>
+                                <div>
+                                    <strong>Daily Fresh Listings</strong>
+                                    <span>Thousands of new verified roles added every day across all 50 states.</span>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
 
                     <div class="jd-aside-card">
@@ -663,7 +804,7 @@
                     <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($rel->position . '-' . ($rel->location->name ?? ''))) }}" class="jd-related-card">
                         <div class="jd-related-top">
                             <div class="jd-related-logo">
-                                <img src="{{ $rel->advertiser && $rel->advertiser->logo ? asset('public/storage/' . $rel->advertiser->logo) : asset('public/user/images/jobimages.png') }}" alt="{{ $rel->advertiser->name ?? 'Company' }}">
+                                <img src="{{ $rel->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}" alt="{{ $rel->advertiser->name ?? 'Company' }}" loading="lazy" decoding="async">
                             </div>
                             <div>
                                 <h3>{{ \Illuminate\Support\Str::limit($rel->position, 50) }}</h3>

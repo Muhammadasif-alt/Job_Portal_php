@@ -175,7 +175,7 @@
                     @forelse($jobs as $job)
                         <a href="{{ route('jobs.show', \Illuminate\Support\Str::slug($job->position . '-' . ($job->location->name ?? '')) ) }}" class="utf-job-listing">
                         <div class="utf-job-listing-company-logo">
-                            <img src="{{ $job->advertiser->logo ? asset('public/storage/' . $job->advertiser->logo) : asset('public/user/images/jobimages.png') }}"
+                            <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}"
                                  alt="{{ $job->advertiser->name ?? 'Company' }}" loading="lazy">
                         </div>
                         <div class="utf-job-listing-description">

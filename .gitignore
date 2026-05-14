@@ -26,3 +26,6 @@ Thumbs.db
 
 .claude/settings.local.json
 ExcelImport.zip
+
+# Raw generated image variants (~147MB) — kept locally as backup, not for repo
+/public/user/images/_archive_raw_uploads/

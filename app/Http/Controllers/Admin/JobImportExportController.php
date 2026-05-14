@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-
 use App\Exports\JobsExport;
+use App\Http\Controllers\Controller;
 use App\Imports\JobsImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,14 +24,23 @@ class JobImportExportController extends Controller
             'file' => 'required|file|mimes:xlsx,xls,csv|max:202400',
         ]);
 
-        $importer = new JobsImport();
+        $importer = new JobsImport;
         Excel::import($importer, $request->file('file'));
 
-        $msg = sprintf(
-            'Import complete â€” %d new jobs imported, %d duplicates skipped.',
-            $importer->imported,
-            $importer->skipped
-        );
+        $imported = $importer->imported;
+        $skipped = $importer->skipped;
+        $msg = "Import complete — {$imported} new jobs imported, {$skipped} duplicates skipped.";
+
+        // AJAX requests get JSON so the client can render its own progress UI
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'imported' => $imported,
+                'skipped' => $skipped,
+                'message' => $msg,
+                'redirect_url' => route('admin.jobs.index'),
+            ]);
+        }
 
         return redirect()->route('admin.jobs.index')->with('success', $msg);
     }
@@ -44,6 +52,6 @@ class JobImportExportController extends Controller
         $type = $request->get('type', 'xlsx');
         $fileName = 'jobs_'.now()->format('Ymd_His').'.'.($type === 'csv' ? 'csv' : 'xlsx');
 
-        return Excel::download(new JobsExport(), $fileName);
+        return Excel::download(new JobsExport, $fileName);
     }
 }

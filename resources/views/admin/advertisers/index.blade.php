@@ -174,6 +174,7 @@
         font-weight: 800;
         font-size: 16px;
         flex-shrink: 0;
+        overflow: hidden;
         box-shadow: 0 4px 10px rgba(10,10,10,.18);
     }
     .emp-info { min-width: 0; }
@@ -364,7 +365,13 @@
                         <tr>
                             <td>
                                 <div class="emp-cell">
-                                    <div class="emp-avatar">{{ $initials ?: 'E' }}</div>
+                                    <div class="emp-avatar"@if($adv->logo) style="background:#fff;"@endif>
+                                        @if($adv->logo)
+                                            <img src="{{ asset('public/storage/' . $adv->logo) }}" alt="{{ $adv->name }}" style="width:100%; height:100%; object-fit:contain; padding:4px;">
+                                        @else
+                                            {{ $initials ?: 'E' }}
+                                        @endif
+                                    </div>
                                     <div class="emp-info">
                                         <div class="emp-name">{{ $adv->name ?? 'Unnamed Employer' }}</div>
                                         <div class="emp-meta">ID #{{ $adv->id }}</div>

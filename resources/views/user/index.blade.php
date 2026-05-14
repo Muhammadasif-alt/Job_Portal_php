@@ -124,8 +124,14 @@
             background-repeat: no-repeat !important;
             position: relative;
             overflow: hidden;
-            padding: 90px 0 80px !important;
+            padding: 140px 0 130px !important;
+            min-height: 720px;
+            display: flex;
+            align-items: center;
             border-bottom: 1px solid #f0f0f3;
+        }
+        @media (max-width: 991px) {
+            .intro-banner.intro-hero-v2 { min-height: auto; padding: 80px 0 70px !important; display: block; }
         }
         /* Light overlay on top of image — keeps content readable */
         .intro-banner.intro-hero-v2::before,
@@ -658,10 +664,10 @@
            ================================================================= */
         .hero-2col {
             display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            gap: 60px;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
             align-items: center;
-            max-width: 1280px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -944,7 +950,9 @@
                         class="utf-intro-banner-search-form-block margin-top-40">
                         <div class="utf-intro-search-field-item with-autocomplete">
                             <input id="intro-keywords" name="position" type="text"
-                                placeholder="Search jobs, skills, or titles…"
+                                placeholder="Search jobs, skills…"
+                                autocomplete="off"
+                                data-autocomplete="jobs"
                                 value="{{ request('position') }}">
                             <i class="icon-feather-search"></i>
                         </div>
@@ -1229,7 +1237,7 @@
             .industry-grid {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
+                gap: 24px;
             }
             .industry-card {
                 position: relative;
@@ -1496,14 +1504,14 @@
         }
         .process-card .step-badge {
             display: inline-block;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #0a0a0a, #1f1f1f);
             color: #fff !important;
             font-size: 11.5px;
             font-weight: 700;
             letter-spacing: 3px;
             padding: 8px 20px;
             border-radius: 6px;
-            box-shadow: 0 8px 18px rgba(0,0,0,.18);
+            box-shadow: 0 8px 18px rgba(10,10,10,.35);
             position: absolute;
             top: -16px;
             left: 50%;
@@ -1604,9 +1612,10 @@
                 <article class="process-card" data-aos="fade-up" data-aos-delay="0" data-aos-duration="700">
                     <span class="step-badge">Step 1</span>
                     <div class="card-image">
-                        <img src="{{ asset('public/user/images/home-background-02.jpg') }}"
+                        <img src="{{ asset('public/user/images/home-background-02.webp') }}"
                              alt="Create your free Jobs in USA account in under a minute"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.onerror=null;this.src='{{ asset('public/user/images/home-background-02.jpg') }}'">
                     </div>
                     <h3>Create Your Account</h3>
                     <p>Sign up in under a minute and build your professional profile to stand out to top U.S. employers. Add your resume, skills, and job preferences in one place.</p>
@@ -1618,9 +1627,10 @@
                 <article class="process-card" data-aos="fade-up" data-aos-delay="120" data-aos-duration="700">
                     <span class="step-badge">Step 2</span>
                     <div class="card-image">
-                        <img src="{{ asset('public/user/images/home-background-03.jpg') }}"
+                        <img src="{{ asset('public/user/images/home-background-03.webp') }}"
                              alt="Search verified U.S. jobs across all 50 states"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.onerror=null;this.src='{{ asset('public/user/images/home-background-03.jpg') }}'">
                     </div>
                     <h3>Search Verified Jobs</h3>
                     <p>Browse {{ number_format($stats['total_jobs'] ?? 230000) }}+ verified job listings across healthcare, IT, logistics, retail, and more. Use smart filters by location, salary, and category to find your match.</p>
@@ -1830,12 +1840,13 @@
         }
         .seo-visual-frame img {
             width: 100%;
-            height: 100%;
-            min-height: 520px;
+            height: 460px;
             object-fit: cover;
             display: block;
             transition: transform .8s ease;
         }
+        @media (max-width: 991px) { .seo-visual-frame img { height: 360px; } }
+        @media (max-width: 575px) { .seo-visual-frame img { height: 280px; } }
         .seo-intro-visual:hover .seo-visual-frame img { transform: scale(1.05); }
 
         /* Soft decorative blob behind the image */
@@ -1955,9 +1966,10 @@
                 <!-- Right: animated image with floating badges -->
                 <div class="seo-intro-visual" aria-hidden="true">
                     <div class="seo-visual-frame">
-                        <img src="{{ asset('public/user/images/single-company.jpg') }}"
+                        <img src="{{ asset('public/user/images/single-company.webp') }}"
                              alt="Verified U.S. employers and hiring teams on Jobs in USA"
-                             loading="lazy">
+                             loading="lazy"
+                             onerror="this.onerror=null;this.src='{{ asset('public/user/images/single-company.jpg') }}'">
                     </div>
 
                     <div class="seo-float-badge top-left">
@@ -2088,10 +2100,10 @@
                     <div class="why-visual-blob blob-1"></div>
                     <div class="why-visual-blob blob-2"></div>
                     <div class="why-visual-stage">
-                        <img src="{{ asset('public/user/images/single-company.jpg') }}"
+                        <img src="{{ asset('public/user/images/hero-diverse-professionals.webp') }}"
                              alt="Job seeker browsing verified U.S. job openings on Jobs in USA"
                              loading="lazy"
-                             onerror="this.onerror=null; this.src='{{ asset('public/user/images/home-background-02.jpg') }}'">
+                             onerror="this.onerror=null;this.src='{{ asset('public/user/images/hero-diverse-professionals.jpg') }}'">
                         <div class="why-floating why-fl-1">
                             <div class="ico"><i class="icon-feather-shield"></i></div>
                             <div>
@@ -2202,7 +2214,7 @@
         .why-cta:hover i { transform: translateX(4px); }
 
         /* Visual side */
-        .why-visual { position: relative; min-height: 460px; }
+        .why-visual { position: relative; min-height: 420px; }
         .why-visual-blob {
             position: absolute;
             border-radius: 50%;
@@ -2210,22 +2222,25 @@
             opacity: .45;
             pointer-events: none;
         }
-        .why-visual-blob.blob-1 { width: 360px; height: 360px; background: #ff5722; top: -40px; right: 0; }
-        .why-visual-blob.blob-2 { width: 280px; height: 280px; background: #5e2bff; bottom: -40px; left: 20px; }
+        .why-visual-blob.blob-1 { width: 300px; height: 300px; background: #ff5722; top: -30px; right: 0; }
+        .why-visual-blob.blob-2 { width: 240px; height: 240px; background: #5e2bff; bottom: -30px; left: 20px; }
         .why-visual-stage {
             position: relative;
             z-index: 2;
             border-radius: 22px;
-            overflow: visible;
+            overflow: hidden;
         }
         .why-visual-stage img {
             width: 100%;
-            height: auto;
+            height: 460px;
+            object-fit: cover;
             border-radius: 22px;
             display: block;
             box-shadow: 0 30px 60px rgba(15,23,42,.18);
             animation: whyFloat 7s ease-in-out infinite;
         }
+        @media (max-width: 991px) { .why-visual-stage img { height: 360px; } }
+        @media (max-width: 575px) { .why-visual-stage img { height: 280px; } }
         @keyframes whyFloat {
             0%, 100% { transform: translateY(0); }
             50%      { transform: translateY(-12px); }

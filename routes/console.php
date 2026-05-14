@@ -23,3 +23,12 @@ Schedule::command('alerts:send')
     ->withoutOverlapping(10) // 10-minute lock — long sends won't overlap
     ->onOneServer()
     ->runInBackground();
+
+// Jobg8 feed sync — downloads the ZIP from Jobg8, extracts the spreadsheet,
+// and runs JobsImport (same dedup as the manual /admin/jobs/import upload).
+// Runs hourly. 30-minute lock so a slow Jobg8 file can't trigger overlap.
+Schedule::command('jobs:sync-jobg8')
+    ->hourly()
+    ->withoutOverlapping(30)
+    ->onOneServer()
+    ->runInBackground();

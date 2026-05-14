@@ -549,31 +549,51 @@
         padding: 70px 0;
         border-top: 1px solid #ececec;
     }
-    .contact-faq-head { text-align: center; max-width: 760px; margin: 0 auto 40px; }
+    .contact-faq-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 70px;
+        align-items: start;
+    }
+    @media (max-width: 991px) {
+        .contact-faq-grid { grid-template-columns: 1fr; gap: 30px; }
+    }
+    .contact-faq-head { text-align: left; position: sticky; top: 90px; }
     .contact-faq-head .eyebrow {
         display: inline-block;
-        background: #fff;
-        border: 1px solid #e5e5e7;
-        color: #555;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 1.6px;
+        background: rgba(255,138,0,.10);
+        color: #ff8a00;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-        padding: 6px 14px;
+        padding: 5px 14px;
         border-radius: 999px;
         margin-bottom: 14px;
     }
     .contact-faq-head h2 {
-        font-size: clamp(26px, 3vw, 36px);
+        font-size: clamp(26px, 3vw, 38px);
         font-weight: 800;
         color: #0a0a0a;
-        line-height: 1.2;
+        line-height: 1.15;
         letter-spacing: -.5px;
-        margin: 0 0 12px;
+        margin: 0 0 14px;
     }
-    .contact-faq-head p { color: #555; font-size: 15px; line-height: 1.65; margin: 0; }
-
-    .contact-faq-list { max-width: 880px; margin: 0 auto; }
+    .contact-faq-head h2 .accent {
+        background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .contact-faq-head p { color: #555; font-size: 16px; line-height: 1.65; margin: 0 0 22px; }
+    .contact-faq-cta {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: linear-gradient(135deg, #ff8a00, #ff5722); color: #fff !important;
+        padding: 12px 22px; border-radius: 10px;
+        font-weight: 700; font-size: 14px; text-decoration: none;
+        box-shadow: 0 8px 20px rgba(255,138,0,.30);
+        transition: all .2s ease;
+    }
+    .contact-faq-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(255,138,0,.40); }
+    .contact-faq-list { max-width: none; margin: 0; }
     .contact-faq-item {
         background: #fff;
         border: 1px solid #ececec;
@@ -828,12 +848,14 @@
 <!-- FAQ Section -->
 <section class="contact-faq-section" aria-labelledby="contact-faq-heading">
     <div class="container">
-        <header class="contact-faq-head">
-            <span class="eyebrow">FAQ</span>
-            <h2 id="contact-faq-heading">Frequently Asked Questions</h2>
-            <p>Quick answers to questions you may have. Can't find what you're looking for? Reach out using the form above and we'll respond within 24 hours.</p>
-        </header>
-        <div class="contact-faq-list">
+        <div class="contact-faq-grid">
+            <header class="contact-faq-head">
+                <span class="eyebrow">FAQ</span>
+                <h2 id="contact-faq-heading">Frequently asked <span class="accent">questions</span></h2>
+                <p>Quick answers to common questions. Can't find what you're looking for? Reach out using the form above and we'll respond within 24 hours.</p>
+                <a href="#contact-form" class="contact-faq-cta">Contact Support <i class="icon-feather-arrow-right"></i></a>
+            </header>
+            <div class="contact-faq-list">
             <details class="contact-faq-item" open>
                 <summary>How quickly will I receive a response?</summary>
                 <div class="faq-answer">Our support team typically responds within 24 hours on business days. For urgent matters, please mention "Urgent" in the subject line and we'll prioritize your request.</div>
@@ -866,6 +888,7 @@
                 <summary>Are my personal details kept private when I contact you?</summary>
                 <div class="faq-answer">Yes. Your information is handled in line with our privacy policy and only used to respond to your inquiry. We never share or sell contact form data with third parties.</div>
             </details>
+            </div>
         </div>
     </div>
 </section>

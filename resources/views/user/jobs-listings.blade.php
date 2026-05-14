@@ -560,6 +560,7 @@
                     <div class="col-md-3 mb-2 mb-md-0">
                         <div class="input-wrap">
                             <input type="text" name="position" placeholder="Job position, title, keywords"
+                                autocomplete="off" data-autocomplete="jobs"
                                 value="{{ request('position') }}" class="form-control">
                             <i class="icon-material-outline-work"></i>
                         </div>
@@ -625,6 +626,51 @@
                     </div>
                 </div>
             </form>
+
+            {{-- ===== Quick skill / keyword filters ===== --}}
+            @if(!empty($topSkills))
+                <div class="jobs-skills-strip" aria-label="Filter jobs by skill">
+                    <span class="lbl"><i class="bi bi-stars"></i> Popular skills:</span>
+                    @foreach($topSkills as $skill)
+                        <a href="{{ route('jobs.index', ['position' => $skill]) }}"
+                           class="skill-pill {{ strcasecmp(request('position', ''), $skill) === 0 ? 'is-active' : '' }}">
+                            {{ $skill }}
+                        </a>
+                    @endforeach
+                </div>
+                <style>
+                    .jobs-skills-strip {
+                        display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+                        margin-top: 14px; padding: 12px 4px 0;
+                    }
+                    .jobs-skills-strip .lbl {
+                        font-size: 12.5px; font-weight: 700;
+                        color: #ff8a00; text-transform: uppercase; letter-spacing: 1px;
+                        margin-right: 6px; display: inline-flex; align-items: center; gap: 5px;
+                    }
+                    .jobs-skills-strip .skill-pill {
+                        display: inline-flex; align-items: center;
+                        background: rgba(255,255,255,.08);
+                        border: 1px solid rgba(255,255,255,.15);
+                        color: #fff !important;
+                        font-size: 12.5px; font-weight: 600;
+                        padding: 5px 12px; border-radius: 999px;
+                        text-decoration: none !important;
+                        transition: all .15s ease;
+                    }
+                    .jobs-skills-strip .skill-pill:hover {
+                        background: linear-gradient(135deg, #ff8a00, #ff5722);
+                        border-color: #ff8a00;
+                        color: #fff !important;
+                        transform: translateY(-1px);
+                    }
+                    .jobs-skills-strip .skill-pill.is-active {
+                        background: linear-gradient(135deg, #ff8a00, #ff5722);
+                        border-color: #ff8a00;
+                        color: #fff !important;
+                    }
+                </style>
+            @endif
         </div>
     </div>
 </section>
@@ -662,7 +708,7 @@
                 class="job-card">
                 <div class="job-card-top">
                     <div class="job-card-logo">
-                        <img src="{{ $job->advertiser && $job->advertiser->logo ? asset('public/storage/' . $job->advertiser->logo) : asset('public/user/images/jobimages.png') }}"
+                        <img src="{{ $job->advertiser?->logo_url ?? asset('public/user/images/jobimages.png') }}"
                             alt="{{ $job->advertiser->name ?? 'Company' }}" loading="lazy">
                     </div>
                     <span class="job-card-badge {{ ($job->employment_type ?? '') == 'Part Time' ? 'yellow' : 'green' }}">

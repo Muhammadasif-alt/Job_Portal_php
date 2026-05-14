@@ -521,7 +521,292 @@
     </div>
 
     {{-- Pagination --}}
-    {{ $companies->onEachSide(2)->links() }}
+    {{ $companies->onEachSide(0)->links('vendor.pagination.custom') }}
 </div>
+
+{{-- ============================================================
+     Why Companies Trust Jobs in USA — 4-card horizontal row
+     ============================================================ --}}
+<section class="emp-why-section">
+    <div class="container">
+        <header class="emp-section-head">
+            <span class="eyebrow">Why Employers Choose Us</span>
+            <h2>Trusted by U.S. <span class="accent">Hiring Teams</span></h2>
+            <p>Reach millions of verified job seekers, post unlimited roles, and find quality talent faster — without paying per click.</p>
+        </header>
+        <div class="emp-why-grid">
+            <div class="emp-why-card">
+                <div class="emp-why-ico"><i class="icon-feather-users"></i></div>
+                <h3>Massive U.S. Reach</h3>
+                <p>Connect with millions of active American job seekers across all 50 states — every industry, every experience level.</p>
+            </div>
+            <div class="emp-why-card">
+                <div class="emp-why-ico"><i class="icon-feather-target"></i></div>
+                <h3>Quality Candidates</h3>
+                <p>Our AI matching surfaces relevant talent based on skills, location and seniority — fewer unqualified applications.</p>
+            </div>
+            <div class="emp-why-card">
+                <div class="emp-why-ico"><i class="icon-feather-dollar-sign"></i></div>
+                <h3>Transparent Pricing</h3>
+                <p>Flat-rate posting fees with no hidden per-click charges. Get unlimited applications for the duration of your listing.</p>
+            </div>
+            <div class="emp-why-card">
+                <div class="emp-why-ico"><i class="icon-feather-shield"></i></div>
+                <h3>Brand Verification</h3>
+                <p>Verified employer badge builds trust with candidates. Stand out from the crowd of unscreened listings on other boards.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ============================================================
+     SEO row — image + text + floating badges
+     ============================================================ --}}
+<section class="emp-seo-section">
+    <div class="container">
+        <div class="emp-seo-grid">
+            <div class="emp-seo-content">
+                <span class="eyebrow">Built for U.S. Recruiters</span>
+                <h2>America's most comprehensive <span class="accent">talent platform</span></h2>
+                <p class="emp-seo-lead">
+                    From Fortune 500 hiring teams to single-store retailers, thousands of U.S. companies post their open roles on Jobs in USA every week.
+                </p>
+                <p>
+                    Our platform serves verified employers in healthcare, technology, logistics, retail, hospitality, manufacturing, and every major U.S. industry.
+                    Every employer is screened by our trust team before a single listing goes live, so your brand sits alongside reputable companies — not spam recruiters.
+                </p>
+                <ul class="emp-seo-list">
+                    <li><i class="icon-feather-check-circle"></i> Post unlimited roles per month with one flat fee</li>
+                    <li><i class="icon-feather-check-circle"></i> Receive applications directly to your employer dashboard</li>
+                    <li><i class="icon-feather-check-circle"></i> Track candidate pipeline, schedule interviews, hire faster</li>
+                    <li><i class="icon-feather-check-circle"></i> Free verified-employer badge boosts application rates</li>
+                </ul>
+                <a href="{{ route('register') }}" class="emp-cta-btn">Start Hiring — Free Account <i class="icon-feather-arrow-right"></i></a>
+            </div>
+            <div class="emp-seo-visual">
+                <img src="{{ asset('public/user/images/single-company.webp') }}"
+                     onerror="this.onerror=null;this.src='{{ asset('public/user/images/single-company.jpg') }}'"
+                     alt="Hire on Jobs in USA — verified employer platform" loading="lazy" decoding="async">
+                <div class="emp-float-badge tl">
+                    <div class="ico green"><i class="icon-feather-check-circle"></i></div>
+                    <div class="text">
+                        <strong>{{ number_format($stats['hiring_now'] ?? 2938) }}+</strong>
+                        <span>Hiring Now</span>
+                    </div>
+                </div>
+                <div class="emp-float-badge br">
+                    <div class="ico"><i class="icon-feather-zap"></i></div>
+                    <div class="text">
+                        <strong>72 hr</strong>
+                        <span>Avg time to first hire</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ============================================================
+     How It Works — 4-step process
+     ============================================================ --}}
+<section class="emp-process-section">
+    <div class="container">
+        <header class="emp-section-head">
+            <span class="eyebrow">How It Works</span>
+            <h2>From signup to <span class="accent">first hire</span> in days</h2>
+            <p>A streamlined hiring flow built around quality matches and candidate experience.</p>
+        </header>
+        <div class="emp-process-grid">
+            <div class="emp-process-card">
+                <div class="emp-step-num">1</div>
+                <h3>Create Free Account</h3>
+                <p>Sign up in under 2 minutes. No credit card. Get verified within 24 hours.</p>
+            </div>
+            <div class="emp-process-card">
+                <div class="emp-step-num">2</div>
+                <h3>Post Your Roles</h3>
+                <p>Add unlimited job descriptions with our quick template or paste from your ATS.</p>
+            </div>
+            <div class="emp-process-card">
+                <div class="emp-step-num">3</div>
+                <h3>Review Applications</h3>
+                <p>AI-ranked candidates appear in your dashboard, filtered by your must-have skills.</p>
+            </div>
+            <div class="emp-process-card">
+                <div class="emp-step-num">4</div>
+                <h3>Hire Confidently</h3>
+                <p>Message, schedule and hire — all from one place. Track candidates through your pipeline.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ===== Section base styles ===== */
+.emp-why-section, .emp-seo-section, .emp-process-section {
+    padding: 70px 0;
+    position: relative;
+}
+.emp-why-section { background: #fafafa; border-top: 1px solid #ececec; }
+.emp-seo-section { background: #fff; }
+.emp-process-section { background: #fafafa; border-top: 1px solid #ececec; }
+
+.emp-section-head { text-align: center; max-width: 720px; margin: 0 auto 44px; }
+.emp-section-head .eyebrow {
+    display: inline-block;
+    background: rgba(255,138,0,.10);
+    color: #ff8a00;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 14px;
+    border-radius: 999px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+.emp-section-head h2 {
+    font-size: clamp(26px, 3.2vw, 38px);
+    font-weight: 800;
+    color: #0a0a0a;
+    line-height: 1.15;
+    letter-spacing: -.6px;
+    margin: 0 0 12px;
+}
+.emp-section-head h2 .accent {
+    background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.emp-section-head p { color: #555; font-size: 16px; line-height: 1.65; margin: 0; }
+
+/* ===== Why grid ===== */
+.emp-why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+@media (max-width: 991px) { .emp-why-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575px) { .emp-why-grid { grid-template-columns: 1fr; } }
+.emp-why-card {
+    background: #fff; border: 1px solid #ececec; border-radius: 16px;
+    padding: 28px 24px;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.emp-why-card:hover {
+    transform: translateY(-4px);
+    border-color: #ff8a00;
+    box-shadow: 0 20px 40px rgba(15,23,42,.10);
+}
+.emp-why-ico {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #ff8a00, #ff5722); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+}
+.emp-why-card h3 { font-size: 17px; font-weight: 800; color: #0a0a0a; margin: 0 0 8px; }
+.emp-why-card p { color: #555; font-size: 13.5px; line-height: 1.55; margin: 0; }
+
+/* ===== SEO section ===== */
+.emp-seo-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 60px; align-items: center; }
+@media (max-width: 991px) { .emp-seo-grid { grid-template-columns: 1fr; gap: 40px; } }
+.emp-seo-content .eyebrow {
+    display: inline-block; background: rgba(16,185,129,.10); color: #047857;
+    font-size: 11px; font-weight: 800; padding: 5px 14px; border-radius: 999px;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;
+}
+.emp-seo-content h2 {
+    font-size: clamp(26px, 3vw, 36px); font-weight: 800; color: #0a0a0a;
+    line-height: 1.15; letter-spacing: -.6px; margin: 0 0 16px;
+}
+.emp-seo-content h2 .accent {
+    background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.emp-seo-lead { color: #1a1a1a; font-size: 16px; line-height: 1.65; margin: 0 0 14px; font-weight: 500; }
+.emp-seo-content p { color: #555; font-size: 15px; line-height: 1.7; margin: 0 0 18px; }
+.emp-seo-list { list-style: none; padding: 0; margin: 18px 0 24px; }
+.emp-seo-list li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; color: #1a1a1a; font-size: 14.5px; font-weight: 500;
+}
+.emp-seo-list li i { color: #10b981; font-size: 18px; }
+.emp-cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #ff8a00, #ff5722); color: #fff !important;
+    padding: 14px 26px; border-radius: 12px; font-weight: 700; font-size: 15px;
+    text-decoration: none; transition: all .2s ease;
+    box-shadow: 0 8px 22px rgba(255,138,0,.35);
+}
+.emp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,138,0,.45); }
+.emp-seo-visual { position: relative; }
+.emp-seo-visual img {
+    width: 100%;
+    height: 460px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(15,23,42,.15);
+}
+@media (max-width: 991px) { .emp-seo-visual img { height: 360px; } }
+@media (max-width: 575px) { .emp-seo-visual img { height: 280px; } }
+.emp-float-badge {
+    position: absolute; background: #fff; border-radius: 14px;
+    padding: 14px 18px; box-shadow: 0 14px 32px rgba(15,23,42,.15);
+    display: flex; align-items: center; gap: 12px; min-width: 180px;
+}
+.emp-float-badge.tl { top: 20px; left: -20px; }
+.emp-float-badge.br { bottom: 20px; right: -20px; }
+.emp-float-badge .ico {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #0a0a0a; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.emp-float-badge .ico.green { background: #10b981; }
+.emp-float-badge .text strong { display: block; color: #0a0a0a; font-size: 14.5px; font-weight: 800; }
+.emp-float-badge .text span { color: #777; font-size: 12px; }
+@media (max-width: 575px) {
+    .emp-float-badge.tl { top: 10px; left: 10px; }
+    .emp-float-badge.br { bottom: 10px; right: 10px; }
+}
+
+/* ===== Process steps ===== */
+.emp-process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+@media (max-width: 991px) { .emp-process-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575px) { .emp-process-grid { grid-template-columns: 1fr; } }
+.emp-process-card {
+    background: #fff; border: 1px solid #ececec; border-radius: 16px;
+    padding: 28px 24px; position: relative;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.emp-process-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(15,23,42,.10); border-color: #ff8a00; }
+.emp-step-num {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #0a0a0a, #1a1a1a); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; margin-bottom: 14px;
+}
+.emp-process-card h3 { font-size: 17px; font-weight: 800; color: #0a0a0a; margin: 0 0 8px; }
+.emp-process-card p { color: #555; font-size: 13.5px; line-height: 1.55; margin: 0; }
+
+/* ===== Dark mode ===== */
+html.dark-mode .emp-why-section,
+html.dark-mode .emp-process-section { background: var(--site-bg) !important; border-top-color: var(--site-card-bd) !important; }
+html.dark-mode .emp-seo-section { background: var(--site-bg) !important; }
+html.dark-mode .emp-section-head h2,
+html.dark-mode .emp-seo-content h2,
+html.dark-mode .emp-why-card h3,
+html.dark-mode .emp-process-card h3 { color: #fff !important; }
+html.dark-mode .emp-section-head p,
+html.dark-mode .emp-seo-content p,
+html.dark-mode .emp-why-card p,
+html.dark-mode .emp-process-card p { color: #cbd5e1 !important; }
+html.dark-mode .emp-seo-lead { color: #fff !important; }
+html.dark-mode .emp-seo-list li { color: #e5e7eb !important; }
+html.dark-mode .emp-why-card,
+html.dark-mode .emp-process-card {
+    background: var(--site-card-bg) !important;
+    border-color: var(--site-card-bd) !important;
+}
+html.dark-mode .emp-float-badge { background: var(--site-card-bg) !important; border: 1px solid var(--site-card-bd); }
+html.dark-mode .emp-float-badge .text strong { color: #fff !important; }
+html.dark-mode .emp-float-badge .text span { color: var(--site-muted) !important; }
+html.dark-mode .emp-step-num { background: linear-gradient(135deg, #ff8a00, #ff5722) !important; }
+</style>
 
 @endsection

@@ -1,621 +1,504 @@
 @extends('user.layouts.master')
-@section('title', 'Career Blog — Job Search Tips, Resume Advice & Industry Insights | Jobs in USA')
-@section('meta_description', 'Read the latest career advice, resume writing tips, salary guides, remote work insights and U.S. industry trends. Expert articles to help you land your next job faster.')
-@section('meta_keywords', 'career blog, job search tips, resume writing tips, interview tips, salary guide usa, remote work tips, industry insights, career advice america')
-@section('og_title', 'Career Blog — Expert Job Search Advice | Jobs in USA')
-@section('og_description', 'Career advice, resume tips, interview playbooks and salary guides — everything you need to advance your career in the United States.')
+@section('title', 'Career Advice — Employment & Business News | Jobs in USA')
+@section('meta_description', 'Read the latest career advice, recruitment insights, salary guides, remote work tips and U.S. industry trends. Expert articles to help you land your next job faster.')
+@section('meta_keywords', 'career advice, recruitment insights, employment news, business news, resume writing, interview tips, salary guide usa, remote work tips')
+@section('og_title', 'Career Advice & Employment News | Jobs in USA')
+@section('og_description', 'Career advice, recruitment insights and U.S. employment news — everything you need to advance your career in the United States.')
 @section('og_image', asset('public/user/images/blog-compact-post-01.jpg'))
 @section('canonical', route('blog.index'))
 @section('content')
 
 @php
-    // Helper closure: resolve correct image path whether stored as
-    //   "public/user/images/..." (seeder) or "blogs/abc.jpg" (admin upload)
     $blogImg = function ($path) {
-        if (!$path) return asset('public/user/images/blog-compact-post-01.jpg');
-        if (str_starts_with($path, 'public/') || str_starts_with($path, 'http')) {
-            return asset($path);
-        }
+        if (! $path) return asset('public/user/images/blog-compact-post-01.jpg');
+        if (str_starts_with($path, 'public/') || str_starts_with($path, 'http')) return asset($path);
         return asset('public/storage/' . $path);
     };
 @endphp
 
 <style>
-    /* === Blog Hero (matches home/jobs/companies/categories/locations/about) === */
-    .blog-hero {
+    /* === Career Advice — Magazine layout (full-width sections, no sidebars) === */
+    .ca-wrap { background: #f7f8fa; padding: 0 0 60px; }
+    .ca-wrap .container { max-width: 1280px; }
+
+    /* === Hero — full-width magazine-style banner === */
+    .ca-hero {
         position: relative;
-        background: linear-gradient(180deg, #f8faff 0%, #ffffff 50%, #f5f5f7 100%);
-        padding: 70px 0 60px;
+        background:
+            radial-gradient(circle at 12% 20%, rgba(255,138,0,.10) 0, transparent 40%),
+            radial-gradient(circle at 88% 80%, rgba(94,43,255,.08) 0, transparent 45%),
+            linear-gradient(180deg, #f8faff 0%, #ffffff 60%, #f5f5f7 100%);
+        padding: 80px 0 70px;
+        margin-bottom: 40px;
+        border-bottom: 1px solid #ececec;
         overflow: hidden;
-        border-bottom: 1px solid #f0f0f3;
     }
-    .blog-hero::before {
-        content: "";
-        position: absolute; inset: 0;
-        background-image: radial-gradient(circle at 12% 20%, rgba(10,10,10,.04) 0, transparent 40%),
-                          radial-gradient(circle at 88% 80%, rgba(10,10,10,.03) 0, transparent 45%);
-        pointer-events: none;
-    }
-    .blog-hero .container { position: relative; z-index: 2; text-align: center; }
-    .blog-hero .breadcrumbs-mini { color: #777; font-size: 13px; margin-bottom: 14px; }
-    .blog-hero .breadcrumbs-mini a { color: #0a0a0a; text-decoration: none; font-weight: 600; }
-    .blog-hero .breadcrumbs-mini a:hover { text-decoration: underline; }
-    .blog-hero .eyebrow {
+    .ca-hero .container { position: relative; z-index: 2; max-width: 1280px; }
+    .ca-hero .eyebrow {
         display: inline-block;
         background: #fff;
         border: 1px solid #e5e5e7;
         color: #555;
-        font-size: 12px;
         font-weight: 700;
-        letter-spacing: 1.6px;
-        text-transform: uppercase;
+        font-size: 11px;
         padding: 6px 14px;
         border-radius: 999px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
         margin-bottom: 18px;
-        box-shadow: 0 1px 2px rgba(15,23,42,.04);
     }
-    .blog-hero h1 {
-        color: #0a0a0a;
-        font-size: clamp(30px, 4.4vw, 52px);
+    .ca-hero h1 {
+        font-size: clamp(32px, 4.2vw, 52px);
         font-weight: 800;
+        color: #0a0a0a;
         line-height: 1.1;
-        letter-spacing: -1.2px;
-        margin: 0 0 18px;
-        max-width: 920px;
-        margin-left: auto; margin-right: auto;
+        letter-spacing: -1.5px;
+        margin: 0 0 14px;
+        max-width: 820px;
     }
-    .blog-hero h1 .accent {
-        background: linear-gradient(90deg, #0a0a0a, #404040);
+    .ca-hero h1 .accent {
+        background: linear-gradient(90deg, #ff5722, #ff8a00 60%, #ffab40);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        color: transparent;
     }
-    .blog-hero p.lead {
+    .ca-hero .sub {
+        font-size: 17px;
         color: #555;
-        font-size: clamp(15px, 1.5vw, 17px);
-        line-height: 1.65;
-        max-width: 720px;
-        margin: 0 auto 0;
+        line-height: 1.6;
+        margin: 0 0 28px;
+        max-width: 680px;
     }
-
-    /* === Blog body section === */
-    .blog-body { padding: 60px 0; }
-
-    /* 3-col grid */
-    .blog-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 22px;
-        margin-bottom: 30px;
-    }
-    @media (max-width: 991px) { .blog-grid { grid-template-columns: 1fr; } }
-
-    .blog-card {
-        display: flex;
-        flex-direction: column;
-        background: #fff;
-        border: 1px solid #ececec;
-        border-radius: 16px;
-        overflow: hidden;
-        text-decoration: none;
-        color: inherit;
-        transition: all .25s ease;
-    }
-    .blog-card:hover {
-        border-color: #0a0a0a;
-        transform: translateY(-4px);
-        box-shadow: 0 18px 36px rgba(15,23,42,.10);
-    }
-    .blog-card-thumb {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        background: #f5f5f7;
-        position: relative;
-    }
-    .blog-card-thumb img {
-        width: 100%; height: 100%;
-        object-fit: cover;
+    .ca-hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
+    .ca-hero-stats .stat strong {
         display: block;
-        transition: transform .5s ease;
+        font-size: 26px;
+        font-weight: 800;
+        color: #0a0a0a;
+        letter-spacing: -.3px;
+        line-height: 1;
     }
-    .blog-card:hover .blog-card-thumb img { transform: scale(1.05); }
-    .blog-card-thumb .cat-pill {
-        position: absolute;
-        top: 14px; left: 14px;
-        background: #0a0a0a;
-        color: #fff;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 5px 12px;
-        border-radius: 999px;
-        text-transform: uppercase;
-        letter-spacing: .8px;
-    }
-    .blog-card-body {
-        padding: 20px 22px 22px;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-    .blog-card-meta {
-        display: flex;
-        gap: 14px;
+    .ca-hero-stats .stat span {
         font-size: 12px;
         color: #777;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-    }
-    .blog-card-meta span { display: inline-flex; align-items: center; gap: 5px; }
-    .blog-card-meta i { color: #0a0a0a; font-size: 13px; }
-    .blog-card h3 {
-        font-size: 18px;
-        font-weight: 700;
-        line-height: 1.35;
-        margin-bottom: 10px;
-        color: #0a0a0a;
-        letter-spacing: -.2px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .blog-card p {
-        font-size: 14px;
-        line-height: 1.65;
-        color: #555;
-        margin-bottom: 14px;
-        flex: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .blog-card-readmore {
-        color: #0a0a0a;
-        font-weight: 700;
-        font-size: 13px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
         text-transform: uppercase;
-        letter-spacing: .5px;
-        border-bottom: 1.5px solid #0a0a0a;
-        padding-bottom: 2px;
-        align-self: flex-start;
-        transition: gap .15s ease;
-    }
-    .blog-card:hover .blog-card-readmore { gap: 10px; }
-
-    /* === Sidebar === */
-    .blog-sidebar { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 90px; }
-    .blog-sidebar-card {
-        background: #fff;
-        border: 1px solid #ececec;
-        border-radius: 16px;
-        padding: 24px;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-top: 4px;
+        display: inline-block;
     }
 
-    /* Sidebar promo (replaces orange resume card) */
-    .promo-card {
-        background: #0a0a0a;
-        border-radius: 16px;
-        padding: 30px 26px;
-        color: #fff;
-        position: relative;
-        overflow: hidden;
+    /* Category pills below hero */
+    .ca-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+    .ca-head h2 { font-size: 18px; font-weight: 800; color: #0a0a0a; margin: 0; letter-spacing: -.2px; text-transform: uppercase; }
+    .ca-cat-pills { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+    .ca-cat-pills a {
+        padding: 7px 14px; border-radius: 999px;
+        background: #fff; border: 1px solid #ececec;
+        color: #1a1a1a; font-size: 13px; font-weight: 600;
+        text-decoration: none; transition: all .15s ease;
     }
-    .promo-card::before, .promo-card::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(50px);
-        opacity: .3;
+    .ca-cat-pills a:hover { background: #f5f5f7; border-color: #0a0a0a; }
+    .ca-cat-pills a.active { background: linear-gradient(135deg, #ff8a00, #ff5722); border-color: #ff8a00; color: #fff; }
+
+    /* Section title */
+    .ca-section-title {
+        display: flex; align-items: center; justify-content: space-between;
+        margin: 36px 0 16px; padding-bottom: 10px;
+        border-bottom: 2px solid #ececec;
+    }
+    .ca-section-title h2 { font-size: 18px; font-weight: 800; color: #0a0a0a; margin: 0; letter-spacing: -.2px; text-transform: uppercase; }
+    .ca-section-title .more-link { color: #ff8a00; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .ca-section-title .more-link:hover { color: #ff5722; }
+
+    /* === Featured grid (1 large + 4 small) === */
+    .ca-featured-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 18px;
+        height: 560px;
+    }
+    @media (max-width: 991px) {
+        .ca-featured-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; height: auto; }
+        .ca-feature-main { grid-column: 1 / -1; height: 360px; }
+        .ca-feature-small { height: 220px; }
+    }
+    @media (max-width: 575px) {
+        .ca-featured-grid { grid-template-columns: 1fr; }
+        .ca-feature-main { height: 280px; }
+    }
+    .ca-feature-main, .ca-feature-small {
+        position: relative; overflow: hidden;
+        border-radius: 12px;
+        text-decoration: none; display: block;
+        background: #1a1a1a;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .ca-feature-main { grid-row: 1 / span 2; }
+    .ca-feature-main:hover, .ca-feature-small:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 32px rgba(15,23,42,.18);
+    }
+    .ca-feature-main img, .ca-feature-small img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform .35s ease;
+    }
+    .ca-feature-main:hover img, .ca-feature-small:hover img { transform: scale(1.04); }
+    .ca-feature-main::after, .ca-feature-small::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.85) 100%);
         pointer-events: none;
     }
-    .promo-card::before {
-        width: 200px; height: 200px;
-        background: #ff5722;
-        top: -60px; right: -50px;
-    }
-    .promo-card::after {
-        width: 160px; height: 160px;
-        background: #5e2bff;
-        bottom: -50px; left: -40px;
-    }
-    .promo-card-inner { position: relative; z-index: 2; }
-    .promo-card .eyebrow {
+    .ca-feature-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px; color: #fff; z-index: 1; }
+    .ca-feature-main .ca-feature-content { padding: 24px 26px; }
+    .ca-feature-content .cat-pill {
         display: inline-block;
-        background: rgba(255,255,255,.10);
-        border: 1px solid rgba(255,255,255,.20);
-        color: rgba(255,255,255,.85);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1.4px;
-        text-transform: uppercase;
-        padding: 5px 12px;
-        border-radius: 999px;
-        margin-bottom: 14px;
+        background: rgba(255,138,0,.92); color: #fff;
+        font-size: 10.5px; font-weight: 700;
+        padding: 4px 10px; border-radius: 4px;
+        margin-bottom: 8px; text-transform: uppercase; letter-spacing: .6px;
     }
-    .promo-card h4 {
-        color: #fff;
-        font-size: 18px;
-        font-weight: 800;
-        line-height: 1.25;
-        margin: 0 0 8px;
-    }
-    .promo-card p {
-        color: rgba(255,255,255,.78);
-        font-size: 13.5px;
-        line-height: 1.55;
-        margin: 0 0 18px;
-    }
-    .promo-card .promo-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #fff;
-        color: #0a0a0a !important;
-        font-size: 13.5px;
-        font-weight: 700;
-        padding: 11px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all .15s ease;
-    }
-    .promo-card .promo-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.25); }
-
-    /* Sidebar latest posts */
-    .blog-sidebar-card h3 {
-        font-size: 15px;
-        font-weight: 800;
-        color: #0a0a0a;
-        margin: 0 0 18px;
-        padding: 0 0 14px;
-        border-bottom: 2px solid #0a0a0a;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        display: inline-block;
-    }
-    .latest-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-    .latest-list li { display: flex; gap: 12px; align-items: flex-start; }
-    .latest-list .thumb {
-        width: 64px; height: 64px;
-        border-radius: 10px;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: #f5f5f7;
-    }
-    .latest-list .thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .latest-list .info h4 {
-        font-size: 13.5px;
-        line-height: 1.4;
-        margin: 0 0 4px;
-        font-weight: 600;
-    }
-    .latest-list .info h4 a { color: #0a0a0a; text-decoration: none; }
-    .latest-list .info h4 a:hover { color: #404040; }
-    .latest-list .info .date {
-        font-size: 11.5px;
-        color: #777;
-        text-transform: uppercase;
-        letter-spacing: .8px;
-    }
-
-    /* === Pagination — dark === */
-    .blog-pagination {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-    }
-    .blog-pagination ul {
-        list-style: none; margin: 0; padding: 0;
-        display: inline-flex;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    .blog-pagination li a, .blog-pagination li span {
-        min-width: 40px; height: 40px;
-        padding: 0 12px;
-        background: #fff;
-        border: 1px solid #ececec;
-        border-radius: 8px;
-        color: #0a0a0a;
+    .ca-feature-content h3 { color: #fff; margin: 0; font-weight: 700; line-height: 1.25; }
+    .ca-feature-main .ca-feature-content h3 { font-size: 22px; }
+    .ca-feature-small .ca-feature-content h3 {
         font-size: 14px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center; justify-content: center;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    /* === Recent News (3-col × 2 rows = 6 cards) === */
+    .ca-recent-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+    @media (max-width: 900px) { .ca-recent-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 575px) { .ca-recent-grid { grid-template-columns: 1fr; } }
+    .ca-recent-card {
+        display: flex; flex-direction: column;
         text-decoration: none;
-        transition: all .15s ease;
-    }
-    .blog-pagination li a:hover { background: #f5f5f7; border-color: #0a0a0a; }
-    .blog-pagination li a.active,
-    .blog-pagination li.active a,
-    .blog-pagination li span.current-page {
-        background: #0a0a0a; color: #fff; border-color: #0a0a0a;
-    }
-    .blog-pagination .utf-pagination-container-aera ul {
-        display: inline-flex !important;
-    }
-
-    /* Override theme pagination internal styles */
-    .blog-pagination .utf-pagination-container-aera ul li a,
-    .blog-pagination .utf-pagination-container-aera ul li span {
-        min-width: 40px !important;
-        height: 40px !important;
-        padding: 0 12px !important;
-        background: #fff !important;
-        border: 1px solid #ececec !important;
-        border-radius: 8px !important;
-        color: #0a0a0a !important;
-        font-weight: 600 !important;
-    }
-    .blog-pagination .utf-pagination-container-aera ul li a.current-page,
-    .blog-pagination .utf-pagination-container-aera ul li.active a,
-    .blog-pagination .utf-pagination-container-aera ul li.active span {
-        background: #0a0a0a !important;
-        color: #fff !important;
-        border-color: #0a0a0a !important;
-    }
-
-    /* === FAQ === */
-    .blog-faq-section {
-        background: #fafafa;
-        padding: 70px 0;
-        border-top: 1px solid #ececec;
-    }
-    .blog-faq-head { text-align: center; max-width: 760px; margin: 0 auto 40px; }
-    .blog-faq-head .eyebrow {
-        display: inline-block;
-        background: #fff;
-        border: 1px solid #e5e5e7;
-        color: #555;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 1.6px;
-        text-transform: uppercase;
-        padding: 6px 14px;
-        border-radius: 999px;
-        margin-bottom: 14px;
-    }
-    .blog-faq-head h2 {
-        font-size: clamp(26px, 3vw, 36px);
-        font-weight: 800;
-        color: #0a0a0a;
-        line-height: 1.2;
-        letter-spacing: -.5px;
-        margin: 0 0 12px;
-    }
-    .blog-faq-head p { color: #555; font-size: 15.5px; line-height: 1.65; margin: 0; }
-
-    .blog-faq-list { max-width: 880px; margin: 0 auto; }
-    .blog-faq-item {
         background: #fff;
         border: 1px solid #ececec;
         border-radius: 12px;
-        margin-bottom: 12px;
         overflow: hidden;
-        transition: all .2s ease;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
-    .blog-faq-item[open] {
-        border-color: #0a0a0a;
-        box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    .ca-recent-card:hover {
+        transform: translateY(-3px);
+        border-color: #ff8a00;
+        box-shadow: 0 14px 30px rgba(15,23,42,.10);
     }
-    .blog-faq-item summary {
-        padding: 20px 24px;
-        font-weight: 600;
-        font-size: 15.5px;
-        color: #0a0a0a;
-        cursor: pointer;
-        list-style: none;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .ca-recent-card .thumb { width: 100%; height: 230px; overflow: hidden; background: #f3f4f6; }
+    .ca-recent-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+    .ca-recent-card:hover .thumb img { transform: scale(1.04); }
+    .ca-recent-card .info { padding: 16px 18px; flex-grow: 1; display: flex; flex-direction: column; }
+    .ca-recent-card .cat-tag {
+        display: inline-block;
+        font-size: 10.5px; font-weight: 700;
+        color: #ff8a00; text-transform: uppercase; letter-spacing: .8px;
+        margin-bottom: 8px;
+    }
+    .ca-recent-card h4 {
+        font-size: 15.5px; font-weight: 700; color: #0a0a0a;
+        margin: 0 0 10px; line-height: 1.35;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        flex-grow: 1;
+    }
+    .ca-recent-card:hover h4 { color: #ff8a00; }
+    .ca-recent-card .meta { color: #777; font-size: 12px; }
+
+    /* === Most Popular (2-col × 3 rows = 6 ranked cards) === */
+    .ca-popular-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
-    .blog-faq-item summary::-webkit-details-marker { display: none; }
-    .blog-faq-item summary::after {
-        content: '+';
-        font-size: 24px;
-        color: #0a0a0a;
-        font-weight: 300;
-    }
-    .blog-faq-item[open] summary::after { content: '−'; }
-    .blog-faq-item .faq-answer {
-        padding: 0 24px 22px;
-        color: #555;
-        font-size: 14.5px;
-        line-height: 1.75;
-    }
-    .blog-faq-item .faq-answer a {
-        color: #0a0a0a;
-        font-weight: 600;
-        border-bottom: 1.5px solid #0a0a0a;
+    @media (max-width: 720px) { .ca-popular-grid { grid-template-columns: 1fr; } }
+    .ca-popular-item {
+        display: grid;
+        grid-template-columns: 48px 90px 1fr;
+        gap: 14px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ececec;
+        border-radius: 12px;
+        padding: 14px 16px;
         text-decoration: none;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .ca-popular-item:hover {
+        transform: translateY(-2px);
+        border-color: #ff8a00;
+        box-shadow: 0 10px 22px rgba(15,23,42,.08);
+    }
+    .ca-popular-item .rank {
+        width: 40px; height: 40px;
+        background: linear-gradient(135deg, #ff8a00, #ff5722);
+        color: #fff;
+        border-radius: 10px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 17px; font-weight: 800;
+        box-shadow: 0 4px 10px rgba(255,138,0,.30);
+    }
+    .ca-popular-item .thumb {
+        width: 90px; height: 70px;
+        border-radius: 8px; overflow: hidden;
+        background: #f3f4f6;
+    }
+    .ca-popular-item .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .ca-popular-item h4 {
+        font-size: 14px; font-weight: 700; color: #0a0a0a;
+        margin: 0; line-height: 1.4;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ca-popular-item:hover h4 { color: #ff8a00; }
+
+    /* === Recruitment Insights (3-col × 1 row) === */
+    .ca-insights-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+    @media (max-width: 800px) { .ca-insights-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 500px) { .ca-insights-grid { grid-template-columns: 1fr; } }
+    .ca-insight-card {
+        position: relative; height: 200px;
+        border-radius: 12px; overflow: hidden;
+        text-decoration: none; display: block;
+        background: #1a1a1a;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .ca-insight-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(15,23,42,.18); }
+    .ca-insight-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+    .ca-insight-card:hover img { transform: scale(1.05); }
+    .ca-insight-card::after {
+        content: ""; position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.85) 100%);
+    }
+    .ca-insight-card .ca-feature-content { padding: 16px 18px; }
+    .ca-insight-card h3 {
+        font-size: 15px; font-weight: 700; color: #fff;
+        line-height: 1.3; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
 
-    @media (max-width: 991px) {
-        .blog-sidebar { position: static; margin-top: 30px; }
+    /* === More News (4-col grid, paginated 8 per page) === */
+    .ca-morenews-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
     }
+    @media (max-width: 1100px) { .ca-morenews-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 800px)  { .ca-morenews-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px)  { .ca-morenews-grid { grid-template-columns: 1fr; } }
+    .ca-morenews-card {
+        display: flex; flex-direction: column;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid #ececec;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .ca-morenews-card:hover {
+        transform: translateY(-3px);
+        border-color: #ff8a00;
+        box-shadow: 0 12px 26px rgba(15,23,42,.10);
+    }
+    .ca-morenews-card .thumb { width: 100%; height: 200px; overflow: hidden; background: #f3f4f6; }
+    .ca-morenews-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+    .ca-morenews-card:hover .thumb img { transform: scale(1.05); }
+    .ca-morenews-card .info { padding: 14px 16px; flex-grow: 1; display: flex; flex-direction: column; }
+    .ca-morenews-card h4 {
+        font-size: 14.5px; font-weight: 700; color: #0a0a0a;
+        margin: 0 0 8px; line-height: 1.35;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        flex-grow: 1;
+    }
+    .ca-morenews-card:hover h4 { color: #ff8a00; }
+    .ca-morenews-card .byline { color: #777; font-size: 11.5px; }
+    .ca-morenews-card .byline .author { color: #ff8a00; font-weight: 600; margin-right: 5px; }
+
+    .ca-pagination { margin-top: 28px; }
+
+    /* === Dark mode === */
+    html.dark-mode .ca-wrap { background: var(--site-bg) !important; }
+    html.dark-mode .ca-head h1 { color: #fff !important; }
+    html.dark-mode .ca-head .sub { color: #cbd5e1 !important; }
+    html.dark-mode .ca-cat-pills a {
+        background: rgba(255,255,255,.06) !important;
+        border-color: rgba(255,255,255,.12) !important;
+        color: #e5e7eb !important;
+    }
+    html.dark-mode .ca-cat-pills a:hover { background: rgba(255,255,255,.10) !important; border-color: rgba(255,255,255,.25) !important; }
+    html.dark-mode .ca-section-title { border-bottom-color: var(--site-card-bd) !important; }
+    html.dark-mode .ca-section-title h2 { color: #fff !important; }
+    html.dark-mode .ca-recent-card,
+    html.dark-mode .ca-popular-item,
+    html.dark-mode .ca-morenews-card {
+        background: var(--site-card-bg) !important;
+        border-color: var(--site-card-bd) !important;
+        color: var(--site-text) !important;
+    }
+    html.dark-mode .ca-recent-card h4,
+    html.dark-mode .ca-popular-item h4,
+    html.dark-mode .ca-morenews-card h4 { color: #fff !important; }
+    html.dark-mode .ca-recent-card .meta,
+    html.dark-mode .ca-morenews-card .byline { color: var(--site-muted) !important; }
+    html.dark-mode .ca-recent-card:hover h4,
+    html.dark-mode .ca-popular-item:hover h4,
+    html.dark-mode .ca-morenews-card:hover h4 { color: #ff8a00 !important; }
 </style>
 
-{{-- JSON-LD: Blog schema --}}
-<script type="application/ld+json">
-{
-    "@@context": "https://schema.org",
-    "@@type": "Blog",
-    "name": "Jobs in USA Career Blog",
-    "url": "{{ route('blog.index') }}",
-    "description": "Career advice, job search tips, resume writing guides, and U.S. industry insights from Jobs in USA.",
-    "publisher": {
-        "@@type": "Organization",
-        "name": "Jobs in USA",
-        "logo": { "@@type": "ImageObject", "url": "{{ asset('public/user/images/Jobs in USA.png') }}" }
-    }
-}
-</script>
-
-<!-- Hero -->
-<section class="blog-hero">
+{{-- ===== Hero ===== --}}
+<section class="ca-hero">
     <div class="container">
-        <div class="breadcrumbs-mini">
-            <a href="{{ url('/') }}">Home</a> &nbsp;&rsaquo;&nbsp; Career Blog
+        <span class="eyebrow">Career & Employment News</span>
+        <h1>Insights, advice and stories <br><span class="accent">to help you grow</span></h1>
+        <p class="sub">Practical career guides, hiring trends across all 50 U.S. states, and salary insights — written by editors who track the American job market every day.</p>
+        <div class="ca-hero-stats">
+            <div class="stat"><strong>{{ number_format(\App\Models\Blog::where('status','published')->count()) }}+</strong><span>Articles</span></div>
+            <div class="stat"><strong>{{ \App\Models\BlogCatgories::count() }}</strong><span>Topics</span></div>
+            <div class="stat"><strong>Daily</strong><span>Fresh Updates</span></div>
         </div>
-        <span class="eyebrow" data-aos="fade-down" data-aos-duration="600">Career Insights</span>
-        <h1 data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">Expert Career Advice for <span class="accent">Job Seekers</span> in the USA</h1>
-        <p class="lead" data-aos="fade-up" data-aos-duration="700" data-aos-delay="250">Resume writing tips, interview playbooks, salary negotiation guides, remote work insights and U.S. industry trends — everything you need to advance your career, written by hiring experts.</p>
     </div>
 </section>
 
-<!-- Blog Body -->
-<section class="blog-body">
+<section class="ca-wrap">
     <div class="container">
-        <div class="row">
-            <div class="col-xl-8 col-lg-8">
-                <div class="blog-grid">
-                    @forelse($blogs as $post)
-                        <a href="{{ route('blog.show', $post->slug) }}" class="blog-card">
-                            <div class="blog-card-thumb">
-                                <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
-                                @if($post->category?->name)
-                                    <span class="cat-pill">{{ $post->category->name }}</span>
+
+        {{-- Category pills --}}
+        <div class="ca-head">
+            <h2>Browse by Topic</h2>
+            @if($categories->isNotEmpty())
+                <div class="ca-cat-pills">
+                    <a href="{{ route('blog.index') }}" class="{{ ! $categorySlug ? 'active' : '' }}">All</a>
+                    @foreach($categories->take(5) as $cat)
+                        <a href="{{ route('blog.index', ['category' => $cat->slug]) }}"
+                           class="{{ $categorySlug === $cat->slug ? 'active' : '' }}">{{ $cat->name }}</a>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        {{-- ===== Featured grid (1 large + 4 small) ===== --}}
+        @if($featured)
+            <div class="ca-featured-grid">
+                <a href="{{ route('blog.show', $featured->slug ?? $featured->id) }}" class="ca-feature-main">
+                    <img src="{{ $blogImg($featured->featured_image) }}" alt="{{ $featured->title }}" loading="eager">
+                    <div class="ca-feature-content">
+                        @if($featured->category)
+                            <span class="cat-pill">{{ $featured->category->name }}</span>
+                        @endif
+                        <h3>{{ $featured->title }}</h3>
+                    </div>
+                </a>
+
+                @foreach($secondaryFeatured as $post)
+                    <a href="{{ route('blog.show', $post->slug ?? $post->id) }}" class="ca-feature-small">
+                        <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
+                        <div class="ca-feature-content">
+                            <h3>{{ $post->title }}</h3>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- ===== Recent News (3 cols × 2 rows = 6 cards) ===== --}}
+        @if($recentNews->isNotEmpty())
+            <div class="ca-section-title">
+                <h2>Recent News</h2>
+                <a href="{{ route('blog.index') }}" class="more-link">More <i class="icon-feather-chevron-right"></i></a>
+            </div>
+            <div class="ca-recent-grid">
+                @foreach($recentNews as $post)
+                    <a href="{{ route('blog.show', $post->slug ?? $post->id) }}" class="ca-recent-card">
+                        <div class="thumb">
+                            <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        <div class="info">
+                            @if($post->category)
+                                <span class="cat-tag">{{ $post->category->name }}</span>
+                            @endif
+                            <h4>{{ $post->title }}</h4>
+                            <div class="meta">{{ optional($post->published_at)->format('F j, Y') }}</div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- ===== Most Popular (2 cols × 3 rows = 6 ranked cards) ===== --}}
+        @if($mostPopular->isNotEmpty())
+            <div class="ca-section-title">
+                <h2>Most Popular</h2>
+                <a href="{{ route('blog.index') }}" class="more-link">More <i class="icon-feather-chevron-right"></i></a>
+            </div>
+            <div class="ca-popular-grid">
+                @foreach($mostPopular as $i => $post)
+                    <a href="{{ route('blog.show', $post->slug ?? $post->id) }}" class="ca-popular-item">
+                        <div class="rank">{{ $i + 1 }}</div>
+                        <div class="thumb">
+                            <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        <h4>{{ $post->title }}</h4>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- ===== Recruitment Insights (3 cols × 1 row) ===== --}}
+        @if($recruitmentInsights->isNotEmpty())
+            <div class="ca-section-title">
+                <h2>Recruitment Insights</h2>
+                <a href="{{ route('blog.index') }}" class="more-link">More <i class="icon-feather-chevron-right"></i></a>
+            </div>
+            <div class="ca-insights-grid">
+                @foreach($recruitmentInsights as $post)
+                    <a href="{{ route('blog.show', $post->slug ?? $post->id) }}" class="ca-insight-card">
+                        <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
+                        <div class="ca-feature-content">
+                            <h3>{{ $post->title }}</h3>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- ===== More News (4 cols × 2 rows = 8 per page, paginated) ===== --}}
+        @if($moreNews->count())
+            <div class="ca-section-title">
+                <h2>More News</h2>
+            </div>
+            <div class="ca-morenews-grid">
+                @foreach($moreNews as $post)
+                    <a href="{{ route('blog.show', $post->slug ?? $post->id) }}" class="ca-morenews-card">
+                        <div class="thumb">
+                            <img src="{{ $blogImg($post->featured_image) }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        <div class="info">
+                            <h4>{{ $post->title }}</h4>
+                            <div class="byline">
+                                @if($post->author_name)
+                                    <span class="author">{{ $post->author_name }}</span>
+                                @elseif($post->author)
+                                    <span class="author">{{ $post->author->name }}</span>
                                 @endif
+                                {{ optional($post->published_at)->format('M j, Y') }}
                             </div>
-                            <div class="blog-card-body">
-                                <div class="blog-card-meta">
-                                    <span><i class="icon-feather-user"></i>{{ $post->author_name ?? $post->author?->name ?? 'Jobs in USA Editorial' }}</span>
-                                    <span><i class="icon-feather-calendar"></i>{{ optional($post->published_at)->format('M d, Y') }}</span>
-                                    @if($post->reading_time)
-                                        <span><i class="icon-feather-clock"></i>{{ $post->reading_time }} min</span>
-                                    @endif
-                                </div>
-                                <h3>{{ $post->title }}</h3>
-                                <p>{{ $post->excerpt ?? \Illuminate\Support\Str::limit(strip_tags($post->content), 120) }}</p>
-                                <span class="blog-card-readmore">Read More <i class="icon-feather-arrow-right"></i></span>
-                            </div>
-                        </a>
-                    @empty
-                        <div class="text-center text-muted p-5" style="grid-column: 1 / -1;">
-                            <p>No blog posts found.</p>
                         </div>
-                    @endforelse
-                </div>
-
-                @if($blogs->hasPages())
-                    <div class="blog-pagination">
-                        <div class="utf-pagination-container-aera">
-                            {{ $blogs->links('vendor.pagination.custom') }}
-                        </div>
-                    </div>
-                @endif
+                    </a>
+                @endforeach
             </div>
 
-            <div class="col-xl-4 col-lg-4">
-                <div class="blog-sidebar">
-                    <!-- Promo card (replaces orange resume widget) -->
-                    <div class="promo-card">
-                        <div class="promo-card-inner">
-                            <span class="eyebrow">Stand Out</span>
-                            <h4>Make Your Resume Work Harder for You</h4>
-                            <p>Sign up free, build your profile, and let verified U.S. employers find you — your next role is one click away.</p>
-                            <a href="{{ route('register') }}" class="promo-btn">
-                                Create Free Account <i class="icon-feather-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Latest blog posts -->
-                    <div class="blog-sidebar-card">
-                        <h3>Latest Posts</h3>
-                        <ul class="latest-list">
-                            @forelse($latestBlogs as $latest)
-                                <li>
-                                    <div class="thumb">
-                                        <img src="{{ $blogImg($latest->featured_image) }}" alt="{{ $latest->title }}" loading="lazy">
-                                    </div>
-                                    <div class="info">
-                                        <h4><a href="{{ route('blog.show', $latest->slug) }}">{{ $latest->title }}</a></h4>
-                                        <span class="date">{{ optional($latest->published_at)->format('M d, Y') }}</span>
-                                    </div>
-                                </li>
-                            @empty
-                                <li class="text-muted">No posts yet</li>
-                            @endforelse
-                        </ul>
-                    </div>
+            @if($moreNews->hasPages())
+                <div class="ca-pagination">
+                    {{ $moreNews->onEachSide(0)->links('vendor.pagination.custom') }}
                 </div>
-            </div>
-        </div>
+            @endif
+        @endif
+
     </div>
 </section>
-
-<!-- FAQ Section -->
-<section class="blog-faq-section" aria-labelledby="blog-faq-heading">
-    <div class="container">
-        <header class="blog-faq-head">
-            <span class="eyebrow">Common Questions</span>
-            <h2 id="blog-faq-heading">Frequently Asked Career &amp; Job Search Questions</h2>
-            <p>Get clear answers about applying for jobs, building a strong profile, employer verification, and how to make the most of Jobs in USA.</p>
-        </header>
-
-        <div class="blog-faq-list">
-            <details class="blog-faq-item" open>
-                <summary>Is Jobs in USA free for job seekers?</summary>
-                <div class="faq-answer">Yes — 100% free. Creating an account, browsing jobs, and applying for positions is completely free for job seekers. <a href="{{ route('register') }}">Create your free account</a> to get started.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>How do I apply for a job on Jobs in USA?</summary>
-                <div class="faq-answer">Browse our <a href="{{ route('jobs.index') }}">verified job listings</a> or use search filters to find roles that match your skills. Click any job to view full details, then hit "Apply." You'll need to be signed in with your resume ready.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>How can I make my profile stand out to employers?</summary>
-                <div class="faq-answer">Add a complete resume, list your skills clearly, upload a professional photo, and keep your profile updated. Complete profiles are up to 3× more likely to attract employer attention. Read our <a href="{{ route('blog.index') }}">resume writing guides</a> for more tips.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>How do I post a job as an employer?</summary>
-                <div class="faq-answer">Register an employer account, choose a posting plan that fits your hiring needs, and submit your listing through the dashboard. Once verified, your job goes live and reaches qualified candidates across all 50 U.S. states.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>Can I save jobs to apply later?</summary>
-                <div class="faq-answer">Absolutely. Click the bookmark icon on any job listing to save it to your account. Review and apply to your saved jobs anytime from your dashboard.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>How often is the blog updated with new content?</summary>
-                <div class="faq-answer">We publish fresh career articles, salary guides, interview tips, and industry insights every week. Subscribe to job alerts to also get notified when matching positions go live.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>How are job listings verified on Jobs in USA?</summary>
-                <div class="faq-answer">Every employer profile is reviewed by our trust and safety team before going live. We verify business legitimacy and remove fraudulent or outdated listings — keeping the platform safe for all job seekers.</div>
-            </details>
-            <details class="blog-faq-item">
-                <summary>What industries does Jobs in USA cover?</summary>
-                <div class="faq-answer">We feature verified jobs across every major U.S. industry — healthcare, IT, software, construction, warehouse, transportation, retail, customer service, marketing, accounting, hospitality, education, finance, and more. Browse all <a href="{{ route('jobs.categories') }}">categories</a>.</div>
-            </details>
-        </div>
-    </div>
-</section>
-
-{{-- FAQ JSON-LD for SEO --}}
-<script type="application/ld+json">
-{
-    "@@context": "https://schema.org",
-    "@@type": "FAQPage",
-    "mainEntity": [
-        {"@@type":"Question","name":"Is Jobs in USA free for job seekers?","acceptedAnswer":{"@@type":"Answer","text":"Yes — 100% free. Creating an account, browsing jobs, and applying for positions is completely free for job seekers."}},
-        {"@@type":"Question","name":"How do I apply for a job on Jobs in USA?","acceptedAnswer":{"@@type":"Answer","text":"Browse our verified job listings or use search filters to find roles that match your skills. Click any job to view details, then hit Apply."}},
-        {"@@type":"Question","name":"How can I make my profile stand out to employers?","acceptedAnswer":{"@@type":"Answer","text":"Add a complete resume, list your skills clearly, upload a professional photo, and keep your profile updated. Complete profiles are up to 3× more likely to attract employer attention."}},
-        {"@@type":"Question","name":"How do I post a job as an employer?","acceptedAnswer":{"@@type":"Answer","text":"Register an employer account, choose a posting plan, and submit your listing through the dashboard. Once verified, your job goes live across all 50 U.S. states."}},
-        {"@@type":"Question","name":"How are job listings verified on Jobs in USA?","acceptedAnswer":{"@@type":"Answer","text":"Every employer profile is reviewed by our trust and safety team before going live. We verify business legitimacy and remove fraudulent listings."}}
-    ]
-}
-</script>
 
 @endsection

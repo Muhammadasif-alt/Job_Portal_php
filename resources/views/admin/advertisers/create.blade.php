@@ -269,7 +269,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.advertisers.store') }}" method="POST">
+    <form action="{{ route('admin.advertisers.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-grid">
             {{-- Main form --}}
@@ -301,6 +301,19 @@
                                    class="@error('type') is-invalid @enderror"
                                    placeholder="e.g. Direct Employer, Staffing Agency">
                             @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="field">
+                            <label for="logo">
+                                Company Logo
+                                <span class="hint">— PNG / JPG / WebP / SVG, max 2MB</span>
+                            </label>
+                            <div class="logo-uploader">
+                                <input id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                       class="@error('logo') is-invalid @enderror">
+                                <p class="help-text">Square logos work best (e.g. 200×200). Will appear next to every job from this employer.</p>
+                            </div>
+                            @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>

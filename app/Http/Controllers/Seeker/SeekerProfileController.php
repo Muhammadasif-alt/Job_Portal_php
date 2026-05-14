@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Seeker;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Job;
 use App\Services\AiResumeParser;
 use App\Services\ResumeParser;
@@ -17,20 +16,21 @@ class SeekerProfileController extends Controller
     public function show()
     {
         $user = Auth::user();
+
         return view('seeker.profile', compact('user'));
     }
 
     public function update(Request $request)
     {
         $data = $request->validate([
-            'name'             => ['required', 'string', 'max:191'],
-            'phone'            => ['nullable', 'string', 'max:30'],
-            'headline'         => ['nullable', 'string', 'max:191'],
-            'bio'              => ['nullable', 'string', 'max:5000'],
-            'skills'           => ['nullable', 'string', 'max:1000'],
-            'preferred_city'   => ['nullable', 'string', 'max:120'],
+            'name' => ['required', 'string', 'max:191'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'headline' => ['nullable', 'string', 'max:191'],
+            'bio' => ['nullable', 'string', 'max:5000'],
+            'skills' => ['nullable', 'string', 'max:1000'],
+            'preferred_city' => ['nullable', 'string', 'max:120'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:60'],
-            'open_to'          => ['nullable', 'string', 'max:60'],
+            'open_to' => ['nullable', 'string', 'max:60'],
         ]);
 
         Auth::user()->update($data);
@@ -45,6 +45,7 @@ class SeekerProfileController extends Controller
     public function resume()
     {
         $user = Auth::user();
+
         return view('seeker.resume', compact('user'));
     }
 
@@ -54,7 +55,7 @@ class SeekerProfileController extends Controller
             'cv' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'], // 5 MB
         ], [
             'cv.mimes' => 'Only PDF, DOC and DOCX files are allowed.',
-            'cv.max'   => 'File must be 5 MB or smaller.',
+            'cv.max' => 'File must be 5 MB or smaller.',
         ]);
 
         $user = Auth::user();
@@ -68,7 +69,7 @@ class SeekerProfileController extends Controller
         $path = $file->store('resumes/'.$user->id, 'public');
 
         $absPath = Storage::disk('public')->path($path);
-        $ext     = strtolower($file->getClientOriginalExtension());
+        $ext = strtolower($file->getClientOriginalExtension());
 
         // Get raw text first (works for both AI and regex parsers)
         $rawText = $parser->extractText($absPath, $ext);
@@ -84,7 +85,7 @@ class SeekerProfileController extends Controller
         }
 
         $user->update([
-            'cv_path'     => $path,
+            'cv_path' => $path,
             'resume_data' => $sections,
         ]);
 
@@ -95,7 +96,7 @@ class SeekerProfileController extends Controller
         $updates = [];
         foreach ($autoFillable as $field) {
             $current = trim((string) $user->{$field});
-            $newVal  = $extracted[$field] ?? null;
+            $newVal = $extracted[$field] ?? null;
             if ($current === '' && $newVal !== null && $newVal !== '') {
                 $updates[$field] = $newVal;
                 $filled[] = $field;
@@ -113,19 +114,104 @@ class SeekerProfileController extends Controller
         $message = 'Resume uploaded â€” employers can now view it.';
         if (! empty($filled)) {
             $labels = [
-                'name'             => 'name',
-                'phone'            => 'phone',
-                'headline'         => 'headline',
-                'bio'              => 'about',
-                'skills'           => 'skills',
-                'preferred_city'   => 'preferred city',
+                'name' => 'name',
+                'phone' => 'phone',
+                'headline' => 'headline',
+                'bio' => 'about',
+                'skills' => 'skills',
+                'preferred_city' => 'preferred city',
                 'experience_years' => 'experience',
             ];
-            $list = collect($filled)->map(fn($f) => $labels[$f] ?? $f)->implode(', ');
+            $list = collect($filled)->map(fn ($f) => $labels[$f] ?? $f)->implode(', ');
             $message .= ' We auto-filled: '.$list.'. Review &amp; complete the rest in your profile.';
         }
 
         return redirect()->route('seeker.resume')->with('success', $message);
+    }
+
+    /**
+     * Update the auto-extracted resume sections (lets the user fix things the
+     * parser got wrong without re-uploading the CV).
+     *
+     * Bullets and per-item bullets arrive as one-per-line strings from textareas,
+     * which we explode here so the saved JSON keeps the same array shape as the
+     * parser produced.
+     */
+    public function updateResumeData(Request $request)
+    {
+        $user = Auth::user();
+
+        $payload = $request->validate([
+            'sections' => ['nullable', 'array'],
+            'sections.*.heading' => ['nullable', 'string', 'max:191'],
+            'sections.*.type' => ['nullable', 'string', 'max:32'],
+            'sections.*.paragraphs_text' => ['nullable', 'string', 'max:20000'],
+            'sections.*.bullets_text' => ['nullable', 'string', 'max:20000'],
+            'sections.*.items' => ['nullable', 'array'],
+            'sections.*.items.*.title' => ['nullable', 'string', 'max:255'],
+            'sections.*.items.*.subtitle' => ['nullable', 'string', 'max:255'],
+            'sections.*.items.*.meta' => ['nullable', 'string', 'max:255'],
+            'sections.*.items.*.paragraphs_text' => ['nullable', 'string', 'max:20000'],
+            'sections.*.items.*.bullets_text' => ['nullable', 'string', 'max:20000'],
+        ]);
+
+        $splitLines = function (?string $text): array {
+            if (! $text) {
+                return [];
+            }
+
+            return collect(preg_split('/\r?\n/', $text))
+                ->map(fn ($line) => trim((string) $line))
+                ->filter()
+                ->values()
+                ->all();
+        };
+        $splitParagraphs = function (?string $text): array {
+            if (! $text) {
+                return [];
+            }
+
+            return collect(preg_split('/\n\s*\n/', $text))
+                ->map(fn ($p) => trim((string) $p))
+                ->filter()
+                ->values()
+                ->all();
+        };
+
+        $sections = [];
+        foreach (($payload['sections'] ?? []) as $sec) {
+            $heading = trim((string) ($sec['heading'] ?? ''));
+            if ($heading === '') {
+                continue;
+            }
+
+            $items = [];
+            foreach (($sec['items'] ?? []) as $item) {
+                $items[] = [
+                    'title' => trim((string) ($item['title'] ?? '')),
+                    'subtitle' => trim((string) ($item['subtitle'] ?? '')),
+                    'meta' => trim((string) ($item['meta'] ?? '')),
+                    'paragraphs' => $splitParagraphs($item['paragraphs_text'] ?? null),
+                    'bullets' => $splitLines($item['bullets_text'] ?? null),
+                ];
+            }
+
+            $sections[] = [
+                'heading' => $heading,
+                'type' => $sec['type'] ?? 'paragraph',
+                'paragraphs' => $splitParagraphs($sec['paragraphs_text'] ?? null),
+                'bullets' => $splitLines($sec['bullets_text'] ?? null),
+                'items' => $items,
+            ];
+        }
+
+        $resumeData = is_array($user->resume_data) ? $user->resume_data : [];
+        $resumeData['sections'] = $sections;
+        $user->update(['resume_data' => $resumeData]);
+
+        \Illuminate\Support\Facades\Cache::forget('seekerDash.aiMatch.'.$user->id);
+
+        return redirect()->route('seeker.profile')->with('success', 'Resume content updated.');
     }
 
     public function deleteResume()
@@ -156,6 +242,7 @@ class SeekerProfileController extends Controller
             ->map(function ($job) {
                 $job->applied_at = now()->subDays(rand(1, 14)); // placeholder timestamp
                 $job->status_label = 'Pending Review';
+
                 return $job;
             });
 

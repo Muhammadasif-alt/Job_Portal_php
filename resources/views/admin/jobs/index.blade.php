@@ -272,6 +272,9 @@
                 <a href="{{ route('admin.jobs.export', ['type' => 'xlsx']) }}" class="btn-soft success">
                     <i class="bi bi-download"></i> Export
                 </a>
+                <a href="{{ route('admin.jobs.sync') }}" class="btn-soft" style="background:#0a0a0a;color:#fff;border-color:#0a0a0a;">
+                    <i class="bi bi-arrow-repeat"></i> Auto-Sync
+                </a>
                 <a href="{{ route('admin.jobs.import.form') }}" class="btn-soft info">
                     <i class="bi bi-upload"></i> Import
                 </a>

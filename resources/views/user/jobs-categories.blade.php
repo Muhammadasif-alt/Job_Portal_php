@@ -522,9 +522,10 @@
             <!-- Left: Image with floating stats -->
             <div class="cat-seo-visual" aria-hidden="true">
                 <div class="cat-seo-frame">
-                    <img src="{{ asset('public/user/images/home-background-03.jpg') }}"
+                    <img src="{{ asset('public/user/images/home-background-03.webp') }}"
                          alt="Browse jobs by industry across the United States"
-                         loading="lazy">
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ asset('public/user/images/home-background-03.jpg') }}'">
                 </div>
                 <div class="cat-float-stat top">
                     <div class="ico green"><i class="icon-feather-briefcase"></i></div>

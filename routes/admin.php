@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\JobImportExportController;
+use App\Http\Controllers\Admin\JobSyncController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ContactMessageController;
@@ -33,16 +34,20 @@ Route::prefix('admin')->name('admin.')->middleware(EnsureRole::class.':admin')->
 
     // Jobs Management
     Route::resource('jobs', JobController::class);
-    Route::get ('/jobs/import/form', [JobImportExportController::class, 'showImportForm'])->name('jobs.import.form');
-    Route::post('/jobs/import',      [JobImportExportController::class, 'import'])->name('jobs.import');
-    Route::get ('/jobs/export',      [JobImportExportController::class, 'export'])->name('jobs.export');
+    Route::get('/jobs/import/form', [JobImportExportController::class, 'showImportForm'])->name('jobs.import.form');
+    Route::post('/jobs/import', [JobImportExportController::class, 'import'])->name('jobs.import');
+    Route::get('/jobs/export', [JobImportExportController::class, 'export'])->name('jobs.export');
+
+    // Jobg8 auto-sync (hourly + manual trigger)
+    Route::get('/jobs/sync', [JobSyncController::class, 'index'])->name('jobs.sync');
+    Route::post('/jobs/sync/trigger', [JobSyncController::class, 'trigger'])->name('jobs.sync.trigger');
 
     // CRUD resources
-    Route::resource('advertisers',     AdvertiserController::class);
-    Route::resource('categories',      CategoriesController::class);
-    Route::resource('locations',       LocationController::class);
-    Route::resource('blogcategories',  BlogCatgoriesController::class);
-    Route::resource('blogs',           BlogController::class);
+    Route::resource('advertisers', AdvertiserController::class);
+    Route::resource('categories', CategoriesController::class);
+    Route::resource('locations', LocationController::class);
+    Route::resource('blogcategories', BlogCatgoriesController::class);
+    Route::resource('blogs', BlogController::class);
 
     // Users Management (custom delete-photo + standard CRUD)
     Route::delete('users/{user}/photo', [UserController::class, 'removePhoto'])->name('users.photo.remove');
@@ -50,7 +55,7 @@ Route::prefix('admin')->name('admin.')->middleware(EnsureRole::class.':admin')->
 
     // Contact Messages
     Route::post('contact-messages/bulk-destroy', [ContactMessageController::class, 'bulkDestroy'])->name('contact-messages.bulk-destroy');
-    Route::post('contact-messages/scan-spam',    [ContactMessageController::class, 'scanSpam'])->name('contact-messages.scan-spam');
+    Route::post('contact-messages/scan-spam', [ContactMessageController::class, 'scanSpam'])->name('contact-messages.scan-spam');
     Route::resource('contact-messages', ContactMessageController::class)->except('create', 'edit');
 
     // Dangerous: delete all data

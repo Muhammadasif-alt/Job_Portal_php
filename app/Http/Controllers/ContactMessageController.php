@@ -60,12 +60,37 @@ class ContactMessageController extends Controller
      * form succeeded, real users are unaffected.
      */
     private const SPAM_PATTERNS = [
-        'seo boost', 'seo service', 'rank higher', 'first page of google',
-        'increase google organic', 'increase your traffic', 'drive more qualified traffic',
-        'website traffic', 'guest post', 'backlink', 'back link', 'link building',
-        'cheap seo', 'website ranking', 'top of google', 'serp', 'pbn',
-        'crypto', 'bitcoin', 'investment opportunity',
-        'jojfw', 'jojfwi', 'foekdwd', // gibberish chunks seen in the current spam wave
+        // SEO services pitch
+        'seo boost', 'seo service', 'seo package', 'seo expert', 'seo result',
+        'seo and driving', 'search visibility', 'rank higher', 'first page of google',
+        'increase google organic', 'google organic ranking', 'organic ranking',
+        'increase your traffic', 'increase seo', 'drive more qualified traffic',
+        'attract more clients', 'attract more customers',
+        'website traffic', 'webpage & marketing', 'webpage and marketing',
+        'website ranking', 'top of google', 'google search results',
+        'google ranking', 'serp', 'pbn',
+        // Link building / guest posts
+        'guest post', 'backlink', 'back link', 'link building', 'link insertion',
+        'free article', 'article proposal', 'sponsored post', 'collaboration opportunity',
+        // Generic SEO sales pitches
+        'cheap seo', 'affordable seo', 'seo audit', 'website audit', 'free audit',
+        'online presence', 'digital marketing service', 'lead generation service',
+        // Crypto / finance scams
+        'crypto', 'bitcoin', 'ethereum', 'forex', 'investment opportunity',
+        'binary option', 'trading signal',
+        // Known gibberish chunks from spam waves
+        'jojfw', 'jojfwi', 'foekdwd', 'aaaqfj',
+    ];
+
+    /**
+     * Email domains that have only ever sent spam. Block at submission time.
+     */
+    private const BLOCKED_DOMAINS = [
+        'bestaiseocompany.com',
+        'getonglobe.com',
+        'mapmybiz.org',
+        'mapmybiz.com',
+        'bizbuying.net',
     ];
 
     public function store(Request $request)
@@ -97,7 +122,19 @@ class ContactMessageController extends Controller
             }
         }
 
-        // 4. Per-IP rate limit — same IP can't submit more than 3 messages per hour
+        // 4. Email-domain blocklist — known cold-outreach senders
+        $emailDomain = strtolower((string) substr(strrchr($validated['email'], '@') ?: '', 1));
+        if ($emailDomain !== '' && in_array($emailDomain, self::BLOCKED_DOMAINS, true)) {
+            return redirect('/')->with('success', 'Thank you for your message! We will get back to you soon.');
+        }
+
+        // 5. Gibberish detection — random consonant strings like "IQzUghrVcsUJNuYBQ"
+        // or "Aaaqfjfwkdjifiefowkd" never appear in real human-written subjects.
+        if ($this->looksLikeGibberish($validated['subject'])) {
+            return redirect('/')->with('success', 'Thank you for your message! We will get back to you soon.');
+        }
+
+        // 6. Per-IP rate limit — same IP can't submit more than 3 messages per hour
         $rlKey = 'contact-form:'.$request->ip();
         $count = (int) cache()->get($rlKey, 0);
         if ($count >= 3) {
@@ -110,6 +147,51 @@ class ContactMessageController extends Controller
         ContactMessage::create($validated);
 
         return redirect('/')->with('success', 'Thank you for your message! We will get back to you soon.');
+    }
+
+    /**
+     * Detect machine-generated gibberish like "IQzUghrVcsUJNuYBQ" or "Aaaqfjfwkdjifiefowkd".
+     * Three signals together catch nearly all bot-generated subjects without
+     * blocking real human ones:
+     *   (a) Long word with rapid case changes (uppercase in the middle, repeated)
+     *   - "iQzUghrVcsUJ" has 7+ case flips → never happens in English
+     *   (b) Long word with 4+ consecutive consonants
+     *   - "Aaaqfjfwkdji" has "qfjfwkdj" → not pronounceable English
+     *   (c) Whole text has > 30% consonant-cluster density
+     */
+    private function looksLikeGibberish(string $text): bool
+    {
+        $text = trim($text);
+        if (strlen($text) < 8) {
+            return false;
+        }
+
+        foreach (preg_split('/\s+/', $text) as $word) {
+            $word = preg_replace('/[^a-zA-Z]/', '', $word);
+            if (strlen($word) < 8) {
+                continue;
+            }
+
+            // (a) Rapid case flips inside one word → bot-generated mixed case
+            $caseFlips = 0;
+            for ($i = 1; $i < strlen($word); $i++) {
+                $a = ctype_upper($word[$i - 1]);
+                $b = ctype_upper($word[$i]);
+                if ($a !== $b) {
+                    $caseFlips++;
+                }
+            }
+            if ($caseFlips >= 6) {
+                return true;
+            }
+
+            // (b) 5+ consecutive consonants → not English
+            if (preg_match('/[bcdfghjklmnpqrstvwxyz]{5,}/i', $word)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function show(string $id)

@@ -232,7 +232,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.advertisers.update', $advertiser) }}" method="POST">
+    <form action="{{ route('admin.advertisers.update', $advertiser) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -264,6 +264,37 @@
                                    class="@error('type') is-invalid @enderror"
                                    placeholder="e.g. Direct Employer, Staffing Agency">
                             @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="field">
+                            <label for="logo">
+                                Company Logo
+                                <span class="hint">— PNG / JPG / WebP / SVG, max 2MB</span>
+                            </label>
+                            @if($advertiser->logo)
+                                <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 12px; background: #fafbff; border: 1px solid #eef0f4; border-radius: 10px;">
+                                    <img src="{{ asset('public/storage/' . $advertiser->logo) }}"
+                                         alt="Current logo"
+                                         style="width: 64px; height: 64px; object-fit: contain; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px;">
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 13px; color: #374151; font-weight: 600;">Current logo</div>
+                                        <label style="display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: #b91c1c; cursor: pointer;">
+                                            <input type="checkbox" name="remove_logo" value="1" style="margin: 0;">
+                                            Remove this logo
+                                        </label>
+                                    </div>
+                                </div>
+                            @endif
+                            <input id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                   class="@error('logo') is-invalid @enderror">
+                            <p class="help-text">
+                                @if($advertiser->logo)
+                                    Upload a new file to replace the current logo, or check "Remove" above.
+                                @else
+                                    Square logos work best (e.g. 200×200). Will appear next to every job from this employer.
+                                @endif
+                            </p>
+                            @error('logo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>

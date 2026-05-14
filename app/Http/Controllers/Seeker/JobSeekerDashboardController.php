@@ -3,18 +3,57 @@
 namespace App\Http\Controllers\Seeker;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Category;
 use App\Models\Job;
 use App\Models\Location;
 use App\Services\AiContentService;
+use App\Services\JobRecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class JobSeekerDashboardController extends Controller
 {
-    public function __construct(protected AiContentService $ai)
+    public function __construct(
+        protected AiContentService $ai,
+        protected JobRecommendationService $recommender,
+    ) {}
+
+    /**
+     * Dedicated "Recommended Jobs for You" page — full paginated list,
+     * deterministic scoring (no API calls).
+     */
+    public function recommended(Request $request)
     {
+        $user = $request->user();
+
+        $filters = $request->only(['keywords', 'location', 'job_type']);
+
+        // Build base query (filters applied), pull a generous candidate set,
+        // score in PHP, and paginate the ranked result manually so we don't
+        // need a DB-side score column.
+        $candidates = $this->recommender
+            ->queryFor($user, $filters)
+            ->limit(300)
+            ->get();
+
+        $ranked = $this->recommender->enrichAndSort($candidates, $user);
+
+        // Paginate the ranked Collection
+        $perPage = 12;
+        $page = max(1, (int) $request->input('page', 1));
+        $sliced = $ranked->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $jobs = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sliced,
+            $ranked->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $filters]
+        );
+
+        $locations = Location::orderBy('name')->get(['id', 'name']);
+
+        return view('seeker.recommended', compact('user', 'jobs', 'locations', 'filters'));
     }
 
     /**
@@ -26,12 +65,12 @@ class JobSeekerDashboardController extends Controller
 
         $stats = Cache::remember('seekerDash.stats', 600, function () {
             return [
-                'open_jobs'    => Job::where(function ($q) {
-                                    $q->where('status', 'active')->orWhereNull('status');
-                                })->count(),
-                'this_week'    => Job::where('created_at', '>=', now()->subWeek())->count(),
-                'companies'    => \App\Models\Advertiser::count(),
-                'categories'   => Category::count(),
+                'open_jobs' => Job::where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                })->count(),
+                'this_week' => Job::where('created_at', '>=', now()->subWeek())->count(),
+                'companies' => \App\Models\Advertiser::count(),
+                'categories' => Category::count(),
             ];
         });
 
@@ -71,7 +110,9 @@ class JobSeekerDashboardController extends Controller
 
         $latestJobs = function () {
             return Job::with(['advertiser', 'category', 'location'])
-                ->where(function ($q) { $q->where('status', 'active')->orWhereNull('status'); })
+                ->where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                })
                 ->latest()->take(6)->get();
         };
 
@@ -88,13 +129,14 @@ class JobSeekerDashboardController extends Controller
             $jobs = Job::with(['advertiser', 'category', 'location'])
                 ->whereIn('id', $cached['ids'])
                 ->get()
-                ->sortBy(fn($j) => array_search($j->id, $cached['ids']))
+                ->sortBy(fn ($j) => array_search($j->id, $cached['ids']))
                 ->values();
             foreach ($jobs as $job) {
                 $info = $cached['scores'][$job->id] ?? null;
-                $job->ai_score  = $info['score']  ?? null;
+                $job->ai_score = $info['score'] ?? null;
                 $job->ai_reason = $info['reason'] ?? null;
             }
+
             return [$jobs, 'matched'];
         }
 
@@ -118,7 +160,9 @@ class JobSeekerDashboardController extends Controller
 
         if (! is_array($cached) || empty($cached['ids'])) {
             $candidates = Job::with(['advertiser', 'category', 'location'])
-                ->where(function ($q) { $q->where('status', 'active')->orWhereNull('status'); })
+                ->where(function ($q) {
+                    $q->where('status', 'active')->orWhereNull('status');
+                })
                 ->latest()->take(30)->get();
 
             if ($candidates->isEmpty()) {
@@ -126,21 +170,21 @@ class JobSeekerDashboardController extends Controller
             }
 
             $seekerProfile = [
-                'headline'         => $user->headline,
-                'bio'              => $user->bio,
-                'skills'           => $user->skills,
+                'headline' => $user->headline,
+                'bio' => $user->bio,
+                'skills' => $user->skills,
                 'experience_years' => $user->experience_years,
-                'preferred_city'   => $user->preferred_city,
-                'open_to'          => $user->open_to,
+                'preferred_city' => $user->preferred_city,
+                'open_to' => $user->open_to,
             ];
 
             $jobsForAi = $candidates->map(fn ($j) => [
-                'id'          => $j->id,
-                'title'       => $j->position,
+                'id' => $j->id,
+                'title' => $j->position,
                 'description' => mb_substr((string) $j->description, 0, 600),
-                'location'    => optional($j->location)->name,
-                'category'    => optional($j->category)->name,
-                'job_type'    => $j->job_type,
+                'location' => optional($j->location)->name,
+                'category' => optional($j->category)->name,
+                'job_type' => $j->job_type,
             ])->values()->all();
 
             try {
@@ -156,15 +200,16 @@ class JobSeekerDashboardController extends Controller
             $ranked = $candidates
                 ->map(function ($job) use ($scores) {
                     $info = $scores[$job->id] ?? null;
-                    $job->ai_score  = $info['score']  ?? 0;
+                    $job->ai_score = $info['score'] ?? 0;
                     $job->ai_reason = $info['reason'] ?? null;
+
                     return $job;
                 })
                 ->sortByDesc('ai_score')
                 ->take(6)->values();
 
             Cache::put($cacheKey, [
-                'ids'    => $ranked->pluck('id')->all(),
+                'ids' => $ranked->pluck('id')->all(),
                 'scores' => $scores,
             ], now()->addHours(6));
 
@@ -178,15 +223,16 @@ class JobSeekerDashboardController extends Controller
             ->values()
             ->map(function ($job) use ($cached) {
                 $info = $cached['scores'][$job->id] ?? null;
+
                 return [
-                    'id'        => $job->id,
-                    'position'  => $job->position,
-                    'company'   => optional($job->advertiser)->name ?? 'Company',
-                    'location'  => optional($job->location)->name,
-                    'category'  => optional($job->category)->name,
-                    'when'      => optional($job->created_at)?->diffForHumans(),
-                    'url'       => route('jobs.show', \Illuminate\Support\Str::slug($job->position.'-'.(optional($job->location)->name ?? ''))),
-                    'ai_score'  => $info['score']  ?? null,
+                    'id' => $job->id,
+                    'position' => $job->position,
+                    'company' => optional($job->advertiser)->name ?? 'Company',
+                    'location' => optional($job->location)->name,
+                    'category' => optional($job->category)->name,
+                    'when' => optional($job->created_at)?->diffForHumans(),
+                    'url' => route('jobs.show', \Illuminate\Support\Str::slug($job->position.'-'.(optional($job->location)->name ?? ''))),
+                    'ai_score' => $info['score'] ?? null,
                     'ai_reason' => $info['reason'] ?? null,
                 ];
             });

@@ -650,21 +650,17 @@
 
         <div class="loc-grid">
             @forelse($locations as $location)
-                <a href="{{ route('jobs.location', $location->id) }}"
+                @php
+                    $cardImg = $locationImages[crc32($location->name) % count($locationImages)] ?? $defaultImage;
+                    $searchParams = ['location' => $location->name];
+                @endphp
+                <a href="{{ route('jobs.search', $searchParams) }}"
                    class="loc-card"
-                   style="background-image: url('{{ asset($defaultImage) }}');"
-                   title="View jobs in {{ $location->name }}{{ $location->area ? ', ' . $location->area : '' }}">
+                   style="background-image: url('{{ asset($cardImg) }}');"
+                   title="View jobs in {{ $location->name }}">
                     <span class="corner-arrow"><i class="icon-feather-arrow-up-right"></i></span>
                     <div class="loc-card-content">
-                        <h3>
-                            {{ $location->name }}
-                            @if($location->area)
-                                <span class="area">— {{ $location->area }}</span>
-                            @endif
-                        </h3>
-                        @if($location->postal_code)
-                            <span class="zip">ZIP {{ $location->postal_code }}</span>
-                        @endif
+                        <h3>Jobs in {{ $location->name }}</h3>
                         <span class="jobs-badge">
                             {{ number_format($location->jobs_count) }} {{ \Illuminate\Support\Str::plural('Job', $location->jobs_count) }}
                         </span>
@@ -680,7 +676,7 @@
         </div>
 
         <!-- Pagination -->
-        {{ $locations->onEachSide(2)->links() }}
+        {{ $locations->onEachSide(0)->links('vendor.pagination.custom') }}
     </div>
 </section>
 

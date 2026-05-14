@@ -408,6 +408,15 @@
         .text-primary { color: #0a0a0a !important; }
         .bg-primary { background-color: #0a0a0a !important; }
         .border-primary { border-color: #0a0a0a !important; }
+
+        /* Match public site — cap content area at 1800px on desktop */
+        @media (min-width: 1200px) {
+            .app-content .container-fluid {
+                max-width: 1800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
     </style>
 
 </head>
@@ -523,6 +532,14 @@
                             <a href="{{ route('seeker.dashboard') }}" class="nav-link {{ Request::routeIs('seeker.dashboard') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-speedometer2"></i>
                                 <p>Dashboard</p>
+                            </a>
+                        </li>
+
+                        <!-- Recommended Jobs -->
+                        <li class="nav-item">
+                            <a href="{{ route('seeker.recommended') }}" class="nav-link {{ Request::routeIs('seeker.recommended') ? 'active' : '' }}">
+                                <i class="nav-icon bi bi-stars"></i>
+                                <p>Recommended <span class="badge bg-warning text-dark" style="font-size:9px;margin-left:6px;">FOR YOU</span></p>
                             </a>
                         </li>
 

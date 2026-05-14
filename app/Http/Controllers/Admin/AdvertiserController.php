@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Advertiser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdvertiserController extends Controller
 {
@@ -51,12 +52,17 @@ class AdvertiserController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp,svg', 'max:2048'],
             'type' => ['nullable', 'string', 'max:100'],
             'sender_reference' => ['nullable', 'string', 'max:100'],
             'display_reference' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $advertiser = Advertiser::create($data);
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('company-logos', 'public');
+        }
+
+        Advertiser::create($data);
 
         return redirect()->route('admin.advertisers.index')
             ->with('success', 'Advertiser created successfully.');
@@ -85,11 +91,26 @@ class AdvertiserController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp,svg', 'max:2048'],
+            'remove_logo' => ['nullable', 'boolean'],
             'type' => ['nullable', 'string', 'max:100'],
             'sender_reference' => ['nullable', 'string', 'max:100'],
             'display_reference' => ['nullable', 'string', 'max:100'],
         ]);
 
+        // Delete old logo if user clicked "Remove" or replaced the file
+        if (($data['remove_logo'] ?? false) || $request->hasFile('logo')) {
+            if ($advertiser->logo) {
+                Storage::disk('public')->delete($advertiser->logo);
+            }
+            $data['logo'] = null;
+        }
+
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('company-logos', 'public');
+        }
+
+        unset($data['remove_logo']);
         $advertiser->update($data);
 
         return redirect()->route('admin.advertisers.index')
@@ -101,12 +122,10 @@ class AdvertiserController extends Controller
      */
     public function destroy(Advertiser $advertiser)
     {
-        // If you need to prevent deletion when related jobs exist, uncomment:
-        // if ($advertiser->jobs()->exists()) {
-        //     return redirect()->route('admin.advertisers.index')
-        //         ->with('error', 'Cannot delete advertiser with related jobs.');
-        // }
-
+        // Clean up uploaded logo when deleting the advertiser
+        if ($advertiser->logo) {
+            Storage::disk('public')->delete($advertiser->logo);
+        }
         $advertiser->delete();
 
         return redirect()->route('admin.advertisers.index')

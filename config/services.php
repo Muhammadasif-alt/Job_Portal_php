@@ -38,8 +38,18 @@ return [
     // Google Gemini — used for AI-powered resume parsing (free tier).
     // Get a key at https://aistudio.google.com/app/apikey
     'gemini' => [
-        'key'   => env('GEMINI_API_KEY'),
+        'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+    ],
+
+    // Jobg8 feed — hourly job-import sync from a Jobg8 zip endpoint.
+    // The command app:sync-jobg8 downloads, unzips and imports the spreadsheet.
+    'jobg8' => [
+        'username' => env('JOBG8_USERNAME'),
+        'password' => env('JOBG8_PASSWORD'),
+        'account_number' => env('JOBG8_ACCOUNT_NUMBER'),
+        'filename' => env('JOBG8_FILENAME', 'Jobs.zip'),
+        'endpoint' => env('JOBG8_ENDPOINT', 'https://www.jobg8.com/fileserver/jobs.aspx'),
     ],
 
 ];

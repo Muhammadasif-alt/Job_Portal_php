@@ -122,6 +122,96 @@
     .alert-box ul { margin: 6px 0 0 18px; }
     .alert-box .close-x { background: transparent; border: none; color: inherit; opacity: .6; cursor: pointer; }
     .alert-box .close-x:hover { opacity: 1; }
+
+    /* === Upload progress block (shown during AJAX upload) === */
+    .upload-progress {
+        display: none;
+        margin-top: 18px;
+        padding: 22px;
+        background: #fafbff;
+        border: 1px solid #eef0f4;
+        border-radius: 14px;
+    }
+    .upload-progress.is-active { display: block; }
+    .up-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 12px;
+    }
+    .up-title {
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 700; color: #0f172a; font-size: 14.5px;
+    }
+    .up-title .stage-ico {
+        width: 30px; height: 30px; border-radius: 50%;
+        background: #0a0a0a; color: #fff;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 14px;
+    }
+    .up-title .stage-ico.is-spinning i { animation: up-spin 1s linear infinite; }
+    .up-title .stage-ico.is-success { background: #047857; }
+    .up-title .stage-ico.is-error   { background: #b91c1c; }
+    @keyframes up-spin { to { transform: rotate(360deg); } }
+
+    .up-percent { font-weight: 800; font-size: 18px; color: #0a0a0a; letter-spacing: -.5px; min-width: 50px; text-align: right; }
+
+    .up-bar {
+        position: relative; height: 10px;
+        background: #e5e7eb; border-radius: 999px;
+        overflow: hidden;
+    }
+    .up-bar-fill {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 0%;
+        background: linear-gradient(90deg, #0a0a0a, #404040);
+        border-radius: 999px;
+        transition: width .15s ease;
+    }
+    .up-bar.is-indeterminate .up-bar-fill {
+        width: 35% !important;
+        background: linear-gradient(90deg, transparent, #0a0a0a, transparent);
+        animation: up-shimmer 1.2s linear infinite;
+    }
+    @keyframes up-shimmer {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(380%); }
+    }
+
+    .up-meta {
+        margin-top: 10px;
+        font-size: 12.5px; color: #6b7280;
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+
+    .up-success-summary {
+        margin-top: 14px;
+        padding: 14px 16px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 12px;
+        color: #065f46;
+        font-size: 13.5px;
+        line-height: 1.55;
+        display: none;
+    }
+    .up-success-summary.is-shown { display: block; }
+    .up-success-summary strong { color: #047857; }
+
+    .up-error-summary {
+        margin-top: 14px;
+        padding: 14px 16px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        color: #991b1b;
+        font-size: 13.5px;
+        line-height: 1.55;
+        display: none;
+    }
+    .up-error-summary.is-shown { display: block; }
+
+    /* Spin animation for the submit button icon while uploading */
+    @keyframes btn-spin { to { transform: rotate(360deg); } }
+    #submit-btn .spin-ico { display: inline-block; animation: btn-spin 1s linear infinite; transform-origin: center; }
 </style>
 
 <div class="form-wrap">
@@ -212,6 +302,34 @@
                     will be skipped automatically. After import you'll see a summary like
                     <em>"245 imported, 89 duplicates skipped."</em>
                 </div>
+
+                {{-- ====== Live upload + processing progress ====== --}}
+                <div class="upload-progress" id="up-block" aria-live="polite">
+                    <div class="up-head">
+                        <div class="up-title">
+                            <span class="stage-ico is-spinning" id="up-stage-ico"><i class="bi bi-cloud-upload"></i></span>
+                            <span id="up-stage-label">Uploading file...</span>
+                        </div>
+                        <div class="up-percent" id="up-percent">0%</div>
+                    </div>
+                    <div class="up-bar" id="up-bar">
+                        <div class="up-bar-fill" id="up-bar-fill"></div>
+                    </div>
+                    <div class="up-meta">
+                        <span id="up-meta-bytes">Preparing...</span>
+                        <span id="up-meta-time"></span>
+                    </div>
+
+                    <div class="up-success-summary" id="up-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <strong>Import successful!</strong> <span id="up-success-text"></span>
+                        Redirecting to Jobs list...
+                    </div>
+                    <div class="up-error-summary" id="up-error">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Import failed.</strong> <span id="up-error-text"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="form-foot">
@@ -270,11 +388,134 @@
         showFile(file);
     });
 
-    // Submit button loading state
-    document.getElementById('import-form').addEventListener('submit', () => {
-        const btn = document.getElementById('submit-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Importing… please wait';
+    // ===== AJAX upload with progress + processing state + success/error UI =====
+    const form       = document.getElementById('import-form');
+    const submitBtn  = document.getElementById('submit-btn');
+    const upBlock    = document.getElementById('up-block');
+    const upBar      = document.getElementById('up-bar');
+    const upBarFill  = document.getElementById('up-bar-fill');
+    const upPercent  = document.getElementById('up-percent');
+    const upStageIco = document.getElementById('up-stage-ico');
+    const upStageLbl = document.getElementById('up-stage-label');
+    const upMetaBytes= document.getElementById('up-meta-bytes');
+    const upMetaTime = document.getElementById('up-meta-time');
+    const upSuccess  = document.getElementById('up-success');
+    const upSuccessTx= document.getElementById('up-success-text');
+    const upError    = document.getElementById('up-error');
+    const upErrorTx  = document.getElementById('up-error-text');
+
+    function setStage(stage) {
+        if (stage === 'upload') {
+            upStageIco.className = 'stage-ico is-spinning';
+            upStageIco.innerHTML = '<i class="bi bi-cloud-upload"></i>';
+            upStageLbl.textContent = 'Uploading file...';
+            upBar.classList.remove('is-indeterminate');
+        } else if (stage === 'processing') {
+            upStageIco.className = 'stage-ico is-spinning';
+            upStageIco.innerHTML = '<i class="bi bi-cpu"></i>';
+            upStageLbl.textContent = 'Processing rows...';
+            upPercent.textContent  = '';
+            upBar.classList.add('is-indeterminate');
+            upMetaBytes.textContent = 'Parsing the spreadsheet and inserting jobs. Please wait — this can take a couple of minutes for large files.';
+            upMetaTime.textContent  = '';
+        } else if (stage === 'success') {
+            upStageIco.className = 'stage-ico is-success';
+            upStageIco.innerHTML = '<i class="bi bi-check-lg"></i>';
+            upStageLbl.textContent = 'Done!';
+            upPercent.textContent  = '100%';
+            upBar.classList.remove('is-indeterminate');
+            upBarFill.style.width  = '100%';
+        } else if (stage === 'error') {
+            upStageIco.className = 'stage-ico is-error';
+            upStageIco.innerHTML = '<i class="bi bi-x-lg"></i>';
+            upStageLbl.textContent = 'Failed';
+            upBar.classList.remove('is-indeterminate');
+        }
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!input.files[0]) return;
+
+        // Reset UI state
+        upBlock.classList.add('is-active');
+        upSuccess.classList.remove('is-shown');
+        upError.classList.remove('is-shown');
+        upBarFill.style.width = '0%';
+        upPercent.textContent = '0%';
+        setStage('upload');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin-ico"></i> Uploading…';
+
+        const fd  = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        const startedAt = Date.now();
+        const fileSize  = input.files[0].size;
+
+        xhr.open('POST', form.action, true);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        // === Upload progress ===
+        xhr.upload.addEventListener('progress', function (ev) {
+            if (!ev.lengthComputable) return;
+            const pct = Math.round((ev.loaded / ev.total) * 100);
+            upBarFill.style.width = pct + '%';
+            upPercent.textContent = pct + '%';
+
+            // Speed / ETA estimate
+            const elapsed = (Date.now() - startedAt) / 1000;
+            const speed   = ev.loaded / Math.max(elapsed, 0.1); // bytes/sec
+            const remain  = (ev.total - ev.loaded) / Math.max(speed, 1);
+            upMetaBytes.textContent = bytes(ev.loaded) + ' of ' + bytes(ev.total) +
+                ' @ ' + bytes(speed) + '/s';
+            upMetaTime.textContent  = remain > 1 ? '~' + Math.ceil(remain) + 's remaining' : 'almost done';
+        });
+
+        // When upload finishes, server starts processing — switch to indeterminate
+        xhr.upload.addEventListener('load', function () {
+            setStage('processing');
+            // Keep the button icon spinning while server processes the rows
+            submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin-ico"></i> Processing…';
+        });
+
+        xhr.addEventListener('load', function () {
+            let data = null;
+            try { data = JSON.parse(xhr.responseText); } catch (_) {}
+
+            if (xhr.status >= 200 && xhr.status < 300 && data && data.success) {
+                setStage('success');
+                upSuccessTx.textContent = (data.imported || 0) + ' new jobs imported, ' +
+                                          (data.skipped || 0) + ' duplicates skipped. ';
+                upSuccess.classList.add('is-shown');
+                submitBtn.innerHTML = '<i class="bi bi-check2"></i> Imported';
+                setTimeout(function () {
+                    window.location.href = data.redirect_url || '{{ route("admin.jobs.index") }}';
+                }, 1800);
+            } else {
+                setStage('error');
+                let errMsg = 'Something went wrong while processing your file.';
+                if (data && data.message)        errMsg = data.message;
+                else if (data && data.errors)    errMsg = Object.values(data.errors).flat().join(' ');
+                else if (xhr.status === 419)     errMsg = 'Your session expired. Please reload the page and try again.';
+                else if (xhr.status === 413)     errMsg = 'File is too large for the server. Reduce the file size or increase upload limits.';
+                else if (xhr.status >= 500)      errMsg = 'Server error (' + xhr.status + '). Check the Laravel logs.';
+                upErrorTx.textContent = errMsg;
+                upError.classList.add('is-shown');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-upload"></i> Try again';
+            }
+        });
+
+        xhr.addEventListener('error', function () {
+            setStage('error');
+            upErrorTx.textContent = 'Network error — please check your connection and try again.';
+            upError.classList.add('is-shown');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-upload"></i> Try again';
+        });
+
+        xhr.send(fd);
     });
 })();
 </script>
